@@ -1,0 +1,23 @@
+name: Poll EA Pro Clubs
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: poll
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/poll.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "waxydor-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then echo "no change"; else git commit -m "data: poll $(date -u +%Y-%m-%dT%H:%MZ)" && git push; fi

@@ -1,0 +1,11 @@
+{
+  "awards": [
+    { "id": "waxydor", "name": "Waxy d'Or", "description": "Player of the season. Captain's final decision, informed by the stats and the fan vote.", "manual": true },
+    { "id": "fans", "name": "Fans' Player of the Season", "description": "Decided by the fan vote alone.", "manual": true },
+    { "id": "boot", "name": "Golden Boot", "description": "Most goals in the season.", "auto": "goals" },
+    { "id": "playmaker", "name": "Playmaker", "description": "Most assists in the season.", "auto": "assists" },
+    { "id": "motm", "name": "Mr. Reliable", "description": "Most man-of-the-match awards.", "auto": "mom" },
+    { "id": "ironman", "name": "Iron Man", "description": "Most appearances.", "auto": "gp" }
+  ],
+  "winners": {}
+}

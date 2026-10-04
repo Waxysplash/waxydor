@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waxy d'Or</title>
+<meta name="description" content="Waxys Phantoms Pro Clubs season table, match log and awards.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="crest">WP</div>
+      <div>
+        <h1 id="clubName">Waxys Phantoms</h1>
+        <div class="sub">Waxy d'Or · Pro Clubs season tracker · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+      </div>
+    </div>
+    <div class="record" id="record"></div>
+  </header>
+
+  <div class="season" id="seasonBox">
+    <div>
+      <h2 id="seasonName">Season</h2>
+      <div class="phase" id="seasonPhase"></div>
+    </div>
+    <div class="countdown" id="countdown"></div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="table" class="active">Table</button>
+    <button data-tab="matches">Matches</button>
+    <button data-tab="awards">Awards</button>
+    <button data-tab="players">Players</button>
+  </nav>
+
+  <section id="tab-table">
+    <div class="card">
+      <h3>Season table</h3>
+      <div class="note" id="tableNote"></div>
+      <div class="table-wrap"><table id="table"></table></div>
+    </div>
+  </section>
+
+  <section id="tab-matches" hidden>
+    <div class="card">
+      <h3>Match log</h3>
+      <div class="note">Tap a match for the player lines. EA keeps only the last ten results, so the log starts from the day tracking began.</div>
+      <div id="matches"></div>
+    </div>
+  </section>
+
+  <section id="tab-awards" hidden>
+    <div class="card">
+      <h3 id="awardsTitle">Awards</h3>
+      <div class="note">Golden Boot, Playmaker, Mr. Reliable and Iron Man track live from the table. The Waxy d'Or and the Fans' Player are decided at the end of the season.</div>
+      <div class="awards" id="awards"></div>
+    </div>
+    <div class="card" id="hallCard" hidden>
+      <h3>Hall of fame</h3>
+      <div id="hall"></div>
+    </div>
+  </section>
+
+  <section id="tab-players" hidden>
+    <div class="card">
+      <h3>Squad</h3>
+      <div class="players" id="players"></div>
+    </div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
