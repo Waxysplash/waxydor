@@ -42,7 +42,8 @@
     let snap = { members: [] }; try { snap = await j("snapshots/" + season.id + "-start.json"); } catch (e) {}
     const base = new Map(snap.members.map((m) => [m.name, m]));
     const n = (v) => +v || 0;
-    const rows = members.members.map((m) => { const b = base.get(m.name) || {}; const gp = n(m.gamesPlayed) - n(b.gamesPlayed); return { name: m.name, gp, g: n(m.goals) - n(b.goals), a: n(m.assists) - n(b.assists), mom: n(m.manOfTheMatch) - n(b.manOfTheMatch), rating: n(m.ratingAve) }; }).filter((r) => r.gp >= config.index.minGames);
+    const ex = new Set((config.exclude || []).map((x) => x.toLowerCase()));
+    const rows = members.members.filter((m) => !ex.has(m.name.toLowerCase())).map((m) => { const b = base.get(m.name) || {}; const gp = n(m.gamesPlayed) - n(b.gamesPlayed); return { name: m.name, gp, g: n(m.goals) - n(b.goals), a: n(m.assists) - n(b.assists), mom: n(m.manOfTheMatch) - n(b.manOfTheMatch), rating: n(m.ratingAve) }; }).filter((r) => r.gp >= config.index.minGames);
     const maxR = Math.max(...rows.map((r) => r.rating), 1), maxC = Math.max(...rows.map((r) => (r.g + r.a) / r.gp), .01), maxM = Math.max(...rows.map((r) => r.mom / r.gp), .01);
     for (const r of rows) r.idx = Math.round(100 * (config.index.ratingWeight * r.rating / maxR + config.index.contributionWeight * ((r.g + r.a) / r.gp) / maxC + config.index.momWeight * (r.mom / r.gp) / maxM));
     rows.sort((x, y) => y.idx - x.idx || (y.g + y.a) - (x.g + x.a));

@@ -105,7 +105,8 @@ const season = config.seasons.find((s) => new Date(s.start) <= new Date() && new
 const snapFile = join(DATA, "snapshots", `${season.id}-start.json`);
 const base = existsSync(snapFile) ? JSON.parse(readFileSync(snapFile, "utf8")).members : [];
 const baseBy = new Map(base.map((m) => [m.name, m]));
-const rows = members.members.map((m) => {
+const excluded = new Set((config.exclude || []).map((x) => x.toLowerCase()));
+const rows = members.members.filter((m) => !excluded.has(m.name.toLowerCase())).map((m) => {
   const b = baseBy.get(m.name);
   const gp = +m.gamesPlayed - (b ? +b.gamesPlayed : 0);
   const g = +m.goals - (b ? +b.goals : 0);

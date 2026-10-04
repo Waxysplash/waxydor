@@ -16,7 +16,8 @@
   const seasonMatches = S.matches.filter(inSeason);
   const baseBy = new Map(snapshot.members.map((m) => [m.name, m]));
   const n = (v) => +v || 0;
-  const rows = members.members.map((m) => {
+  const excluded = new Set((config.exclude || []).map((x) => x.toLowerCase()));
+  const rows = members.members.filter((m) => !excluded.has(m.name.toLowerCase())).map((m) => {
     const b = baseBy.get(m.name) || {};
     const gp = n(m.gamesPlayed) - n(b.gamesPlayed);
     const g = n(m.goals) - n(b.goals);
@@ -125,7 +126,7 @@
     </div>
     <div class="lines" hidden>
       <div class="table-wrap"><table><thead><tr><th class="name">Player</th><th>Pos</th><th>G</th><th>A</th><th>Shots</th><th>Pass</th><th>Tackles</th><th>Rating</th><th>MOTM</th></tr></thead>
-      <tbody>${[...m.players].sort((a, b) => b.rating - a.rating).map((p) => `<tr><td class="name">${p.name}</td><td>${p.pos}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.shots}</td><td>${p.passesMade}/${p.passAttempts}</td><td>${p.tacklesMade}/${p.tackleAttempts}</td><td>${p.rating.toFixed(1)}</td><td>${p.mom ? "★" : ""}</td></tr>`).join("")}</tbody></table></div>
+      <tbody>${m.players.filter((p) => !excluded.has(p.name.toLowerCase())).sort((a, b) => b.rating - a.rating).map((p) => `<tr><td class="name">${p.name}</td><td>${p.pos}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.shots}</td><td>${p.passesMade}/${p.passAttempts}</td><td>${p.tacklesMade}/${p.tackleAttempts}</td><td>${p.rating.toFixed(1)}</td><td>${p.mom ? "★" : ""}</td></tr>`).join("")}</tbody></table></div>
     </div>`).join("") : `<div class="note">No matches captured yet this season.</div>`;
   $("#matches").addEventListener("click", (e) => {
     const m = e.target.closest(".match"); if (!m) return;

@@ -3,7 +3,12 @@
   "clubId": 392152,
   "platform": "common-gen5",
   "siteUrl": "https://waxysplash.github.io/waxydor/",
-  "index": { "ratingWeight": 0.4, "contributionWeight": 0.4, "momWeight": 0.2, "minGames": 5 },
+  "index": {
+    "ratingWeight": 0.4,
+    "contributionWeight": 0.4,
+    "momWeight": 0.2,
+    "minGames": 5
+  },
   "seasons": [
     {
       "id": "s1",
@@ -13,5 +18,8 @@
       "end": "2026-10-23T23:59:59-05:00",
       "fromZero": true
     }
+  ],
+  "exclude": [
+    "TTVWaxysplash"
   ]
 }
