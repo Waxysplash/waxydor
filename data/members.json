@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-05T00:56:49.267Z",
+  "fetchedAt": "2026-10-05T06:28:33.515Z",
   "members": [
     {
       "name": "TTVWaxysplash",
@@ -290,42 +290,6 @@
       "favoritePosition": "goalkeeper"
     },
     {
-      "name": "UncleKetchup-010",
-      "gamesPlayed": "1",
-      "winRate": "100",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "15",
-      "passSuccessRate": "93",
-      "ratingAve": "7.1",
-      "tacklesMade": "1",
-      "tackleSuccessRate": "100",
-      "proName": "U. KETCHUP",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "169",
-      "proNationality": "92",
-      "proOverall": "80",
-      "proOverallStr": "80",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
-    },
-    {
       "name": "JaceTheAce3623",
       "gamesPlayed": "1",
       "winRate": "0",
@@ -471,7 +435,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 4,
+    "midfielder": 3,
     "goalkeeper": 1,
     "forward": 7,
     "defender": 0
