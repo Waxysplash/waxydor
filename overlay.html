@@ -6,7 +6,7 @@
 <title>Waxy d'Or overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap" rel="stylesheet">
 <style>
-  /* OBS browser source. Suggested size 500x560 (full squad). Query params: ?n=5 (rows, default all) &compact=1 (no header) &short=1 (fewer columns) */
+  /* OBS browser source. Suggested size 500x560 (full squad). Query params: ?n=5 (rows, default all) &compact=1 (no header) &short=1 (fewer columns) &mode=top5 (compact top five, 360x200) */
   html, body { margin: 0; background: transparent; font-family: "Inter", system-ui, sans-serif; color: #fff; }
   .box { width: 480px; margin: 10px; background: rgba(14,11,20,.86); border: 1px solid rgba(169,112,255,.5); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   .head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: linear-gradient(90deg, rgba(169,112,255,.35), rgba(169,112,255,0)); }
@@ -22,6 +22,13 @@
   tr.u td.i { color: #6f6388; }
   tr.u td.n { color: #a697c2; }
   body.short .c-ga, body.short .c-mom { display: none; }
+  body.top5 .box { width: 340px; }
+  body.top5 table { font-size: 13px; }
+  body.top5 td, body.top5 th { padding: 4px 9px; }
+  body.top5 .head { padding: 7px 12px; }
+  body.top5 .head b { font-size: 13px; }
+  body.top5 .head span { font-size: 11px; }
+  body.top5 .foot, body.top5 tr.g, body.top5 .c-ga, body.top5 .c-mom, body.top5 .c-apps { display: none; }
   tr:nth-child(1) td.n { color: #f2c94c; }
   td.i { color: #d9c4ff; font-weight: 800; }
   tr.g td { border-top: 1px solid rgba(242,201,76,.35); color: #f2c94c; font-weight: 600; }
@@ -32,13 +39,15 @@
 <body>
 <div class="box">
   <div class="head" id="head"><b>WAXY D'OR RACE</b><span id="phase"></span></div>
-  <table><thead><tr><th>#</th><th class="n">Player</th><th>Apps</th><th>G</th><th>A</th><th class="c-ga">G+A</th><th>Rtg</th><th class="c-mom">MOTM</th><th>Idx</th></tr></thead><tbody id="rows"></tbody></table>
+  <table><thead><tr><th>#</th><th class="n">Player</th><th class="c-apps">Apps</th><th>G</th><th>A</th><th class="c-ga">G+A</th><th>Rtg</th><th class="c-mom">MOTM</th><th>Idx</th></tr></thead><tbody id="rows"></tbody></table>
   <div class="foot"><span id="club"></span><span id="cd"></span></div>
 </div>
 <script>
 (async function () {
   const p = new URLSearchParams(location.search);
-  const N = +p.get("n") || 99;
+  const top5 = p.get("mode") === "top5";
+  if (top5) document.body.classList.add("top5");
+  const N = +p.get("n") || (top5 ? 5 : 99);
   if (p.get("short")) document.body.classList.add("short");
   if (p.get("compact")) document.getElementById("head").style.display = "none";
   async function render() {
@@ -59,12 +68,12 @@
     const maxR = Math.max(...rows.map((r) => r.rating), 1), maxC = Math.max(...rows.map((r) => (r.g + r.a) / r.gp), .01), maxM = Math.max(...rows.map((r) => r.mom / r.gp), .01);
     for (const r of rows) r.idx = Math.round(100 * (config.index.ratingWeight * r.rating / maxR + config.index.contributionWeight * ((r.g + r.a) / r.gp) / maxC + config.index.momWeight * (r.mom / r.gp) / maxM));
     rows.sort((x, y) => y.idx - x.idx || (y.g + y.a) - (x.g + x.a));
-    const line = (r, i, cls, idx) => `<tr class="${cls}"><td>${i}</td><td class="n">${r.name}</td><td>${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td class="c-ga">${r.g + r.a}</td><td>${r.rating.toFixed(1)}</td><td class="c-mom">${r.mom}</td><td class="i">${idx}</td></tr>`;
+    const line = (r, i, cls, idx) => `<tr class="${cls}"><td>${i}</td><td class="n">${r.name}</td><td class="c-apps">${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td class="c-ga">${r.g + r.a}</td><td>${r.rating.toFixed(1)}</td><td class="c-mom">${r.mom}</td><td class="i">${idx}</td></tr>`;
     const ranked = [...rows, ...unq].slice(0, N);
     document.getElementById("rows").innerHTML = ranked.map((r, i) => line(r, i + 1, r.idx == null ? "u" : "", r.idx == null ? "–" : r.idx)).join("") + (gaffer ? line(gaffer, "G", "g", "–") : "");
     const po = new Date(season.playoffsStart), end = new Date(season.end);
     const target = now < po ? po : end; const d = Math.max(0, Math.ceil((target - now) / 864e5));
-    document.getElementById("phase").textContent = season.name;
+    document.getElementById("phase").textContent = top5 ? `${season.name} · ${now < po ? d + "d to playoffs" : now <= end ? d + "d left" : "over"}` : season.name;
     document.getElementById("cd").textContent = now < po ? `${d}d to playoffs` : now <= end ? `${d}d to final whistle` : "Season over";
     document.getElementById("club").textContent = `${club.name} · ${club.overall.wins}W ${club.overall.ties}D ${club.overall.losses}L`;
   }
