@@ -6,17 +6,22 @@
 <title>Waxy d'Or overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap" rel="stylesheet">
 <style>
-  /* OBS browser source. Suggested size 420x360. Query params: ?n=5 (rows) &compact=1 (no header) */
+  /* OBS browser source. Suggested size 500x560 (full squad). Query params: ?n=5 (rows, default all) &compact=1 (no header) &short=1 (fewer columns) */
   html, body { margin: 0; background: transparent; font-family: "Inter", system-ui, sans-serif; color: #fff; }
-  .box { width: 400px; margin: 10px; background: rgba(14,11,20,.86); border: 1px solid rgba(169,112,255,.5); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .box { width: 480px; margin: 10px; background: rgba(14,11,20,.86); border: 1px solid rgba(169,112,255,.5); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   .head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: linear-gradient(90deg, rgba(169,112,255,.35), rgba(169,112,255,0)); }
   .head b { font-size: 15px; letter-spacing: .02em; }
   .head span { font-size: 12px; color: #d9c4ff; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  td, th { padding: 7px 12px; text-align: right; }
+  td, th { padding: 6px 10px; text-align: right; font-variant-numeric: tabular-nums; }
   th { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #a697c2; font-weight: 600; }
   td:first-child, th:first-child, td.n, th.n { text-align: left; }
-  td.n { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+  td.n { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+  tr.u td { color: #8f82a8; }
+  tr.u td.n { color: #a697c2; font-weight: 500; }
+  tr.u td.i { color: #6f6388; }
+  tr.u td.n { color: #a697c2; }
+  body.short .c-ga, body.short .c-mom { display: none; }
   tr:nth-child(1) td.n { color: #f2c94c; }
   td.i { color: #d9c4ff; font-weight: 800; }
   tr.g td { border-top: 1px solid rgba(242,201,76,.35); color: #f2c94c; font-weight: 600; }
@@ -27,13 +32,14 @@
 <body>
 <div class="box">
   <div class="head" id="head"><b>WAXY D'OR RACE</b><span id="phase"></span></div>
-  <table><thead><tr><th>#</th><th class="n">Player</th><th>Apps</th><th>G</th><th>A</th><th>Rtg</th><th>Idx</th></tr></thead><tbody id="rows"></tbody></table>
+  <table><thead><tr><th>#</th><th class="n">Player</th><th>Apps</th><th>G</th><th>A</th><th class="c-ga">G+A</th><th>Rtg</th><th class="c-mom">MOTM</th><th>Idx</th></tr></thead><tbody id="rows"></tbody></table>
   <div class="foot"><span id="club"></span><span id="cd"></span></div>
 </div>
 <script>
 (async function () {
   const p = new URLSearchParams(location.search);
-  const N = +p.get("n") || 5;
+  const N = +p.get("n") || 99;
+  if (p.get("short")) document.body.classList.add("short");
   if (p.get("compact")) document.getElementById("head").style.display = "none";
   async function render() {
     const bust = "?t=" + Math.floor(Date.now() / 60000);
@@ -47,11 +53,15 @@
     const gname = (config.gaffer || "").toLowerCase();
     const all = members.members.map((m) => { const b = base.get(m.name) || {}; const gp = n(m.gamesPlayed) - n(b.gamesPlayed); return { name: m.name, gp, g: n(m.goals) - n(b.goals), a: n(m.assists) - n(b.assists), mom: n(m.manOfTheMatch) - n(b.manOfTheMatch), rating: n(m.ratingAve) }; });
     const gaffer = all.find((r) => r.name.toLowerCase() === gname && r.gp > 0);
-    const rows = all.filter((r) => r.name.toLowerCase() !== gname && r.gp >= config.index.minGames);
+    const players = all.filter((r) => r.name.toLowerCase() !== gname && r.gp > 0);
+    const rows = players.filter((r) => r.gp >= config.index.minGames);
+    const unq = players.filter((r) => r.gp < config.index.minGames).sort((x, y) => (y.g + y.a) - (x.g + x.a) || y.rating - x.rating);
     const maxR = Math.max(...rows.map((r) => r.rating), 1), maxC = Math.max(...rows.map((r) => (r.g + r.a) / r.gp), .01), maxM = Math.max(...rows.map((r) => r.mom / r.gp), .01);
     for (const r of rows) r.idx = Math.round(100 * (config.index.ratingWeight * r.rating / maxR + config.index.contributionWeight * ((r.g + r.a) / r.gp) / maxC + config.index.momWeight * (r.mom / r.gp) / maxM));
     rows.sort((x, y) => y.idx - x.idx || (y.g + y.a) - (x.g + x.a));
-    document.getElementById("rows").innerHTML = rows.slice(0, N).map((r, i) => `<tr><td>${i + 1}</td><td class="n">${r.name}</td><td>${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td>${r.rating.toFixed(1)}</td><td class="i">${r.idx}</td></tr>`).join("") + (gaffer ? `<tr class="g"><td>G</td><td class="n">${gaffer.name}</td><td>${gaffer.gp}</td><td>${gaffer.g}</td><td>${gaffer.a}</td><td>${gaffer.rating.toFixed(1)}</td><td class="i">–</td></tr>` : "");
+    const line = (r, i, cls, idx) => `<tr class="${cls}"><td>${i}</td><td class="n">${r.name}</td><td>${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td class="c-ga">${r.g + r.a}</td><td>${r.rating.toFixed(1)}</td><td class="c-mom">${r.mom}</td><td class="i">${idx}</td></tr>`;
+    const ranked = [...rows, ...unq].slice(0, N);
+    document.getElementById("rows").innerHTML = ranked.map((r, i) => line(r, i + 1, r.idx == null ? "u" : "", r.idx == null ? "–" : r.idx)).join("") + (gaffer ? line(gaffer, "G", "g", "–") : "");
     const po = new Date(season.playoffsStart), end = new Date(season.end);
     const target = now < po ? po : end; const d = Math.max(0, Math.ceil((target - now) / 864e5));
     document.getElementById("phase").textContent = season.name;
