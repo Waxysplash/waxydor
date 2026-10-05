@@ -105,16 +105,19 @@ const season = config.seasons.find((s) => new Date(s.start) <= new Date() && new
 const snapFile = join(DATA, "snapshots", `${season.id}-start.json`);
 const base = existsSync(snapFile) ? JSON.parse(readFileSync(snapFile, "utf8")).members : [];
 const baseBy = new Map(base.map((m) => [m.name, m]));
-const excluded = new Set((config.exclude || []).map((x) => x.toLowerCase()));
-const rows = members.members.filter((m) => !excluded.has(m.name.toLowerCase())).map((m) => {
+const gname = (config.gaffer || "").toLowerCase();
+const allRows = members.members.map((m) => {
   const b = baseBy.get(m.name);
   const gp = +m.gamesPlayed - (b ? +b.gamesPlayed : 0);
   const g = +m.goals - (b ? +b.goals : 0);
   const a = +m.assists - (b ? +b.assists : 0);
   return { name: m.name, gp, g, a, rating: +m.ratingAve, mom: +m.manOfTheMatch - (b ? +b.manOfTheMatch : 0) };
 }).filter((r) => r.gp > 0);
+const gaffer = allRows.find((r) => r.name.toLowerCase() === gname);
+const rows = allRows.filter((r) => r.name.toLowerCase() !== gname);
 rows.sort((x, y) => (y.g + y.a) - (x.g + x.a) || y.rating - x.rating);
 const top = rows.slice(0, 3).map((r, i) => `${i + 1}. ${r.name} ${r.g}G ${r.a}A (${r.gp} apps)`).join(" | ");
-writeFileSync(join(DATA, "table.txt"), `${season.name} top 3: ${top} — full table: ${config.siteUrl}\n`);
+const gtxt = gaffer ? ` | Gaffer: ${gaffer.g}G ${gaffer.a}A (${gaffer.gp} apps)` : "";
+writeFileSync(join(DATA, "table.txt"), `${season.name} top 3: ${top}${gtxt} — full table: ${config.siteUrl}\n`);
 
 console.log(`members=${members.members.length} matches=${matches.length} (+${added}) season=${season.id}`);

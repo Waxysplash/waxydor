@@ -74,3 +74,10 @@ footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
   .countdown b { font-size: 18px; }
   .match { grid-template-columns: 48px 1fr auto; }
 }
+
+tbody.gaffer tr.sep td { text-align: left; color: var(--accent-2); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding-top: 14px; border-top: 2px solid var(--line); }
+tbody.gaffer td { background: rgba(242,201,76,.05); }
+tbody.gaffer td.name { color: var(--accent-2); }
+tr.gaffer-line td.name { color: var(--accent-2); }
+.player.gaffer { border-color: rgba(242,201,76,.5); background: linear-gradient(160deg, rgba(242,201,76,.12), var(--panel-2)); }
+.tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-2); border: 1px solid rgba(242,201,76,.5); border-radius: 999px; padding: 2px 7px; vertical-align: middle; margin-left: 6px; }

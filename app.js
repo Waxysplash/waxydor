@@ -16,8 +16,8 @@
   const seasonMatches = S.matches.filter(inSeason);
   const baseBy = new Map(snapshot.members.map((m) => [m.name, m]));
   const n = (v) => +v || 0;
-  const excluded = new Set((config.exclude || []).map((x) => x.toLowerCase()));
-  const rows = members.members.filter((m) => !excluded.has(m.name.toLowerCase())).map((m) => {
+  const isGaffer = (name) => (config.gaffer || "").toLowerCase() === String(name).toLowerCase();
+  const allRows = members.members.map((m) => {
     const b = baseBy.get(m.name) || {};
     const gp = n(m.gamesPlayed) - n(b.gamesPlayed);
     const g = n(m.goals) - n(b.goals);
@@ -39,15 +39,18 @@
       }
     }
     const form = seasonMatches.filter((x) => x.players.some((p) => p.name === m.name)).slice(0, 5).map((x) => x.result);
-    return { name: m.name, pro: m.proName, pos: m.favoritePosition, ovr: n(m.proOverall), gp, g, a, ga: g + a, mom, passes, tackles, reds, rating, shotPct, passPct, tacklePct, form };
+    return { name: m.name, pro: m.proName, pos: m.favoritePosition, ovr: n(m.proOverall), gp, g, a, ga: g + a, mom, passes, tackles, reds, rating, shotPct, passPct, tacklePct, form, gaffer: isGaffer(m.name) };
   }).filter((r) => r.gp > 0);
+  // The gaffer sits outside the Waxy d'Or race: shown, never ranked.
+  const rows = allRows.filter((r) => !r.gaffer);
+  const gaffer = allRows.find((r) => r.gaffer) || null;
 
   // Waxy index: weighted blend of rating, contributions per game and MOTM per game, scaled to 100 against the best in each.
   const q = rows.filter((r) => r.gp >= config.index.minGames);
   const maxR = Math.max(...q.map((r) => r.rating), 1);
   const maxC = Math.max(...q.map((r) => r.ga / r.gp), 0.01);
   const maxM = Math.max(...q.map((r) => r.mom / r.gp), 0.01);
-  for (const r of rows) {
+  for (const r of allRows) {
     r.qualified = r.gp >= config.index.minGames;
     r.index = r.qualified
       ? Math.round(100 * (config.index.ratingWeight * (r.rating / maxR) + config.index.contributionWeight * ((r.ga / r.gp) / maxC) + config.index.momWeight * ((r.mom / r.gp) / maxM)))
@@ -106,7 +109,12 @@
         <td>${r.shotPct}%</td><td>${r.passPct}%</td><td>${r.tacklePct}%</td><td>${r.passes}</td><td>${r.tackles}</td>
         <td><span class="form">${r.form.map((f) => `<i class="${f}">${f}</i>`).join("") || "–"}</span></td>
         <td>${r.index == null ? `<span class="idx" style="opacity:.5">–</span>` : `<span class="idx">${r.index}</span>`}</td>
-      </tr>`).join("")}</tbody>`;
+      </tr>`).join("")}</tbody>` + (gaffer ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">The Gaffer's stats · not in the Waxy d'Or race</td></tr><tr>
+        <td>–</td><td class="name">${gaffer.name}<small>${gaffer.pro || ""} · ${gaffer.pos || ""} · ${gaffer.ovr || ""} OVR</small></td>
+        <td>${gaffer.gp}</td><td>${gaffer.g}</td><td>${gaffer.a}</td><td><b>${gaffer.ga}</b></td><td>${gaffer.rating.toFixed(1)}</td><td>${gaffer.mom}</td>
+        <td>${gaffer.shotPct}%</td><td>${gaffer.passPct}%</td><td>${gaffer.tacklePct}%</td><td>${gaffer.passes}</td><td>${gaffer.tackles}</td>
+        <td><span class="form">${gaffer.form.map((f) => `<i class="${f}">${f}</i>`).join("") || "–"}</span></td>
+        <td>${gaffer.index == null ? `<span class="idx" style="opacity:.5">–</span>` : `<span class="idx">${gaffer.index}</span>`}</td></tr></tbody>` : "");
   }
   $("#table").addEventListener("click", (e) => {
     const th = e.target.closest("th"); if (!th || !th.dataset.k) return;
@@ -126,7 +134,7 @@
     </div>
     <div class="lines" hidden>
       <div class="table-wrap"><table><thead><tr><th class="name">Player</th><th>Pos</th><th>G</th><th>A</th><th>Shots</th><th>Pass</th><th>Tackles</th><th>Rating</th><th>MOTM</th></tr></thead>
-      <tbody>${m.players.filter((p) => !excluded.has(p.name.toLowerCase())).sort((a, b) => b.rating - a.rating).map((p) => `<tr><td class="name">${p.name}</td><td>${p.pos}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.shots}</td><td>${p.passesMade}/${p.passAttempts}</td><td>${p.tacklesMade}/${p.tackleAttempts}</td><td>${p.rating.toFixed(1)}</td><td>${p.mom ? "★" : ""}</td></tr>`).join("")}</tbody></table></div>
+      <tbody>${[...m.players].sort((a, b) => b.rating - a.rating).map((p) => `<tr class="${isGaffer(p.name) ? "gaffer-line" : ""}"><td class="name">${p.name}${isGaffer(p.name) ? " <small style=\"display:inline;color:var(--accent-2)\">gaffer</small>" : ""}</td><td>${p.pos}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.shots}</td><td>${p.passesMade}/${p.passAttempts}</td><td>${p.tacklesMade}/${p.tackleAttempts}</td><td>${p.rating.toFixed(1)}</td><td>${p.mom ? "★" : ""}</td></tr>`).join("")}</tbody></table></div>
     </div>`).join("") : `<div class="note">No matches captured yet this season.</div>`;
   $("#matches").addEventListener("click", (e) => {
     const m = e.target.closest(".match"); if (!m) return;
@@ -152,8 +160,8 @@
   }
 
   // ---------- players ----------
-  $("#players").innerHTML = [...rows].sort((a, b) => ((b.index ?? -1) - (a.index ?? -1)) || (b.ga - a.ga)).map((r) => `
-    <div class="player"><div class="n">${r.name}</div><div class="p">${r.pro || ""} · ${r.pos || ""} · ${r.ovr || "–"} OVR${r.index != null ? ` · index ${r.index}` : ""}</div>
+  $("#players").innerHTML = [...(gaffer ? [gaffer] : []), ...[...rows].sort((a, b) => ((b.index ?? -1) - (a.index ?? -1)) || (b.ga - a.ga))].map((r) => `
+    <div class="player ${r.gaffer ? "gaffer" : ""}"><div class="n">${r.name}${r.gaffer ? ` <span class="tag">The Gaffer</span>` : ""}</div><div class="p">${r.pro || ""} · ${r.pos || ""} · ${r.ovr || "–"} OVR${r.index != null ? ` · index ${r.index}` : ""}</div>
       <div class="grid"><div><b>${r.gp}</b><span>apps</span></div><div><b>${r.g}</b><span>goals</span></div><div><b>${r.a}</b><span>assists</span></div>
       <div><b>${r.rating.toFixed(1)}</b><span>rating</span></div><div><b>${r.mom}</b><span>MOTM</span></div><div><b>${r.passPct}%</b><span>pass</span></div></div></div>`).join("");
 

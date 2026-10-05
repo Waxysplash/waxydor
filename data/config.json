@@ -19,7 +19,5 @@
       "fromZero": true
     }
   ],
-  "exclude": [
-    "TTVWaxysplash"
-  ]
+  "gaffer": "TTVWaxysplash"
 }
