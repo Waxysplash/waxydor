@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lower third · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080, transparent. Params: ?title=Press conference &sub=Questions from chat &for=12 (seconds on screen, 0 = stay) &pos=left|right */
+  .lt { position: absolute; left: 80px; bottom: 120px; display: flex; align-items: stretch; animation: slide .7s cubic-bezier(.2, .8, .2, 1); }
+  .lt.right { left: auto; right: 80px; animation-name: slideR; }
+  .lt.out { animation: slideOut .6s cubic-bezier(.6, 0, .8, .2) forwards; }
+  .bar { width: 14px; background: linear-gradient(var(--gold), var(--purple)); border-radius: 6px 0 0 6px; }
+  .body { padding: 18px 34px 20px 26px; border-radius: 0 18px 18px 0; min-width: 520px; }
+  .t { font-family: var(--display); font-weight: 800; font-size: 56px; text-transform: uppercase; letter-spacing: .02em; line-height: 1; }
+  .s { font-size: 22px; color: var(--muted); margin-top: 6px; }
+  .s b { color: var(--gold); }
+  @keyframes slide { from { transform: translateX(-120%); } to { transform: translateX(0); } }
+  @keyframes slideR { from { transform: translateX(120%); } to { transform: translateX(0); } }
+  @keyframes slideOut { to { transform: translateX(-120%); opacity: 0; } }
+  .lt.right.out { animation-name: slideOutR; }
+  @keyframes slideOutR { to { transform: translateX(120%); opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="scene transparent">
+  <div class="lt" id="lt"><div class="bar"></div><div class="plate body"><div class="t" id="t">Press conference</div><div class="s" id="s">Questions from chat. Answered straight.</div></div></div>
+</div>
+<script src="common.js"></script>
+<script>
+(function () {
+  const W = window.Waxy;
+  document.getElementById("t").textContent = W.param("title", "Press conference");
+  document.getElementById("s").innerHTML = W.param("sub", "Questions from chat. Answered straight.");
+  const lt = document.getElementById("lt");
+  if (W.param("pos", "left") === "right") lt.classList.add("right");
+  const secs = +W.param("for", "0");
+  if (secs > 0) setTimeout(() => lt.classList.add("out"), secs * 1000);
+})();
+</script>
+</body>
+</html>

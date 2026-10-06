@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Starting soon · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080. Params: ?at=19:00 (countdown to a local time) &md=12 (matchday number) &title=... */
+  .wrap { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: 72px 96px 60px; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .brandline { display: flex; align-items: center; gap: 18px; }
+  .crest { width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, var(--purple), var(--violet)); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 26px; color: #130a24; box-shadow: var(--glow); }
+  .brandline .nm { font-family: var(--display); font-weight: 800; font-size: 40px; text-transform: uppercase; letter-spacing: .04em; line-height: 1; }
+  .brandline .sb { color: var(--muted); font-size: 18px; margin-top: 4px; }
+  .mid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 60px; align-items: center; }
+  .count { font-size: 150px; letter-spacing: .02em; color: var(--text); line-height: 1; margin-top: 18px; }
+  .count small { font-size: 28px; color: var(--muted); font-family: var(--display); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; display: block; margin-bottom: 10px; }
+  .tiles { display: flex; gap: 16px; margin-top: 34px; }
+  .race { padding: 22px 0 10px; }
+  .race .h2 { padding: 0 16px 12px; display: flex; justify-content: space-between; align-items: baseline; }
+  .race .h2 span { font-family: var(--body); font-size: 16px; color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
+  .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+  <div class="stripes"></div><div class="pitch"></div><div class="grain"></div>
+  <div class="wrap">
+    <div class="top in">
+      <div class="brandline"><div class="crest">WP</div><div><div class="nm" id="club">Waxys Phantoms</div><div class="sb" id="sub">Pro Clubs · twitch.tv/waxysplash</div></div></div>
+      <div class="chip gold" id="md">Matchday</div>
+    </div>
+    <div class="mid">
+      <div>
+        <div class="eyebrow in d1" id="eyebrow">The captain of your favourite team</div>
+        <div class="mega in d2" id="title">Starting<br><span class="thin">soon</span></div>
+        <div class="count num in d3" id="count" hidden><small>Kick-off in</small><span id="clock">00:00</span></div>
+        <div class="tiles in d4">
+          <div class="plate tile slash"><div class="label">Division</div><div class="num" id="div">–</div></div>
+          <div class="plate tile"><div class="label">Record</div><div class="num" id="rec">–</div></div>
+          <div class="plate tile"><div class="label" id="daysLabel">To playoffs</div><div class="num" id="days">–<small>days</small></div></div>
+        </div>
+      </div>
+      <div class="plate race in d3">
+        <div class="h2">Waxy d'Or race <span id="seasonName"></span></div>
+        <div id="race"></div>
+      </div>
+    </div>
+    <div class="bottom in d4">
+      <div class="socials" id="socials"></div>
+      <div class="chip pulse">!club to join the Phantoms</div>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const md = W.param("md", ""); if (md) document.getElementById("md").textContent = "Matchday " + md; else document.getElementById("md").hidden = true;
+  const title = W.param("title", ""); if (title) document.getElementById("title").innerHTML = title.replace(/\|/g, "<br>");
+  const at = W.param("at", "");
+  if (at) { const c = document.getElementById("count"); c.hidden = false; const tick = () => { const ms = W.msUntil(at); document.getElementById("clock").textContent = ms <= 1000 ? "LIVE" : W.clock(ms); }; tick(); setInterval(tick, 1000); }
+  async function render() {
+    const d = await W.load();
+    document.getElementById("club").textContent = d.club.name;
+    document.getElementById("div").textContent = d.club.division || "–";
+    document.getElementById("rec").textContent = d.record;
+    document.getElementById("daysLabel").textContent = d.phase === "league" ? "To playoffs" : d.phase === "playoffs" ? "To final whistle" : "Season";
+    document.getElementById("days").innerHTML = d.phase === "over" ? "Over" : `${d.daysTo}<small>days</small>`;
+    document.getElementById("seasonName").textContent = d.season.name;
+    document.getElementById("race").innerHTML = d.rows.slice(0, 5).map((r, i) => `<div class="row-mini ${i === 0 ? "first" : ""}"><div class="rk">${i + 1}</div><div class="nm">${r.name}</div><div class="st">${r.g}G ${r.a}A · ${r.rating.toFixed(1)}</div><div class="ix">${r.idx}</div></div>`).join("");
+    document.getElementById("socials").innerHTML = W.socialsHtml(d.brand);
+    if (d.brand.tagline) document.getElementById("eyebrow").textContent = d.brand.tagline;
+  }
+  render(); setInterval(render, 60000);
+})();
+</script>
+</body>
+</html>

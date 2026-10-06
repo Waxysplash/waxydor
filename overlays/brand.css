@@ -1,0 +1,79 @@
+/* Waxys Phantoms stream identity. Shared by every scene in /overlays. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg: #0b0912; --deep: #140f20; --glass: rgba(20, 15, 32, .82); --glass-2: rgba(32, 24, 50, .7);
+  --line: rgba(169, 112, 255, .38); --line-soft: rgba(169, 112, 255, .16);
+  --purple: #a970ff; --violet: #6c3fd1; --gold: #f2c94c; --text: #f5f1ff; --muted: #a697c2;
+  --green: #3ddc84; --red: #ff5c7a;
+  --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --glow: 0 0 40px rgba(169, 112, 255, .35);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; font-family: var(--body); color: var(--text); background: transparent; -webkit-font-smoothing: antialiased; }
+.scene { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: radial-gradient(1200px 700px at 20% 15%, #1d1433 0%, var(--bg) 60%), var(--bg); }
+.scene.transparent { background: transparent; }
+
+/* ambient layers */
+.orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; pointer-events: none; }
+.orb.a { width: 720px; height: 720px; left: -180px; top: -240px; background: radial-gradient(circle, #7b4dff 0%, transparent 70%); animation: drift 26s ease-in-out infinite alternate; }
+.orb.b { width: 620px; height: 620px; right: -160px; bottom: -260px; background: radial-gradient(circle, #3c1e8a 0%, transparent 70%); animation: drift 32s ease-in-out infinite alternate-reverse; }
+.orb.c { width: 420px; height: 420px; right: 18%; top: -120px; background: radial-gradient(circle, rgba(242, 201, 76, .35) 0%, transparent 70%); animation: drift 40s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(60px, 40px) scale(1.08); } }
+.stripes { position: absolute; inset: 0; background: repeating-linear-gradient(-28deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 46px); mask-image: linear-gradient(180deg, rgba(0, 0, 0, .9), transparent 85%); pointer-events: none; }
+.grain { position: absolute; inset: 0; opacity: .08; pointer-events: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.6'/></svg>"); }
+.pitch { position: absolute; left: 50%; bottom: -520px; width: 1500px; height: 900px; transform: translateX(-50%); border: 2px solid rgba(169, 112, 255, .12); border-radius: 50% 50% 0 0 / 30% 30% 0 0; pointer-events: none; }
+.pitch::before { content: ""; position: absolute; left: 50%; top: 0; width: 2px; height: 100%; background: rgba(169, 112, 255, .1); }
+.pitch::after { content: ""; position: absolute; left: 50%; top: 0; width: 260px; height: 260px; transform: translate(-50%, -50%); border: 2px solid rgba(169, 112, 255, .12); border-radius: 50%; }
+
+/* type */
+.eyebrow { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .22em; text-transform: uppercase; color: var(--purple); }
+.eyebrow .dot { color: var(--gold); margin: 0 10px; }
+.mega { font-family: var(--display); font-weight: 800; text-transform: uppercase; line-height: .9; letter-spacing: -.01em; font-size: 200px; text-shadow: 0 10px 60px rgba(169, 112, 255, .25); }
+.mega .thin { font-weight: 600; color: var(--muted); }
+.h2 { font-family: var(--display); font-weight: 700; font-size: 34px; text-transform: uppercase; letter-spacing: .06em; }
+.label { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--display); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* components */
+.plate { background: var(--glass); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(14px); box-shadow: var(--glow), inset 0 1px 0 rgba(255, 255, 255, .06); }
+.slash { position: relative; }
+.slash::before { content: ""; position: absolute; left: 0; top: 10%; height: 80%; width: 5px; background: linear-gradient(var(--gold), var(--purple)); border-radius: 3px; }
+.tile { display: grid; gap: 4px; padding: 18px 24px; min-width: 200px; }
+.tile .label { font-size: 14px; }
+.tile .num { font-size: 56px; line-height: 1; }
+.tile .num small { font-size: 22px; color: var(--muted); font-weight: 700; margin-left: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass-2); font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .08em; text-transform: uppercase; }
+.chip.gold { border-color: rgba(242, 201, 76, .55); color: var(--gold); }
+.row-mini { display: grid; grid-template-columns: 36px 1fr auto auto; gap: 14px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line-soft); font-size: 22px; }
+.row-mini:first-child { border-top: 0; }
+.row-mini .rk { font-family: var(--display); font-weight: 800; font-size: 26px; color: var(--muted); }
+.row-mini.first .rk, .row-mini.first .nm { color: var(--gold); }
+.row-mini .nm { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-mini .st { color: var(--muted); font-variant-numeric: tabular-nums; }
+.row-mini .ix { font-family: var(--display); font-weight: 800; font-size: 26px; color: #d9c4ff; min-width: 44px; text-align: right; }
+.socials { display: flex; gap: 14px; flex-wrap: wrap; }
+.socials span { font-family: var(--display); font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.socials span b { color: var(--text); font-weight: 700; margin-left: 6px; text-transform: none; letter-spacing: 0; font-family: var(--body); font-size: 21px; }
+.kick { position: absolute; left: -2px; top: 0; height: 100%; width: 10px; background: linear-gradient(var(--purple), transparent); }
+
+/* ticker */
+.ticker { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; background: linear-gradient(90deg, rgba(14, 11, 20, .96), rgba(14, 11, 20, .88)); border-top: 1px solid var(--line); display: flex; align-items: center; overflow: hidden; }
+.ticker .tag { flex: 0 0 auto; height: 100%; display: flex; align-items: center; padding: 0 22px; background: var(--purple); color: #130a24; font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: .14em; text-transform: uppercase; }
+.ticker .track { flex: 1; overflow: hidden; white-space: nowrap; }
+.ticker .run { display: inline-block; padding-left: 100%; animation: run 48s linear infinite; }
+.ticker .run span { display: inline-block; margin-right: 56px; font-size: 21px; font-variant-numeric: tabular-nums; }
+.ticker .run span b { font-family: var(--display); font-weight: 800; font-size: 24px; color: var(--purple); margin-right: 8px; }
+.ticker .run span i { font-style: normal; color: var(--muted); }
+.ticker .run span.g b { color: var(--gold); }
+@keyframes run { to { transform: translateX(-100%); } }
+
+/* enter animations */
+.in { animation: in .9s cubic-bezier(.2, .8, .2, 1) both; }
+.in.d1 { animation-delay: .15s; } .in.d2 { animation-delay: .3s; } .in.d3 { animation-delay: .45s; } .in.d4 { animation-delay: .6s; }
+/* Entrances move only; nothing is ever hidden at rest, so a stalled animation still shows the scene. */
+@keyframes in { from { transform: translateY(22px); } to { transform: none; } }
+.pulse { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .orb, .ticker .run, .in, .pulse { animation: none !important; } }

@@ -19,5 +19,15 @@
       "fromZero": true
     }
   ],
-  "gaffer": "TTVWaxysplash"
+  "gaffer": "TTVWaxysplash",
+  "brand": {
+    "tagline": "The captain of your favourite team",
+    "schedule": "",
+    "socials": {
+      "x": "@WaxySplash",
+      "instagram": "@ttvwaxysplash",
+      "tiktok": "",
+      "discord": ""
+    }
+  }
 }

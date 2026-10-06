@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>In-game HUD · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080, transparent. Sits over the game. Params: ?md=12 &noticker=1 &noplate=1 */
+  .plate.club { position: absolute; left: 28px; top: 24px; display: flex; align-items: center; gap: 14px; padding: 10px 18px 10px 12px; border-radius: 14px; }
+  .crest { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--purple), var(--violet)); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 19px; color: #130a24; }
+  .club .nm { font-family: var(--display); font-weight: 800; font-size: 24px; text-transform: uppercase; letter-spacing: .04em; line-height: 1; }
+  .club .sb { color: var(--muted); font-size: 14px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .club .md { margin-left: 10px; padding-left: 16px; border-left: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+  .leader { position: absolute; right: 28px; top: 24px; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 14px; }
+  .leader .label { font-size: 13px; }
+  .leader .nm { font-family: var(--display); font-weight: 800; font-size: 22px; color: var(--gold); text-transform: uppercase; letter-spacing: .03em; }
+  .leader .ix { font-family: var(--display); font-weight: 800; font-size: 26px; color: #d9c4ff; }
+</style>
+</head>
+<body>
+<div class="scene transparent">
+  <div class="plate club" id="plate">
+    <div class="crest">WP</div>
+    <div><div class="nm" id="club">Waxys Phantoms</div><div class="sb" id="sb">Division – · –</div></div>
+    <div class="md" id="md" hidden></div>
+  </div>
+  <div class="plate leader" id="leader" hidden>
+    <div><div class="label">Leading the Waxy d'Or</div><div class="nm" id="lead"></div></div>
+    <div class="ix" id="leadIx"></div>
+  </div>
+  <div class="ticker" id="ticker"><div class="tag">Waxy d'Or race</div><div class="track"><div class="run" id="run"></div></div></div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const md = W.param("md", ""); if (md) { const e = document.getElementById("md"); e.hidden = false; e.textContent = "Matchday " + md; }
+  if (W.param("noticker", "")) document.getElementById("ticker").hidden = true;
+  if (W.param("noplate", "")) document.getElementById("plate").hidden = true;
+  async function render() {
+    const d = await W.load();
+    document.getElementById("club").textContent = d.club.name;
+    document.getElementById("sb").textContent = `Division ${d.club.division || "–"} · ${d.record} · ${d.season.name}`;
+    const run = document.getElementById("run"); const html = W.tickerHtml(d); run.innerHTML = html + html;
+    if (d.rows[0]) { document.getElementById("leader").hidden = false; document.getElementById("lead").textContent = d.rows[0].name; document.getElementById("leadIx").textContent = d.rows[0].idx; }
+  }
+  render(); setInterval(render, 60000);
+})();
+</script>
+</body>
+</html>

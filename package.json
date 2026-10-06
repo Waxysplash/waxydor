@@ -1,0 +1,24 @@
+{
+  "name": "waxydor",
+  "version": "1.0.0",
+  "description": "Season tracker and awards for **Waxys Phantoms** (EA Sports FC Pro Clubs, club 392152), run by [twitch.tv/waxysplash](https://twitch.tv/waxysplash).",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Waxysplash/waxydor.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Waxysplash/waxydor/issues"
+  },
+  "homepage": "https://github.com/Waxysplash/waxydor#readme",
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.100"
+  }
+}

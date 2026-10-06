@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twitch panel kit · Waxys Phantoms</title>
+<link rel="stylesheet" href="../overlays/brand.css">
+<style>
+  body { background: var(--bg); color: var(--text); padding: 32px 16px 80px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: var(--display); font-size: 40px; text-transform: uppercase; margin: 0 0 6px; }
+  .lead { color: var(--muted); max-width: 65ch; margin: 0 0 28px; }
+  .panel { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; margin-bottom: 28px; }
+  .panel canvas { width: 320px; height: 100px; border-radius: 6px; display: block; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
+  .panel h3 { font-family: var(--display); font-size: 20px; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 6px; color: var(--purple); }
+  .panel p { margin: 0; white-space: pre-wrap; font-size: 15px; line-height: 1.5; background: var(--deep); border: 1px solid var(--line-soft); border-radius: 10px; padding: 12px 14px; }
+  .panel small { display: block; color: var(--muted); margin-top: 6px; font-size: 12px; }
+  .panel a.dl { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--purple); }
+  @media (max-width: 640px) { .panel { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Twitch panel kit</h1>
+  <p class="lead">Seven panels. Each header is a 320×100 PNG (right-click a header to save it, or use the download links). The text underneath is the panel description, ready to paste. Twitch caps descriptions at 300 characters, and every one here fits.</p>
+  <div id="panels"></div>
+</div>
+<script>
+const PANELS = [
+  { id: "about", title: "About the captain", kicker: "Who",
+    text: "I'm Waxy, captain of Waxys Phantoms. We play Pro Clubs on EA FC and every stream is a matchday: team talk, the games, then the press conference. Chat is the press. Join the club, make the table, win the Waxy d'Or." },
+  { id: "club", title: "Join the club", kicker: "!club",
+    text: "Type !club in chat for the invite to Waxys Phantoms. New signings start on trial: five appearances gets you ranked in the Waxy d'Or race. Mic on, play your position, no rage quits. The gaffer picks the eleven." },
+  { id: "waxydor", title: "Waxy d'Or", kicker: "The race",
+    text: "Every EA season the squad races for the Waxy d'Or, our player of the season. Stats pull straight from the game, no typing, no arguing. Fans vote, the captain decides. Live table, every match and every award: waxysplash.github.io/waxydor" },
+  { id: "schedule", title: "Matchdays", kicker: "When",
+    text: "Saturday night is matchday night. Two more nights a week, same slots every week, times on the Twitch schedule tab. Follow and turn on notifications so you never miss kick-off." },
+  { id: "commands", title: "Commands", kicker: "Chat",
+    text: "!table  the top three right now\n!waxydor  the full table and every match\n!club  join the Phantoms\n!discord  the clubhouse\n!raid  tonight's raid target" },
+  { id: "rules", title: "House rules", kicker: "Fair play",
+    text: "Be sound. No slurs, no spam, no backseat tactics mid-match (save it for the press conference). Mods have the whistle and their call is final. Lurkers welcome, nobody has to talk." },
+  { id: "socials", title: "Socials", kicker: "Off the pitch",
+    text: "Clips, press conferences and the Waxy d'Or race, every day:\nTikTok @ttvwaxysplash\nX @WaxySplash\nInstagram @ttvwaxysplash\nDiscord: !discord in chat" },
+];
+async function draw(c, p) {
+  await document.fonts.load('800 40px "Barlow Condensed"'); await document.fonts.load('700 14px "Barlow"');
+  const dpr = 2; c.width = 320 * dpr; c.height = 100 * dpr; const x = c.getContext("2d"); x.scale(dpr, dpr);
+  const g = x.createLinearGradient(0, 0, 320, 100); g.addColorStop(0, "#1a1230"); g.addColorStop(1, "#0b0912"); x.fillStyle = g; x.fillRect(0, 0, 320, 100);
+  const glow = x.createRadialGradient(40, 20, 0, 40, 20, 160); glow.addColorStop(0, "rgba(169,112,255,.45)"); glow.addColorStop(1, "rgba(169,112,255,0)"); x.fillStyle = glow; x.fillRect(0, 0, 320, 100);
+  x.save(); x.globalAlpha = .06; x.strokeStyle = "#fff"; x.lineWidth = 2; for (let i = -100; i < 420; i += 28) { x.beginPath(); x.moveTo(i, 100); x.lineTo(i + 60, 0); x.stroke(); } x.restore();
+  x.save(); x.translate(246, 0); x.beginPath(); x.moveTo(40, 0); x.lineTo(74, 0); x.lineTo(34, 100); x.lineTo(0, 100); x.closePath(); x.fillStyle = "rgba(169,112,255,.18)"; x.fill(); x.restore();
+  x.fillStyle = "#f2c94c"; x.fillRect(16, 22, 4, 56);
+  x.fillStyle = "#a970ff"; x.font = '700 12px "Barlow"'; x.letterSpacing = "3px"; x.fillText(p.kicker.toUpperCase(), 30, 36);
+  x.fillStyle = "#f5f1ff"; x.font = '800 36px "Barlow Condensed"'; x.letterSpacing = "0.5px"; x.fillText(p.title.toUpperCase(), 30, 74);
+  x.fillStyle = "rgba(166,151,194,.9)"; x.font = '700 10px "Barlow"'; x.letterSpacing = "2px"; x.textAlign = "right"; x.fillText("WAXYS PHANTOMS", 304, 92); x.textAlign = "left";
+}
+(async function () {
+  const host = document.getElementById("panels");
+  for (const p of PANELS) {
+    const el = document.createElement("div"); el.className = "panel";
+    el.innerHTML = `<div><canvas id="c-${p.id}"></canvas><a class="dl" download="panel-${p.id}.png">Download PNG</a></div><div><h3>${p.title}</h3><p>${p.text}</p><small>${p.text.length} characters</small></div>`;
+    host.appendChild(el);
+    const c = el.querySelector("canvas"); await draw(c, p); el.querySelector("a.dl").href = c.toDataURL("image/png");
+  }
+  window.PANELS_READY = true;
+})();
+</script>
+</body>
+</html>

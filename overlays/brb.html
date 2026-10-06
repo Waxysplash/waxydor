@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Half time · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080. Params: ?title=Half|time (| = line break) &sub=Back in five */
+  .wrap { position: absolute; inset: 0; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; padding: 90px 110px; gap: 60px; }
+  .mega { font-size: 220px; }
+  .sub { font-size: 28px; color: var(--muted); margin-top: 22px; max-width: 30ch; }
+  .board { padding: 10px 0 8px; }
+  .board .h2 { padding: 12px 18px 14px; display: flex; justify-content: space-between; align-items: baseline; }
+  .board .h2 span { font-family: var(--body); font-size: 16px; color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
+  .row-mini { font-size: 24px; padding: 12px 18px; }
+  .gaffer { border-top: 1px solid rgba(242, 201, 76, .35); color: var(--gold); }
+  .gaffer .rk, .gaffer .nm, .gaffer .ix { color: var(--gold); }
+  .foot { position: absolute; left: 110px; right: 110px; bottom: 56px; display: flex; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="orb a"></div><div class="orb b"></div><div class="stripes"></div><div class="pitch"></div><div class="grain"></div>
+  <div class="wrap">
+    <div>
+      <div class="eyebrow in">Waxys Phantoms<span class="dot">·</span>Pro Clubs</div>
+      <div class="mega in d1" id="title">Half<br><span class="thin">time</span></div>
+      <div class="sub in d2" id="sub">Back in a few minutes. The table is live below.</div>
+    </div>
+    <div class="plate board in d2">
+      <div class="h2">Waxy d'Or race <span id="seasonName"></span></div>
+      <div id="rows"></div>
+    </div>
+  </div>
+  <div class="foot in d3">
+    <div class="socials" id="socials"></div>
+    <div class="chip" id="rec"></div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const t = W.param("title", ""); if (t) document.getElementById("title").innerHTML = t.replace(/\|/g, "<br>");
+  const s = W.param("sub", ""); if (s) document.getElementById("sub").textContent = s;
+  async function render() {
+    const d = await W.load();
+    document.getElementById("seasonName").textContent = `${d.season.name} · ${d.phase === "league" ? d.daysTo + "d to playoffs" : d.phase === "playoffs" ? d.daysTo + "d left" : "over"}`;
+    document.getElementById("rows").innerHTML = d.rows.slice(0, 6).map((r, i) => `<div class="row-mini ${i === 0 ? "first" : ""}"><div class="rk">${i + 1}</div><div class="nm">${r.name}</div><div class="st">${r.gp} apps · ${r.g}G ${r.a}A · ${r.rating.toFixed(1)}</div><div class="ix">${r.idx}</div></div>`).join("") +
+      (d.gaffer ? `<div class="row-mini gaffer"><div class="rk">G</div><div class="nm">${d.gaffer.name}</div><div class="st">${d.gaffer.gp} apps · ${d.gaffer.g}G ${d.gaffer.a}A · ${d.gaffer.rating.toFixed(1)}</div><div class="ix">–</div></div>` : "");
+    document.getElementById("socials").innerHTML = W.socialsHtml(d.brand);
+    document.getElementById("rec").textContent = `Division ${d.club.division || "–"} · ${d.record}`;
+  }
+  render(); setInterval(render, 60000);
+})();
+</script>
+</body>
+</html>

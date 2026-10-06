@@ -5,6 +5,23 @@ Season tracker and awards for **Waxys Phantoms** (EA Sports FC Pro Clubs, club 3
 - Live site: https://waxysplash.github.io/waxydor/
 - Stream overlay (OBS browser source, 500×560 for the full squad): https://waxysplash.github.io/waxydor/overlay.html — add `?n=5` for a top five, `&compact=1` to hide the header, `&short=1` to drop the G+A and MOTM columns, or `?mode=top5` for a compact top five (360×200).
 
+## Stream scenes (OBS browser sources, 1920×1080)
+All under `overlays/`, all pull live data from the tracker and share one look (`overlays/brand.css`).
+
+| Scene | URL | Params |
+|---|---|---|
+| Starting soon | `overlays/starting.html` | `?at=19:00` countdown to a local time · `&md=12` matchday number · `&title=Kick-off|at 7` |
+| In-game HUD (transparent) | `overlays/hud.html` | `?md=12` · `&noticker=1` · `&noplate=1` |
+| Half time / BRB | `overlays/brb.html` | `?title=Half|time` · `&sub=Back in five` |
+| Full time | `overlays/ending.html` | `?raid=StreamerName` · `&next=Sat 7PM CT` · `&md=12` |
+| Lower third (transparent) | `overlays/lowerthird.html` | `?title=Press conference` · `&sub=...` · `&for=12` seconds · `&pos=right` |
+| Leaderboard widget | `overlay.html` | see above |
+
+Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline and the default "next matchday" text come from `brand` in `data/config.json`; empty values are hidden.
+
+## Twitch panel kit
+`brand/panels.html` shows the seven panel headers with their descriptions ready to paste. The PNGs live in `brand/panels/` (320×100 at 2x) and are regenerated with `npm install && node scripts/panels.mjs`.
+
 ## How it works
 - `scripts/poll.mjs` pulls member totals, the club record and the last ten league and playoff matches from EA's Pro Clubs endpoint every 20 minutes (GitHub Actions) and commits anything new into `data/`.
 - EA only serves the last ten matches per type, so the poller runs often. Season tables do not depend on the match log: they are EA's running totals minus a snapshot taken at the start of each season (`data/snapshots/`).

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Full time · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080. Params: ?raid=StreamerName &next=Sat 7PM CT &md=12 */
+  .wrap { position: absolute; inset: 0; display: grid; grid-template-rows: 1fr auto; padding: 100px 110px 70px; }
+  .mega { font-size: 210px; }
+  .lead { font-size: 30px; color: var(--muted); margin-top: 20px; max-width: 34ch; }
+  .lead b { color: var(--text); }
+  .cards { display: flex; gap: 18px; align-items: stretch; }
+  .card { padding: 22px 26px; min-width: 300px; display: grid; gap: 6px; align-content: start; }
+  .card .label { font-size: 14px; }
+  .card .v { font-family: var(--display); font-weight: 800; font-size: 44px; text-transform: uppercase; letter-spacing: .02em; line-height: 1; }
+  .card .v.gold { color: var(--gold); }
+  .card .s { color: var(--muted); font-size: 18px; }
+  .card.raid { background: linear-gradient(135deg, rgba(169, 112, 255, .35), var(--glass)); }
+  .socials { margin-top: 26px; }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div><div class="stripes"></div><div class="pitch"></div><div class="grain"></div>
+  <div class="wrap">
+    <div>
+      <div class="eyebrow in" id="eyebrow">Waxys Phantoms<span class="dot">·</span>Matchday</div>
+      <div class="mega in d1">Full<br><span class="thin">time</span></div>
+      <div class="lead in d2">Thanks for being in the stands. <b>Follow</b> so you know when the next matchday kicks off, and type <b>!club</b> if you want a shirt.</div>
+      <div class="socials in d3" id="socials"></div>
+    </div>
+    <div class="cards in d3">
+      <div class="plate card raid slash" id="raidCard" hidden><div class="label">Raiding</div><div class="v gold" id="raid"></div><div class="s">Go say the Phantoms sent you</div></div>
+      <div class="plate card"><div class="label">Next matchday</div><div class="v" id="next">Soon</div><div class="s">Turn on notifications</div></div>
+      <div class="plate card"><div class="label">Tonight's record</div><div class="v" id="rec">–</div><div class="s" id="div"></div></div>
+      <div class="plate card"><div class="label">Leading the Waxy d'Or</div><div class="v gold" id="lead">–</div><div class="s" id="leadS"></div></div>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const raid = W.param("raid", ""); if (raid) { document.getElementById("raidCard").hidden = false; document.getElementById("raid").textContent = raid; }
+  const md = W.param("md", ""); if (md) document.getElementById("eyebrow").innerHTML = `Waxys Phantoms<span class="dot">·</span>Matchday ${md}`;
+  async function render() {
+    const d = await W.load();
+    document.getElementById("next").textContent = W.param("next", "") || d.brand.schedule || "Soon";
+    document.getElementById("rec").textContent = d.record;
+    document.getElementById("div").textContent = `Division ${d.club.division || "–"} · ${d.season.name}`;
+    if (d.rows[0]) { document.getElementById("lead").textContent = d.rows[0].name; document.getElementById("leadS").textContent = `Index ${d.rows[0].idx} · ${d.rows[0].g}G ${d.rows[0].a}A`; }
+    document.getElementById("socials").innerHTML = W.socialsHtml(d.brand);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
