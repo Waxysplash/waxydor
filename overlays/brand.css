@@ -11,6 +11,7 @@
   --glow: 0 0 40px rgba(169, 112, 255, .35);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; font-family: var(--body); color: var(--text); background: transparent; -webkit-font-smoothing: antialiased; }
 .scene { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: radial-gradient(1200px 700px at 20% 15%, #1d1433 0%, var(--bg) 60%), var(--bg); }
 .scene.transparent { background: transparent; }

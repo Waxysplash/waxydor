@@ -16,8 +16,9 @@ Also live at https://waxysplash.github.io/waxydor/links.html
 - Lower third (transparent): https://waxysplash.github.io/waxydor/overlays/lowerthird.html?title=Press%20conference&for=12
 
 ## Vertical, channel brand only (1080×1920, for the Morocco Road to Glory series and anything not Pro Clubs)
-- https://waxysplash.github.io/waxydor/overlays/vertical-brand.html?series=Morocco%20Road%20to%20Glory&ep=1&title=The%20*road*%20begins
-- `series=` series name · `ep=` episode number · `title=` headline (`|` line break, `*word*` gold) · `pos=bottom` · `bg=1` brand background · `flag=0` hides the red/green Morocco accent · `handle=@tiktok`
+- Crest + twitch.tv/Waxysplash, nothing else: https://waxysplash.github.io/waxydor/overlays/vertical-brand.html
+- `pos=bottom` crest at the bottom · `size=` crest height in px (default 360) · `bg=1` brand background
+- Optional extras, off unless given: `series=` · `ep=` · `title=` headline (`|` line break, `*word*` gold) · `handle=@tiktok`
 
 ## Vertical, Pro Clubs (1080×1920)
 - Transparent, over the game: https://waxysplash.github.io/waxydor/overlays/vertical.html?md=12&title=Could%20your%20captain%20do%20*this*%3F
