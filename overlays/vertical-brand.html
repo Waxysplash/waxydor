@@ -3,54 +3,77 @@
 <head>
 <meta charset="utf-8">
 <title>Vertical brand · WaxySplash</title>
-<link rel="stylesheet" href="brand.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700&display=swap">
 <style>
-  /* OBS browser source 1080x1920 for vertical recording. Crest + twitch.tv/Waxysplash and nothing else. Transparent.
-     Params (all optional): ?pos=top|bottom (crest position)  &size=360 (crest height px)  &bg=1 (brand background)
-                            &series=Morocco Road to Glory  &ep=3  &title=Headline|line two (*word* = gold)  &handle=@tiktok
-     Safe zones: the right 170px and bottom 440px stay clear for TikTok's buttons and caption. */
-  .scene { width: 1080px; height: 1920px; }
-  .wrap { position: absolute; inset: 0; padding: 110px 180px 460px 56px; display: flex; flex-direction: column; justify-content: space-between; }
-  .crest { display: block; height: 360px; width: auto; border-radius: 22px; box-shadow: 0 14px 40px rgba(0, 0, 0, .55); }
-  .top, .bottom { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-  .chip { font-size: 28px; padding: 13px 22px; }
-  .chip b { font-family: var(--body); text-transform: none; letter-spacing: 0; font-weight: 700; }
-  .chip.handle { background: var(--purple); color: #130a24; border-color: var(--purple); }
-  .series { display: inline-flex; align-items: center; gap: 14px; padding: 12px 20px; border-radius: 14px; }
-  .series .flag { width: 8px; height: 40px; border-radius: 4px; background: linear-gradient(#c1272d 0 50%, #006233 50% 100%); }
-  .series .t { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
-  .series .ep { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: .08em; text-transform: uppercase; padding-left: 14px; border-left: 1px solid var(--line); }
-  .headline { font-family: var(--display); font-weight: 800; font-size: 112px; line-height: .92; text-transform: uppercase; letter-spacing: -.01em; text-shadow: 0 6px 30px rgba(0, 0, 0, .6); max-width: 840px; text-wrap: balance; }
-  .headline em { font-style: normal; color: var(--gold); }
-  .pos-bottom .top { order: 3; } .pos-bottom .mid { order: 1; } .pos-bottom .bottom { order: 2; }
+  /* OBS browser source 1080x1920, transparent. Built for the Road to Glory layout: facecam on top, game below, seam at ~640px.
+     Default: a brass bar on the seam with the crest, the series name and twitch.tv/Waxysplash. Everything else is optional.
+     Params: ?seam=640 (y of the facecam/game join)  &series=Morocco Road to Glory  &ep=1
+             &div=7 &rating=80 &coins=12k &record=3W 1L   (small stat tiles on the bar; any you leave out are hidden)
+             &hook=Can Morocco reach Div 1?  &hookfor=4  (headline over the game for N seconds; 0 = stays)
+             &crest=0 (no crest)  &bar=0 (no bar, crest + twitch only)  &side=left|right (crest side)
+     Palette is taken from the crest: cream, olive, brass, red. Safe zones: right 170px and bottom 440px left clear. */
+  :root { --cream: #e9dcbb; --cream-2: #cdbd94; --olive: #2a2a1e; --olive-2: #3b3a2a; --brass: #b9985a; --brass-2: #7f6a3c; --red: #9d3a2b; --gold: #d9a63b;
+          --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif; --body: "Barlow", system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; font-family: var(--body); color: var(--cream); }
+  .scene { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+  .bar { position: absolute; z-index: 1; left: 0; right: 0; height: 84px; transform: translateY(-50%); background: linear-gradient(180deg, var(--olive-2), var(--olive)); border-top: 3px solid var(--brass); border-bottom: 3px solid var(--brass); box-shadow: 0 10px 30px rgba(0, 0, 0, .45); display: flex; align-items: center; gap: 18px; padding: 0 190px 0 36px; }
+  .bar::before, .bar::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: rgba(233, 220, 187, .25); }
+  .bar::before { top: 4px; } .bar::after { bottom: 4px; }
+  .bar.side-right { flex-direction: row-reverse; padding: 0 190px 0 36px; }
+  .crest { position: absolute; z-index: 2; height: 250px; width: auto; transform: translateY(-50%); filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .55)); }
+  .crest.left { left: 30px; } .crest.right { right: 186px; }
+  .bar.has-crest.side-left { padding-left: 232px; } .bar.has-crest.side-right { padding-right: 380px; }
+  .series { display: flex; flex-direction: column; line-height: 1; min-width: 0; }
+  .series .t { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: .08em; text-transform: uppercase; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .series .e { font-family: var(--display); font-weight: 700; font-size: 19px; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); margin-top: 4px; }
+  .series .e b { color: var(--gold); font-weight: 800; }
+  .series .e i { font-style: normal; color: var(--cream-2); }
+  .stats { display: flex; gap: 10px; margin-left: auto; }
+  .stat { display: flex; flex-direction: column; align-items: center; line-height: 1; padding: 5px 10px; border: 1px solid var(--brass-2); border-radius: 8px; background: rgba(0, 0, 0, .25); min-width: 74px; }
+  .stat b { font-family: var(--display); font-weight: 800; font-size: 24px; white-space: nowrap; color: var(--cream); font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); margin-top: 3px; }
+  .twitch { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--cream-2); white-space: nowrap; }
+  .twitch b { color: var(--cream); font-weight: 800; }
+  .twitch .ico { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--red); border: 2px solid var(--brass); vertical-align: -1px; margin-right: 8px; }
+  .nobar .crest { height: 300px; top: auto; transform: none; }
+  .nobar .crest.left { left: 48px; } .nobar .crest.right { right: 190px; }
+  .nobar .twitch { position: absolute; left: 48px; padding: 14px 22px; background: var(--olive); border: 2px solid var(--brass); border-radius: 999px; }
+  .hook { position: absolute; left: 48px; right: 190px; font-family: var(--display); font-weight: 800; font-size: 96px; line-height: .92; text-transform: uppercase; color: var(--cream); text-shadow: 0 4px 0 var(--olive), 0 10px 30px rgba(0, 0, 0, .7); text-wrap: balance; animation: hookIn .6s cubic-bezier(.2, .8, .2, 1); }
+  .hook em { font-style: normal; color: var(--gold); }
+  .hook.out { animation: hookOut .5s ease-in forwards; }
+  @keyframes hookIn { from { transform: translateY(20px); } }
+  @keyframes hookOut { to { opacity: 0; transform: translateY(-16px); } }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .hook { animation: none; } }
 </style>
 </head>
 <body>
-<div class="scene transparent" id="scene">
-  <div class="orb a" hidden></div><div class="orb b" hidden></div><div class="stripes" hidden></div><div class="grain" hidden></div>
-  <div class="wrap" id="wrap">
-    <div class="top">
-      <img class="crest in" id="crest" src="../brand/logo.png" alt="Waxys Phantoms crest">
-      <div class="plate series in d1" id="series" hidden><div class="flag"></div><div class="t" id="seriesName"></div><div class="ep" id="ep" hidden></div></div>
-    </div>
-    <div class="mid"><div class="headline in d2" id="title" hidden></div></div>
-    <div class="bottom in d3">
-      <div class="chip handle" id="handle" hidden></div>
-      <div class="chip">twitch.tv/<b>Waxysplash</b></div>
-    </div>
+<div class="scene" id="scene">
+  <img class="crest left" id="crest" src="../brand/logo.png" alt="Waxys Phantoms crest">
+  <div class="bar has-crest side-left" id="bar">
+    <div class="series" id="series"><div class="t" id="seriesName">Morocco Road to Glory</div><div class="e" id="ep">WaxySplash</div></div>
+    <div class="stats" id="stats"></div>
   </div>
+  <div class="twitch" id="twitch" hidden><span class="ico"></span>twitch.tv/<b>Waxysplash</b></div>
+  <div class="hook" id="hook" hidden></div>
 </div>
-<script src="common.js"></script>
 <script>
 (function () {
-  const W = window.Waxy;
-  const size = +W.param("size", "360"); if (size > 0) document.getElementById("crest").style.height = size + "px";
-  const s = W.param("series", ""); if (s) { document.getElementById("series").hidden = false; document.getElementById("seriesName").textContent = s; }
-  const ep = W.param("ep", ""); if (ep) { document.getElementById("series").hidden = false; const e = document.getElementById("ep"); e.hidden = false; e.textContent = "Ep " + ep; }
-  const t = W.param("title", ""); if (t) { const e = document.getElementById("title"); e.hidden = false; e.innerHTML = t.replace(/\|/g, "<br>").replace(/\*(.+?)\*/g, "<em>$1</em>"); }
-  const h = W.param("handle", ""); if (h) { const e = document.getElementById("handle"); e.hidden = false; e.innerHTML = `TikTok <b>${h}</b>`; }
-  if (W.param("pos", "top") === "bottom") document.getElementById("wrap").classList.add("pos-bottom");
-  if (W.param("bg", "")) { document.getElementById("scene").classList.remove("transparent"); document.querySelectorAll(".orb, .stripes, .grain").forEach((e) => (e.hidden = false)); }
+  const q = new URLSearchParams(location.search);
+  const p = (k, d) => (q.has(k) ? q.get(k) : d);
+  const seam = +p("seam", "640");
+  const side = p("side", "left") === "right" ? "right" : "left";
+  const bar = document.getElementById("bar"), crest = document.getElementById("crest");
+  bar.style.top = seam + "px"; crest.style.top = seam + "px";
+  crest.className = "crest " + side; bar.className = "bar side-" + side + (p("crest", "1") === "0" ? "" : " has-crest");
+  if (p("crest", "1") === "0") crest.hidden = true;
+  const s = p("series", ""); if (s) document.getElementById("seriesName").textContent = s;
+  const ep = p("ep", ""); document.getElementById("ep").innerHTML = (ep ? `Episode <b>${ep}</b> · ` : "") + `twitch.tv/<i>Waxysplash</i>`;
+  const stats = [["div", "Division"], ["rating", "Rating"], ["coins", "Coins"], ["record", "Record"]].filter(([k]) => p(k, "")).map(([k, l]) => `<div class="stat"><b>${p(k, "")}</b><span>${l}</span></div>`).join("");
+  document.getElementById("stats").innerHTML = stats;
+  if (p("bar", "1") === "0") { document.getElementById("scene").classList.add("nobar"); bar.hidden = true; const t = document.getElementById("twitch"); t.hidden = false; t.style.top = (seam + 24) + "px"; crest.style.top = (seam - 330) + "px"; }
+  const hook = p("hook", ""); if (hook) { const h = document.getElementById("hook"); h.hidden = false; h.innerHTML = hook.replace(/\|/g, "<br>").replace(/\*(.+?)\*/g, "<em>$1</em>"); h.style.top = (seam + 150) + "px"; const secs = +p("hookfor", "4"); if (secs > 0) setTimeout(() => h.classList.add("out"), secs * 1000); }
 })();
 </script>
 </body>

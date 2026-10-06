@@ -43,10 +43,11 @@ const GROUPS = [
     ["Full time", "raid = who you are raiding", B + "overlays/ending.html?raid=StreamerName&md=12"],
     ["Lower third", "transparent, hides after 12 s", B + "overlays/lowerthird.html?title=Press%20conference&for=12"],
   ]],
-  ["Vertical · 1080×1920 · channel brand (Road to Glory etc.)", [
-    ["Vertical brand overlay", "crest + twitch.tv/Waxysplash, nothing else", B + "overlays/vertical-brand.html"],
-    ["Vertical brand, crest at the bottom", "", B + "overlays/vertical-brand.html?pos=bottom"],
-    ["Vertical brand with an episode chip", "optional: series + ep + headline", B + "overlays/vertical-brand.html?series=Morocco%20Road%20to%20Glory&ep=1&title=The%20*road*%20begins"],
+  ["Vertical · 1080×1920 · Road to Glory (facecam top, game below)", [
+    ["RTG brand bar", "crest + series + twitch.tv on the seam between facecam and game", B + "overlays/vertical-brand.html?ep=1"],
+    ["RTG brand bar with stats", "div / rating / coins / record tiles, leave out any you want hidden", B + "overlays/vertical-brand.html?ep=1&div=7&rating=80&record=3W%201L"],
+    ["RTG with an opening hook", "headline over the game for 4 s; *word* turns gold", B + "overlays/vertical-brand.html?ep=1&hook=Can%20Morocco%20reach%20*Div%201*%3F&hookfor=4"],
+    ["RTG crest + twitch only, no bar", "", B + "overlays/vertical-brand.html?bar=0"],
   ]],
   ["Vertical · 1080×1920 · Pro Clubs", [
     ["Vertical overlay", "transparent; title = headline, *word* turns gold", B + "overlays/vertical.html?md=12&title=Could%20your%20captain%20do%20*this*%3F"],

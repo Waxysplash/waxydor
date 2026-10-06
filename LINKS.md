@@ -15,10 +15,11 @@ Also live at https://waxysplash.github.io/waxydor/links.html
 - Full time: https://waxysplash.github.io/waxydor/overlays/ending.html?raid=StreamerName&md=12
 - Lower third (transparent): https://waxysplash.github.io/waxydor/overlays/lowerthird.html?title=Press%20conference&for=12
 
-## Vertical, channel brand only (1080×1920, for the Morocco Road to Glory series and anything not Pro Clubs)
-- Crest + twitch.tv/Waxysplash, nothing else: https://waxysplash.github.io/waxydor/overlays/vertical-brand.html
-- `pos=bottom` crest at the bottom · `size=` crest height in px (default 360) · `bg=1` brand background
-- Optional extras, off unless given: `series=` · `ep=` · `title=` headline (`|` line break, `*word*` gold) · `handle=@tiktok`
+## Vertical, Road to Glory (1080×1920; facecam on top, game below, bar on the seam)
+- Default (crest, series name, episode, twitch.tv): https://waxysplash.github.io/waxydor/overlays/vertical-brand.html?ep=1
+- Stats tiles: add `&div=7&rating=80&coins=12k&record=3W%201L` (any you leave out are hidden)
+- Opening hook over the game: add `&hook=Can%20Morocco%20reach%20*Div%201*%3F&hookfor=4` (`|` line break, `*word*` gold, `hookfor=0` keeps it)
+- `seam=640` moves the bar if your facecam/game split changes · `side=right` puts the crest on the right · `bar=0` crest + twitch only · `crest=0` no crest · `series=` renames the series
 
 ## Vertical, Pro Clubs (1080×1920)
 - Transparent, over the game: https://waxysplash.github.io/waxydor/overlays/vertical.html?md=12&title=Could%20your%20captain%20do%20*this*%3F

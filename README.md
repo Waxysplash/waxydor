@@ -16,7 +16,7 @@ All under `overlays/`, all pull live data from the tracker and share one look (`
 | Half time / BRB | `overlays/brb.html` | `?title=Half|time` · `&sub=Back in five` |
 | Full time | `overlays/ending.html` | `?raid=StreamerName` · `&next=Sat 7PM CT` · `&md=12` |
 | Lower third (transparent) | `overlays/lowerthird.html` | `?title=Press conference` · `&sub=...` · `&for=12` seconds · `&pos=right` |
-| Vertical 1080×1920, channel brand only (crest + twitch.tv, for Road to Glory) | `overlays/vertical-brand.html` | `?pos=bottom` · `&size=360` · `&bg=1` · optional `&series=` `&ep=` `&title=` `&handle=` |
+| Vertical 1080×1920, Road to Glory (brass bar on the facecam/game seam) | `overlays/vertical-brand.html` | `?ep=1` · `&seam=640` · `&div=7&rating=80&coins=12k&record=3W 1L` · `&hook=...&hookfor=4` · `&side=right` · `&bar=0` · `&crest=0` · `&series=` |
 | Vertical 1080×1920, Pro Clubs | `overlays/vertical.html` | `?title=Could your captain do *this*?` (`|` = line break, `*word*` = gold) · `&md=12` · `&handle=@name` · `&table=0` · `&bg=1` · `&pos=bottom` |
 | Leaderboard widget | `overlay.html` | see above |
 
