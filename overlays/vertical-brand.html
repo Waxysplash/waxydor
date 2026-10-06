@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vertical brand · WaxySplash</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1080x1920 for vertical recording. Channel branding only, no club data. Transparent by default.
+     Params: ?series=Morocco Road to Glory  &ep=3  &title=Headline|second line (*word* = gold)  &handle=@tiktok
+             &pos=top|bottom (headline)  &bg=1 (brand background)  &flag=0 (hide the red/green Morocco accent)
+     Safe zones: the right 170px and bottom 440px stay clear for TikTok's buttons and caption. */
+  .scene { width: 1080px; height: 1920px; }
+  .wrap { position: absolute; inset: 0; padding: 120px 180px 460px 56px; display: flex; flex-direction: column; justify-content: space-between; }
+  .mark { display: inline-flex; align-items: center; gap: 14px; padding: 12px 22px 12px 12px; border-radius: 16px; align-self: flex-start; }
+  .mark .w { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, var(--purple), var(--violet)); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 24px; color: #130a24; }
+  .mark .nm { font-family: var(--display); font-weight: 800; font-size: 32px; text-transform: uppercase; letter-spacing: .05em; line-height: 1; }
+  .mark .sb { color: var(--muted); font-size: 17px; margin-top: 4px; }
+  .series { margin-top: 22px; display: inline-flex; align-items: center; gap: 14px; padding: 12px 20px; border-radius: 14px; align-self: flex-start; }
+  .series .flag { width: 8px; height: 40px; border-radius: 4px; background: linear-gradient(#c1272d 0 50%, #006233 50% 100%); }
+  .series .t { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+  .series .ep { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: .08em; text-transform: uppercase; padding-left: 14px; border-left: 1px solid var(--line); }
+  .headline { font-family: var(--display); font-weight: 800; font-size: 112px; line-height: .92; text-transform: uppercase; letter-spacing: -.01em; margin-top: 36px; text-shadow: 0 6px 30px rgba(0, 0, 0, .6), 0 0 60px rgba(169, 112, 255, .25); max-width: 840px; text-wrap: balance; }
+  .headline em { font-style: normal; color: var(--gold); }
+  .bottom { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .chip { font-size: 26px; padding: 12px 20px; }
+  .chip.handle { background: var(--purple); color: #130a24; border-color: var(--purple); }
+  .chip b { font-family: var(--body); text-transform: none; letter-spacing: 0; font-weight: 700; }
+  .pos-bottom .top { order: 1; } .pos-bottom .mid { order: 3; } .pos-bottom .bottom { order: 2; }
+</style>
+</head>
+<body>
+<div class="scene transparent" id="scene">
+  <div class="orb a" hidden></div><div class="orb b" hidden></div><div class="stripes" hidden></div><div class="grain" hidden></div>
+  <div class="wrap" id="wrap">
+    <div class="top">
+      <div class="plate mark in"><div class="w">W</div><div><div class="nm">WaxySplash</div><div class="sb" id="tag">The captain of your favourite team</div></div></div>
+      <div class="plate series in d1" id="series"><div class="flag" id="flag"></div><div class="t" id="seriesName">Morocco Road to Glory</div><div class="ep" id="ep" hidden></div></div>
+    </div>
+    <div class="mid"><div class="headline in d2" id="title" hidden></div></div>
+    <div class="bottom in d3">
+      <div class="chip handle" id="handle" hidden></div>
+      <div class="chip">Twitch <b>twitch.tv/waxysplash</b></div>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const s = W.param("series", ""); if (s) document.getElementById("seriesName").textContent = s;
+  const ep = W.param("ep", ""); if (ep) { const e = document.getElementById("ep"); e.hidden = false; e.textContent = "Ep " + ep; }
+  const t = W.param("title", ""); if (t) { const e = document.getElementById("title"); e.hidden = false; e.innerHTML = t.replace(/\|/g, "<br>").replace(/\*(.+?)\*/g, "<em>$1</em>"); }
+  if (W.param("flag", "1") === "0") document.getElementById("flag").hidden = true;
+  if (W.param("pos", "top") === "bottom") document.getElementById("wrap").classList.add("pos-bottom");
+  if (W.param("bg", "")) { document.getElementById("scene").classList.remove("transparent"); document.querySelectorAll(".orb, .stripes, .grain").forEach((e) => (e.hidden = false)); }
+  // Only the brand block of config is read here; no club data.
+  let brand = {}; try { brand = (await fetch("../data/config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json())).brand || {}; } catch (e) {}
+  if (brand.tagline) document.getElementById("tag").textContent = brand.tagline;
+  const handle = W.param("handle", "") || (brand.socials && brand.socials.tiktok) || "";
+  if (handle) { const e = document.getElementById("handle"); e.hidden = false; e.innerHTML = `TikTok <b>${handle}</b>`; }
+})();
+</script>
+</body>
+</html>
