@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vertical · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1080x1920 for vertical (TikTok / Shorts / Reels) recording. Transparent by default.
+     Params: ?title=Could your captain do this? (headline, | = line break)  &md=12  &handle=@name  &table=0 (hide race)
+             &bg=1 (paint the brand background for talking-head clips)  &pos=top|bottom (headline position, default top)
+     Safe zones: the right 170px and bottom 440px are left clear for TikTok's buttons and caption. */
+  .scene { width: 1080px; height: 1920px; }
+  .wrap { position: absolute; inset: 0; padding: 120px 180px 460px 56px; display: flex; flex-direction: column; justify-content: space-between; }
+  .plate.club { display: inline-flex; align-items: center; gap: 14px; padding: 12px 20px 12px 12px; border-radius: 16px; align-self: flex-start; }
+  .crest { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, var(--purple), var(--violet)); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 22px; color: #130a24; }
+  .club .nm { font-family: var(--display); font-weight: 800; font-size: 30px; text-transform: uppercase; letter-spacing: .04em; line-height: 1; }
+  .club .sb { color: var(--muted); font-size: 17px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .club .md { margin-left: 8px; padding-left: 16px; border-left: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 24px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+  .headline { font-family: var(--display); font-weight: 800; font-size: 108px; line-height: .92; text-transform: uppercase; letter-spacing: -.01em; margin-top: 36px; text-shadow: 0 6px 30px rgba(0, 0, 0, .6), 0 0 60px rgba(169, 112, 255, .25); max-width: 840px; text-wrap: balance; }
+  .headline em { font-style: normal; color: var(--gold); }
+  .race { width: 620px; padding: 6px 0 4px; }
+  .race .h2 { font-size: 24px; padding: 12px 16px 10px; display: flex; justify-content: space-between; align-items: baseline; }
+  .race .h2 span { font-family: var(--body); font-size: 14px; color: var(--muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
+  .row-mini { font-size: 22px; padding: 10px 16px; grid-template-columns: 30px 1fr auto; }
+  .row-mini .st { font-size: 18px; }
+  .bottom { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+  .chip { font-size: 26px; padding: 12px 20px; }
+  .chip.handle { background: var(--purple); color: #130a24; border-color: var(--purple); }
+  .chip.handle b { font-family: var(--body); text-transform: none; letter-spacing: 0; font-weight: 700; }
+  .pos-bottom .headline { order: 3; margin-top: 0; }
+</style>
+</head>
+<body>
+<div class="scene transparent" id="scene">
+  <div class="orb a" hidden></div><div class="orb b" hidden></div><div class="stripes" hidden></div><div class="grain" hidden></div>
+  <div class="wrap" id="wrap">
+    <div>
+      <div class="plate club in"><div class="crest">WP</div><div><div class="nm" id="club">Waxys Phantoms</div><div class="sb" id="sb"></div></div><div class="md" id="md" hidden></div></div>
+      <div class="headline in d1" id="title" hidden></div>
+    </div>
+    <div class="plate race in d2" id="race"><div class="h2">Waxy d'Or race <span id="seasonName"></span></div><div id="rows"></div></div>
+    <div class="bottom in d3">
+      <div class="chip handle" id="handle" hidden></div>
+      <div class="chip">!club to join the Phantoms</div>
+    </div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const md = W.param("md", ""); if (md) { const e = document.getElementById("md"); e.hidden = false; e.textContent = "MD " + md; }
+  const t = W.param("title", ""); if (t) { const e = document.getElementById("title"); e.hidden = false; e.innerHTML = t.replace(/\|/g, "<br>").replace(/\*(.+?)\*/g, "<em>$1</em>"); }
+  if (W.param("table", "1") === "0") document.getElementById("race").hidden = true;
+  if (W.param("pos", "top") === "bottom") document.getElementById("wrap").classList.add("pos-bottom");
+  if (W.param("bg", "")) { document.getElementById("scene").classList.remove("transparent"); document.querySelectorAll(".orb, .stripes, .grain").forEach((e) => (e.hidden = false)); }
+  async function render() {
+    const d = await W.load();
+    document.getElementById("club").textContent = d.club.name;
+    document.getElementById("sb").textContent = `Division ${d.club.division || "–"} · ${d.record}`;
+    document.getElementById("seasonName").textContent = d.season.name;
+    document.getElementById("rows").innerHTML = d.rows.slice(0, 3).map((r, i) => `<div class="row-mini ${i === 0 ? "first" : ""}"><div class="rk">${i + 1}</div><div class="nm">${r.name}</div><div class="st">${r.g}G ${r.a}A · idx ${r.idx}</div></div>`).join("");
+    const handle = W.param("handle", "") || (d.brand.socials && d.brand.socials.tiktok) || "";
+    if (handle) { const e = document.getElementById("handle"); e.hidden = false; e.innerHTML = `TikTok <b>${handle}</b>`; }
+  }
+  render(); setInterval(render, 60000);
+})();
+</script>
+</body>
+</html>

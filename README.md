@@ -3,6 +3,7 @@
 Season tracker and awards for **Waxys Phantoms** (EA Sports FC Pro Clubs, club 392152), run by [twitch.tv/waxysplash](https://twitch.tv/waxysplash).
 
 - Live site: https://waxysplash.github.io/waxydor/
+- Every link in one place: https://waxysplash.github.io/waxydor/links.html (also `LINKS.md`)
 - Stream overlay (OBS browser source, 500×560 for the full squad): https://waxysplash.github.io/waxydor/overlay.html — add `?n=5` for a top five, `&compact=1` to hide the header, `&short=1` to drop the G+A and MOTM columns, or `?mode=top5` for a compact top five (360×200).
 
 ## Stream scenes (OBS browser sources, 1920×1080)
@@ -15,6 +16,7 @@ All under `overlays/`, all pull live data from the tracker and share one look (`
 | Half time / BRB | `overlays/brb.html` | `?title=Half|time` · `&sub=Back in five` |
 | Full time | `overlays/ending.html` | `?raid=StreamerName` · `&next=Sat 7PM CT` · `&md=12` |
 | Lower third (transparent) | `overlays/lowerthird.html` | `?title=Press conference` · `&sub=...` · `&for=12` seconds · `&pos=right` |
+| Vertical 1080×1920 (TikTok / Shorts) | `overlays/vertical.html` | `?title=Could your captain do *this*?` (`|` = line break, `*word*` = gold) · `&md=12` · `&handle=@name` · `&table=0` · `&bg=1` · `&pos=bottom` |
 | Leaderboard widget | `overlay.html` | see above |
 
 Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline and the default "next matchday" text come from `brand` in `data/config.json`; empty values are hidden.
