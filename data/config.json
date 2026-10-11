@@ -4,7 +4,7 @@
   "platform": "common-gen5",
   "siteUrl": "https://waxysplash.github.io/waxydor/",
   "index": {
-    "minGames": 10,
+    "minGames": 7,
     "compareMinGames": 5,
     "weights": {
       "contribution": 25,
