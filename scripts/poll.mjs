@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = join(ROOT, "data");
@@ -104,20 +105,12 @@ for (const s of config.seasons) {
 const season = config.seasons.find((s) => new Date(s.start) <= new Date() && new Date() <= new Date(s.end)) || config.seasons.at(-1);
 const snapFile = join(DATA, "snapshots", `${season.id}-start.json`);
 const base = existsSync(snapFile) ? JSON.parse(readFileSync(snapFile, "utf8")).members : [];
-const baseBy = new Map(base.map((m) => [m.name, m]));
-const gname = (config.gaffer || "").toLowerCase();
-const allRows = members.members.map((m) => {
-  const b = baseBy.get(m.name);
-  const gp = +m.gamesPlayed - (b ? +b.gamesPlayed : 0);
-  const g = +m.goals - (b ? +b.goals : 0);
-  const a = +m.assists - (b ? +b.assists : 0);
-  return { name: m.name, gp, g, a, rating: +m.ratingAve, mom: +m.manOfTheMatch - (b ? +b.manOfTheMatch : 0) };
-}).filter((r) => r.gp > 0);
-const gaffer = allRows.find((r) => r.name.toLowerCase() === gname);
-const rows = allRows.filter((r) => r.name.toLowerCase() !== gname);
-rows.sort((x, y) => (y.g + y.a) - (x.g + x.a) || y.rating - x.rating);
-const top = rows.slice(0, 3).map((r, i) => `${i + 1}. ${r.name} ${r.g}G ${r.a}A (${r.gp} apps)`).join(" | ");
+// Same ranking as the site (ranking.js), so !table and the page always agree.
+const { rank } = createRequire(import.meta.url)(join(ROOT, "ranking.js"));
+const R = rank({ config, members, matches, snapshot: { members: base }, season });
+const gaffer = R.gaffer;
+const top = R.ranked.slice(0, 3).map((r, i) => `${i + 1}. ${r.name} ${r.index} (${r.g}G ${r.a}A, ${r.gp} apps)`).join(" | ");
 const gtxt = gaffer ? ` | Gaffer: ${gaffer.g}G ${gaffer.a}A (${gaffer.gp} apps)` : "";
-writeFileSync(join(DATA, "table.txt"), `${season.name} top 3: ${top}${gtxt} — full table: ${config.siteUrl}\n`);
+writeFileSync(join(DATA, "table.txt"), `${season.name} Waxy index top 3: ${top}${gtxt} — full table: ${config.siteUrl}\n`);
 
 console.log(`members=${members.members.length} matches=${matches.length} (+${added}) season=${season.id}`);

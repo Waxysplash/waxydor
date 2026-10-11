@@ -28,7 +28,7 @@ Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline a
 ## How it works
 - `scripts/poll.mjs` pulls member totals, the club record and the last ten league and playoff matches from EA's Pro Clubs endpoint every 20 minutes (GitHub Actions) and commits anything new into `data/`.
 - EA only serves the last ten matches per type, so the poller runs often. Season tables do not depend on the match log: they are EA's running totals minus a snapshot taken at the start of each season (`data/snapshots/`).
-- The **Waxy index** blends average match rating (40%), goals + assists per game (40%) and MOTM per game (20%), scaled to 100 against the best in the squad. Five apps to qualify. Weights live in `data/config.json`.
+- The **Waxy index** (out of 100) ranks the race: contribution points per game 25, appearances 20, match rating 15, pass accuracy 15, win rate 10, MOTM per game 10, shot and tackle accuracy 5, minus 2 per red card. Contribution points are scored per match by the position played (goals, assists, clean sheets, saves, tackles, passes, missed shots, goals conceded past 3). Ten apps to qualify. The calculation is `ranking.js`, shared by the site, the overlays and `!table`; every number lives in `data/config.json`, and the site's "How it works" tab is written from it.
 
 ## Captain's controls (edit and push, or ask Claude)
 - **Seasons:** `data/config.json` → `seasons[]`. Add the next season with its `start`, `playoffsStart` and `end`. The poller freezes a snapshot the first time it runs after `start`.

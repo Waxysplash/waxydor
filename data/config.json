@@ -4,10 +4,54 @@
   "platform": "common-gen5",
   "siteUrl": "https://waxysplash.github.io/waxydor/",
   "index": {
-    "ratingWeight": 0.4,
-    "contributionWeight": 0.4,
-    "momWeight": 0.2,
-    "minGames": 5
+    "minGames": 10,
+    "compareMinGames": 5,
+    "weights": {
+      "contribution": 25,
+      "appearances": 20,
+      "rating": 15,
+      "passAccuracy": 15,
+      "winRate": 10,
+      "motm": 10,
+      "accuracy": 5
+    },
+    "redCardPenalty": 2,
+    "ratingFloor": 6,
+    "passFloor": 60,
+    "points": {
+      "forward": {
+        "goal": 4,
+        "assist": 3,
+        "cleanSheet": 0,
+        "save": 0,
+        "conceded": 0
+      },
+      "midfielder": {
+        "goal": 5,
+        "assist": 4,
+        "cleanSheet": 1,
+        "save": 0,
+        "conceded": 0
+      },
+      "defender": {
+        "goal": 6,
+        "assist": 5,
+        "cleanSheet": 4,
+        "save": 0,
+        "conceded": -1
+      },
+      "goalkeeper": {
+        "goal": 6,
+        "assist": 5,
+        "cleanSheet": 4,
+        "save": 0.5,
+        "conceded": -1
+      },
+      "tackle": 0.25,
+      "passesPerPoint": 20,
+      "missedShot": -0.25,
+      "concededAllowance": 3
+    }
   },
   "seasons": [
     {

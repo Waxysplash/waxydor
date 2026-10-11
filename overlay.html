@@ -42,6 +42,7 @@
   <table><thead><tr><th>#</th><th class="n">Player</th><th class="c-apps">Apps</th><th>G</th><th>A</th><th class="c-ga">G+A</th><th>Rtg</th><th class="c-mom">MOTM</th><th>Idx</th></tr></thead><tbody id="rows"></tbody></table>
   <div class="foot"><span id="club"></span><span id="cd"></span></div>
 </div>
+<script src="ranking.js"></script>
 <script>
 (async function () {
   const p = new URLSearchParams(location.search);
@@ -53,24 +54,16 @@
   async function render() {
     const bust = "?t=" + Math.floor(Date.now() / 60000);
     const j = (f) => fetch("data/" + f + bust).then((r) => r.json());
-    const [config, members, club] = await Promise.all([j("config.json"), j("members.json"), j("club.json")]);
+    const [config, members, club, store] = await Promise.all([j("config.json"), j("members.json"), j("club.json"), j("matches.json")]);
     const now = new Date();
     const season = config.seasons.find((s) => new Date(s.start) <= now && now <= new Date(s.end)) || config.seasons.at(-1);
     let snap = { members: [] }; try { snap = await j("snapshots/" + season.id + "-start.json"); } catch (e) {}
-    const base = new Map(snap.members.map((m) => [m.name, m]));
-    const n = (v) => +v || 0;
-    const gname = (config.gaffer || "").toLowerCase();
-    const all = members.members.map((m) => { const b = base.get(m.name) || {}; const gp = n(m.gamesPlayed) - n(b.gamesPlayed); return { name: m.name, gp, g: n(m.goals) - n(b.goals), a: n(m.assists) - n(b.assists), mom: n(m.manOfTheMatch) - n(b.manOfTheMatch), rating: n(m.ratingAve) }; });
-    const gaffer = all.find((r) => r.name.toLowerCase() === gname && r.gp > 0);
-    const players = all.filter((r) => r.name.toLowerCase() !== gname && r.gp > 0);
-    const rows = players.filter((r) => r.gp >= config.index.minGames);
-    const unq = players.filter((r) => r.gp < config.index.minGames).sort((x, y) => (y.g + y.a) - (x.g + x.a) || y.rating - x.rating);
-    const maxR = Math.max(...rows.map((r) => r.rating), 1), maxC = Math.max(...rows.map((r) => (r.g + r.a) / r.gp), .01), maxM = Math.max(...rows.map((r) => r.mom / r.gp), .01);
-    for (const r of rows) r.idx = Math.round(100 * (config.index.ratingWeight * r.rating / maxR + config.index.contributionWeight * ((r.g + r.a) / r.gp) / maxC + config.index.momWeight * (r.mom / r.gp) / maxM));
-    rows.sort((x, y) => y.idx - x.idx || (y.g + y.a) - (x.g + x.a));
+    const R = WaxyRanking.rank({ config, members, matches: store.matches, snapshot: snap, season });
+    const gaffer = R.gaffer;
+    const rows = R.ranked, unq = R.provisional;
     const line = (r, i, cls, idx) => `<tr class="${cls}"><td>${i}</td><td class="n">${r.name}</td><td class="c-apps">${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td class="c-ga">${r.g + r.a}</td><td>${r.rating.toFixed(1)}</td><td class="c-mom">${r.mom}</td><td class="i">${idx}</td></tr>`;
     const ranked = [...rows, ...unq].slice(0, N);
-    document.getElementById("rows").innerHTML = ranked.map((r, i) => line(r, i + 1, r.idx == null ? "u" : "", r.idx == null ? "–" : r.idx)).join("") + (gaffer ? line(gaffer, "G", "g", "–") : "");
+    document.getElementById("rows").innerHTML = ranked.map((r, i) => line(r, i + 1, r.qualified ? "" : "u", r.index == null ? "–" : r.index)).join("") + (gaffer ? line(gaffer, "G", "g", "–") : "");
     const po = new Date(season.playoffsStart), end = new Date(season.end);
     const target = now < po ? po : end; const d = Math.max(0, Math.ceil((target - now) / 864e5));
     document.getElementById("phase").textContent = top5 ? `${season.name} · ${now < po ? d + "d to playoffs" : now <= end ? d + "d left" : "over"}` : season.name;

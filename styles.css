@@ -81,3 +81,30 @@ tbody.gaffer td.name { color: var(--accent-2); }
 tr.gaffer-line td.name { color: var(--accent-2); }
 .player.gaffer { border-color: rgba(242,201,76,.5); background: linear-gradient(160deg, rgba(242,201,76,.12), var(--panel-2)); }
 .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-2); border: 1px solid rgba(242,201,76,.5); border-radius: 999px; padding: 2px 7px; vertical-align: middle; margin-left: 6px; }
+
+/* Waxy index breakdowns and the rules tab */
+tr.prow { cursor: pointer; }
+tr.prow:hover td, tr.prow.open td { background: rgba(169,112,255,.06); }
+tr.bd td { text-align: left; white-space: normal; background: var(--panel-2); font-size: 13px; padding: 12px; }
+.bd-parts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.bd-parts span { background: rgba(0,0,0,.25); border-radius: 8px; padding: 4px 8px; color: var(--muted); }
+.bd-parts b { color: var(--text); }
+.bd-parts .neg b { color: var(--loss); }
+.bd-pts { color: var(--muted); line-height: 1.5; }
+.bd-pts b { color: var(--text); }
+.bd-st { color: var(--accent-2); font-size: 12px; margin-top: 6px; }
+tbody tr.sep td { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding-top: 14px; }
+.idx.prov { background: rgba(166,151,194,.12); color: var(--muted); }
+.player .bars { margin-top: 10px; display: grid; gap: 4px; }
+.player .bar { display: grid; grid-template-columns: 112px 1fr 48px; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+.player .bar i { height: 6px; border-radius: 3px; background: rgba(0,0,0,.3); overflow: hidden; }
+.player .bar s { display: block; height: 100%; background: var(--accent); }
+.player .bar b { text-align: right; color: var(--text); font-weight: 600; }
+.lead { margin: 0 0 10px; line-height: 1.55; }
+ul.rules { margin: 8px 0 0; padding-left: 18px; line-height: 1.55; font-size: 14px; }
+ul.rules li { margin-bottom: 6px; }
+ul.rules b { color: var(--text); }
+table.rules-t { min-width: 520px; }
+table.rules-t th { cursor: default; }
+table.rules-t td.wrap { white-space: normal; color: var(--muted); }
+code { background: rgba(0,0,0,.3); padding: 1px 6px; border-radius: 6px; }
