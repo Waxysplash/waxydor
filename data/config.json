@@ -19,6 +19,7 @@
     "ratingFloor": 6,
     "passFloor": 60,
     "passVolumeFull": 15,
+    "passVolumeFullKeeper": 5,
     "points": {
       "forward": {
         "goal": 4,

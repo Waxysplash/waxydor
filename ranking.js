@@ -109,7 +109,7 @@
         appearances: clamp(r.gp / best.gp),
         rating: between(r.rating, C.ratingFloor, best.rating),
         // Accuracy only counts in full at passVolumeFull completed passes per game, so 2/2 can't beat 40/47.
-        passAccuracy: between(r.passPct, C.passFloor, best.pass) * clamp((r.passes / r.gp) / C.passVolumeFull),
+        passAccuracy: between(r.passPct, C.passFloor, best.pass) * clamp((r.passes / r.gp) / (r.pos === "goalkeeper" ? C.passVolumeFullKeeper : C.passVolumeFull)),
         winRate: clamp(r.winPct / best.win),
         motm: clamp((r.mom / r.gp) / best.mom),
         accuracy: (clamp(r.shotPct / best.shot) + clamp(r.tacklePct / best.tackle)) / 2,
