@@ -49,7 +49,11 @@ try {
   const hits = await get(`allTimeLeaderboard/search?platform=${platform}&clubName=${encodeURIComponent(info.name)}`);
   division = hits.find((h) => String(h.clubId) === String(clubId))?.currentDivision ?? null;
 } catch (e) { console.warn("division lookup failed:", e.message); }
-writeJson("club.json", { fetchedAt: now, name: info.name, clubId, division, overall, kit: info.customKit });
+// EA's division can lag behind the game. A manual override in config applies only while EA still reports the old number.
+const ov = config.divisionOverride;
+const eaDivision = division;
+if (ov && division != null && String(division) === String(ov.whileEADivisionIs)) division = ov.division;
+writeJson("club.json", { fetchedAt: now, name: info.name, clubId, division, eaDivision, overall, kit: info.customKit });
 
 // 3. Matches: league + playoff. EA keeps only the last ~10 per type, so merge by matchId.
 const store = readJson("matches.json", { matches: [] });

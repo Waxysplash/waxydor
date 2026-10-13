@@ -1,8 +1,9 @@
 {
-  "fetchedAt": "2026-10-13T09:26:40.081Z",
+  "fetchedAt": "2026-10-13T13:59:01.730Z",
   "name": "Waxys Phantoms",
   "clubId": 392152,
-  "division": "3",
+  "division": "2",
+  "eaDivision": "3",
   "overall": {
     "clubId": "392152",
     "bestDivision": null,
