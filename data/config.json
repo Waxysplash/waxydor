@@ -16,6 +16,7 @@
       "accuracy": 5
     },
     "redCardPenalty": 2,
+    "bigGameMultiplier": 1.5,
     "ratingFloor": 6,
     "passFloor": 60,
     "passVolumeFull": 15,
@@ -81,5 +82,6 @@
     "division": "2",
     "whileEADivisionIs": "3",
     "note": "EA's public API still reported Division 3 on 13 Oct 2026 while the club was in Division 2. Applies only while EA says 3; once EA's number changes, EA's value is used again."
-  }
+  },
+  "bigGames": []
 }

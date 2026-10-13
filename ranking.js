@@ -12,7 +12,7 @@
     ["motm", "Man of the match per game", "Being the best player on the pitch"],
     ["accuracy", "Shot and tackle accuracy", "Finishing chances and winning tackles cleanly"],
   ];
-  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "conceded"];
+  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "conceded", "bigGames"];
 
   function inSeason(season) {
     return (m) => new Date(m.date) >= new Date(season.start) && new Date(m.date) <= new Date(season.end);
@@ -24,6 +24,8 @@
     const seasonMatches = (matches || []).filter(inSeason(season));
     const baseBy = new Map(((snapshot && snapshot.members) || []).map((m) => [m.name, m]));
     const pts = (pos) => P[pos] || P.forward;
+    // Big games are picked by the captain (config.bigGames); everything a player does in one counts bigGameMultiplier times.
+    const big = new Set((config.bigGames || []).map((b) => String(b.matchId)));
 
     const all = members.members.map((m) => {
       const b = baseBy.get(m.name) || {};
@@ -45,14 +47,20 @@
         if (cs && (pos === "defender" || pos === "goalkeeper")) L.csDefGk++;
         L.g += n(p.goals); L.a += n(p.assists); L.tk += n(p.tacklesMade); L.pm += n(p.passesMade); L.sh += n(p.shots);
         L.wins += x.result === "W" ? 1 : 0; L.rating += n(p.rating); L.pa += n(p.passAttempts); L.ta += n(p.tackleAttempts);
-        br.goals += n(p.goals) * R.goal;
-        br.assists += n(p.assists) * R.assist;
-        br.cleanSheets += cs * R.cleanSheet;
-        br.saves += n(p.saves) * R.save;
-        br.tackles += n(p.tacklesMade) * P.tackle;
-        br.passes += n(p.passesMade) / P.passesPerPoint;
-        br.missedShots += Math.max(0, n(p.shots) - n(p.goals)) * P.missedShot;
-        br.conceded += Math.max(0, n(p.goalsConceded) - P.concededAllowance) * R.conceded;
+        const got = {
+          goals: n(p.goals) * R.goal,
+          assists: n(p.assists) * R.assist,
+          cleanSheets: cs * R.cleanSheet,
+          saves: n(p.saves) * R.save,
+          tackles: n(p.tacklesMade) * P.tackle,
+          passes: n(p.passesMade) / P.passesPerPoint,
+          missedShots: Math.max(0, n(p.shots) - n(p.goals)) * P.missedShot,
+          conceded: Math.max(0, n(p.goalsConceded) - P.concededAllowance) * R.conceded,
+        };
+        let total = 0;
+        for (const k in got) { br[k] += got[k]; total += got[k]; }
+        // The extra is shown on its own line so the breakdown says exactly what the big game added.
+        if (big.has(String(x.matchId))) br.bigGames += total * (C.bigGameMultiplier - 1);
       }
       const pos = Object.entries(posCount).sort((x, y) => y[1] - x[1])[0]?.[0]
         || (POSITIONS.includes(m.favoritePosition) ? m.favoritePosition : "forward");

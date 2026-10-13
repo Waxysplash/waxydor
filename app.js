@@ -86,7 +86,7 @@
     : `<span class="idx${r.qualified || r.gaffer ? "" : " prov"}" title="${r.qualified || r.gaffer ? "" : "Provisional: needs " + C.minGames + " apps"}">${r.index}</span>`;
   const breakdownHtml = (r) => {
     const parts = WaxyRanking.FACTORS.map(([k, label]) => `<span><b>${fmt1(r.parts[k])}</b>/${C.weights[k]} ${label}</span>`).join("");
-    const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", conceded: "goals conceded" };
+    const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", conceded: "goals conceded", bigGames: "big-game bonus" };
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
     const status = r.gaffer ? "The gaffer · not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
@@ -163,6 +163,7 @@
         ${ptRow(`Each goal conceded past ${P.concededAllowance} in a game`, (p) => P[p].conceded)}
       </tbody></table></div>
       <ul class="rules">
+        <li><b>Big games:</b> the captain marks the games that mattered most, like promotion deciders. Everything in a big game counts <b>${C.bigGameMultiplier}×</b>: goals, assists, clean sheets, saves, tackles and passes, and missed shots and heavy defeats count ${C.bigGameMultiplier}× against you too. Big games have a ★ in the match log.</li>
         <li><b>Clean sheet:</b> a match where the team conceded nothing. EA's own clean-sheet count is unreliable, so it's taken from the score.</li>
         <li><b>Missed shots</b> cost a little so random shots hurt, but a goal is worth far more than a miss costs. Shoot when it's on.</li>
         <li><b>Positions:</b> EA records four: forward, midfielder, defender and keeper. ST and LW are both forward; CAM and CDM are both midfielder.</li>
@@ -180,11 +181,12 @@
     </div>`;
 
   // ---------- matches ----------
+  const bigBy = new Map((config.bigGames || []).map((b) => [String(b.matchId), b.label || ""]));
   const resColor = { W: "var(--win)", L: "var(--loss)", D: "var(--draw)" };
   $("#matches").innerHTML = seasonMatches.length ? seasonMatches.map((m, i) => `
     <div class="match" data-i="${i}">
       <div class="res" style="background:${resColor[m.result]}">${m.result}</div>
-      <div><div class="opp">vs ${m.opponent}</div><div class="meta">${new Date(m.date).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${m.matchType === "playoffMatch" ? "Playoff" : "League"}</div></div>
+      <div><div class="opp">vs ${m.opponent}</div><div class="meta">${bigBy.has(String(m.matchId)) ? `<span class="big">★ Big game${bigBy.get(String(m.matchId)) ? " · " + bigBy.get(String(m.matchId)) : ""}</span> ` : ""}${new Date(m.date).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${m.matchType === "playoffMatch" ? "Playoff" : "League"}</div></div>
       <div class="score">${m.goalsFor}–${m.goalsAgainst}</div>
     </div>
     <div class="lines" hidden>
