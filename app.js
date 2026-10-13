@@ -146,7 +146,7 @@
     <div class="card"><h3>The Waxy index, out of 100</h3>
       <div class="note">In order of weight. In each factor, the best regular (${C.compareMinGames}+ apps) gets the full points and everyone else gets their share of it.</div>
       <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Factor</th><th>Points</th><th class="name">What it rewards</th></tr></thead><tbody>
-        ${WaxyRanking.FACTORS.map(([k, label, what], i) => `<tr><td>${i + 1}</td><td class="name">${label}</td><td><b>${C.weights[k]}</b></td><td class="name wrap">${what}${k === "rating" ? ` (scored from ${C.ratingFloor.toFixed(1)} up to the best)` : k === "passAccuracy" ? ` (scored from ${C.passFloor}% up to the best)` : k === "accuracy" ? " (half each)" : ""}</td></tr>`).join("")}
+        ${WaxyRanking.FACTORS.map(([k, label, what], i) => `<tr><td>${i + 1}</td><td class="name">${label}</td><td><b>${C.weights[k]}</b></td><td class="name wrap">${what}${k === "rating" ? ` (scored from ${C.ratingFloor.toFixed(1)} up to the best)` : k === "passAccuracy" ? ` (scored from ${C.passFloor}% up to the best, in full at ${C.passVolumeFull}+ completed passes per game and less below that)` : k === "accuracy" ? " (half each)" : ""}</td></tr>`).join("")}
         <tr><td>–</td><td class="name">Red cards</td><td><b>−${C.redCardPenalty}</b></td><td class="name wrap">Each one taken off the total</td></tr>
       </tbody></table></div>
     </div>

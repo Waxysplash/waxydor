@@ -18,6 +18,7 @@
     "redCardPenalty": 2,
     "ratingFloor": 6,
     "passFloor": 60,
+    "passVolumeFull": 15,
     "points": {
       "forward": {
         "goal": 4,
