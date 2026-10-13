@@ -108,3 +108,13 @@ table.rules-t { min-width: 520px; }
 table.rules-t th { cursor: default; }
 table.rules-t td.wrap { white-space: normal; color: var(--muted); }
 code { background: rgba(0,0,0,.3); padding: 1px 6px; border-radius: 6px; }
+
+/* Season record card */
+.season-record .sr-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.season-record .sr-head span { color: var(--muted); font-size: 12px; }
+.sr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.sr-grid div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.sr-grid b { display: block; font-size: 22px; font-weight: 800; }
+.sr-grid div:first-child b { color: var(--accent-2); }
+.sr-grid span { color: var(--muted); font-size: 12px; }
+.sr-form { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 12px; }

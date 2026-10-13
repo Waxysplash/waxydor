@@ -96,7 +96,8 @@ for (const s of config.seasons) {
   const snap = join(DATA, "snapshots", `${s.id}-start.json`);
   if (!existsSync(snap) && new Date(s.start) <= new Date()) {
     // First season of the cycle starts from zero; later seasons snapshot the current totals.
-    const zero = s.fromZero ? { members: [] } : members;
+    // The club record is frozen too, so the site can show this season's W-D-L and promotions.
+    const zero = s.fromZero ? { members: [] } : { ...members, club: { overall } };
     writeFileSync(snap, JSON.stringify({ takenAt: now, ...zero }, null, 2) + "\n");
   }
 }

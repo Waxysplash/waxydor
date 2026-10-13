@@ -28,10 +28,30 @@
   $("#clubName").textContent = club.name;
   $("#record").innerHTML = [
     `<span class="pill">Division <b>${club.division || "–"}</b></span>`,
-    `<span class="pill"><b>${o.wins}</b>W <b>${o.ties}</b>D <b>${o.losses}</b>L</span>`,
-    `<span class="pill">GF <b>${o.goals}</b> GA <b>${o.goalsAgainst}</b></span>`,
     `<span class="pill">Skill <b>${o.skillRating}</b></span>`,
   ].join("");
+
+  // ---------- season record ----------
+  const n = (v) => +v || 0;
+  // EA's club totals run for the whole game cycle; a later season subtracts the totals frozen at its start.
+  const cb = (snapshot.club && snapshot.club.overall) || {};
+  const sd = (k) => n(o[k]) - n(cb[k]);
+  const W = sd("wins"), D = sd("ties"), Lo = sd("losses"), GF = sd("goals"), GA = sd("goalsAgainst"), PR = sd("promotions"), RL = sd("relegations");
+  const GP = W + D + Lo, gd = GF - GA;
+  const streak = n(o.wstreak) ? `W${n(o.wstreak)}` : n(o.unbeatenstreak) ? `${n(o.unbeatenstreak)} unbeaten` : "–";
+  const last10 = R.seasonMatches.slice(0, 10).map((m) => `<i class="${m.result}">${m.result}</i>`).join("");
+  const mins = Math.max(0, Math.round((now - new Date(club.fetchedAt)) / 6e4));
+  $("#seasonRecord").innerHTML = `
+    <div class="sr-head"><h3>${season.name} record</h3><span>Updated ${mins < 1 ? "just now" : mins < 60 ? mins + " min ago" : new Date(club.fetchedAt).toLocaleString()}</span></div>
+    <div class="sr-grid">
+      <div><b>Div ${club.division || "–"}</b><span>${PR} promotion${PR === 1 ? "" : "s"} · ${RL} relegation${RL === 1 ? "" : "s"}</span></div>
+      <div><b>${W}-${D}-${Lo}</b><span>W-D-L · ${GP} played · ${GP ? Math.round(100 * W / GP) : 0}% won</span></div>
+      <div><b>${GF}–${GA}</b><span>goals · ${gd > 0 ? "+" : ""}${gd} difference</span></div>
+      <div><b>${streak}</b><span>current streak${n(o.unbeatenstreak) > n(o.wstreak) && n(o.wstreak) ? ` · ${n(o.unbeatenstreak)} unbeaten` : ""}</span></div>
+      <div><b>${o.skillRating}</b><span>skill rating</span></div>
+    </div>
+    ${last10 ? `<div class="sr-form"><span>Last ${Math.min(10, R.seasonMatches.length)}</span><span class="form">${last10}</span></div>` : ""}`;
+
   $("#seasonName").textContent = season.name;
   const po = new Date(season.playoffsStart), end = new Date(season.end);
   const fmt = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
