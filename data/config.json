@@ -83,5 +83,12 @@
     "whileEADivisionIs": "3",
     "note": "EA's public API still reported Division 3 on 13 Oct 2026 while the club was in Division 2. Applies only while EA says 3; once EA's number changes, EA's value is used again."
   },
-  "bigGames": []
+  "bigGames": [
+    {
+      "matchId": "101162525420385",
+      "label": "Div 1 push · needed the draw",
+      "opponent": "MINUS ELEVEN FC",
+      "date": "2026-10-14"
+    }
+  ]
 }
