@@ -44,3 +44,11 @@ Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline a
 - **StreamElements:** `!table` → `$(urlfetch https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/table.txt)`
 - **Nightbot:** `!table` → `$(urlfetch https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/table.txt)`
 - `!waxydor` → `The Waxy d'Or race, every stat, every match: https://waxysplash.github.io/waxydor/`
+
+## Fan vote
+
+`vote.html` is the fan ballot for the Waxy d'Or: log in with Twitch, pick a 1st/2nd/3rd (5-3-1), one ballot per Twitch account (voting again replaces it), followers only. Totals are published when voting closes; individual ballots never are.
+
+- The server is `vote-api/`, deployed on Vercel with that folder as the project root. It checks every login with Twitch, checks the follow, and stores ballots in Upstash Redis keyed by Twitch user ID.
+- Vercel environment: `TWITCH_CLIENT_ID` (from dev.twitch.tv) plus the Upstash integration's `KV_REST_API_URL` / `KV_REST_API_TOKEN`.
+- Everything else is `fanVote` in `data/config.json`: dates, shortlist (set at the final whistle), points, `twitchClientId`, `apiUrl`. The server reads the same file, so page and server always agree.

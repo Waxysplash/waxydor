@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waxy d'Or Fan Vote</title>
+<meta name="description" content="Vote for the Waxys Phantoms player of the season. One ballot per Twitch account.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="crest">WP</div>
+      <div>
+        <h1>Waxy d'Or · Fan vote</h1>
+        <div class="sub"><a href="./">Back to the table</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card"><div id="status" class="lead">Loading…</div></div>
+  <div class="card" id="ballotCard" hidden>
+    <h3>Your ballot</h3>
+    <div class="note" id="who"></div>
+    <div class="vote-picks" id="picks"></div>
+    <button class="vbtn" id="submit" disabled>Cast my vote</button>
+    <div class="note" id="msg"></div>
+  </div>
+  <div class="card" id="resultsCard" hidden>
+    <h3>Fan vote results</h3>
+    <div id="results"></div>
+  </div>
+  <div class="card">
+    <h3>How the fan vote works</h3>
+    <ul class="rules" id="howto"></ul>
+  </div>
+</div>
+<script>
+(async function () {
+  const $ = (s) => document.querySelector(s);
+  const cfg = await fetch("data/config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json());
+  const V = cfg.fanVote || {}, P = V.points || [5, 3, 1];
+  const fmt = (d) => new Date(d).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const place = ["1st", "2nd", "3rd", "4th", "5th"];
+  $("#howto").innerHTML = `
+    <li><b>Who's on the ballot:</b> the top ${V.shortlist.length || 5} on the Waxy index when the season ends.</li>
+    <li><b>Your ballot:</b> pick a ${P.map((p, i) => `${place[i]} (${p} point${p === 1 ? "" : "s"})`).join(", ")}.</li>
+    <li><b>One vote per Twitch account.</b> Log in with Twitch; voting again replaces your earlier ballot, it never adds a second one.</li>
+    ${V.followersOnly ? `<li><b>Followers only:</b> you need to follow <a href="https://twitch.tv/${V.channel}">twitch.tv/${V.channel}</a>.</li>` : ""}
+    <li><b>Voting:</b> ${V.opens ? `${fmt(V.opens)} to ${fmt(V.closes)}` : "dates announced at the end of the season"}.</li>
+    <li><b>Results:</b> each player's total and number of 1st-place votes are published when voting closes. Nobody's individual ballot is published.</li>
+    <li><b>What it decides:</b> the winner is the Fans' Player of the Season. The captain picks the Waxy d'Or with the stats and the fan vote in front of him.</li>`;
+
+  const now = Date.now(), opens = new Date(V.opens).getTime(), closes = new Date(V.closes).getTime();
+  const ready = V.apiUrl && V.twitchClientId && V.shortlist.length;
+  const phase = !ready || now < opens ? "notOpen" : now <= closes ? "open" : "closed";
+  const api = (path, body) => fetch(V.apiUrl.replace(/\/$/, "") + path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {})
+    .then(async (r) => { const j = await r.json(); if (!r.ok) throw j; return j; });
+
+  if (phase === "notOpen") {
+    $("#status").innerHTML = V.shortlist.length
+      ? `Voting opens <b>${fmt(V.opens)}</b>. The shortlist: <b>${V.shortlist.join(", ")}</b>.`
+      : `Voting opens when the season ends. The shortlist is the top five on the <a href="./">Waxy index</a> at the final whistle${V.opens ? `, and voting runs <b>${fmt(V.opens)}</b> to <b>${fmt(V.closes)}</b>` : ""}.`;
+    return;
+  }
+
+  if (phase === "closed") {
+    $("#status").innerHTML = `Voting closed ${fmt(V.closes)}.`;
+    const r = await api("/api/results");
+    $("#resultsCard").hidden = false;
+    $("#results").innerHTML = `<div class="note">${r.ballots} ballot${r.ballots === 1 ? "" : "s"} counted.</div>
+      <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th><th>Points</th><th>1st-place votes</th></tr></thead><tbody>
+      ${r.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td><td><span class="idx">${x.points}</span></td><td>${x.first}</td></tr>`).join("")}</tbody></table></div>`;
+    return;
+  }
+
+  // Voting is open. Twitch hands the login back in the URL fragment; keep it for this tab only.
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("access_token")) {
+    if (h.get("state") === sessionStorage.getItem("waxy.state")) sessionStorage.setItem("waxy.token", h.get("access_token"));
+    history.replaceState(null, "", location.pathname);
+  }
+  const token = sessionStorage.getItem("waxy.token");
+  api("/api/results").then((r) => { $("#status").insertAdjacentHTML("beforeend", ` <span class="note">${r.ballots} ballot${r.ballots === 1 ? "" : "s"} cast so far.</span>`); }).catch(() => {});
+  if (!token) {
+    const state = crypto.getRandomValues(new Uint32Array(4)).join("-");
+    sessionStorage.setItem("waxy.state", state);
+    const u = new URL("https://id.twitch.tv/oauth2/authorize");
+    u.search = new URLSearchParams({ client_id: V.twitchClientId, redirect_uri: location.origin + location.pathname, response_type: "token", scope: "user:read:follows", state }).toString();
+    $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.<br><a class="vbtn twitch" href="${u}">Log in with Twitch to vote</a>`;
+    return;
+  }
+
+  let me;
+  try { me = await api("/api/vote", { token }); }
+  catch (e) { sessionStorage.removeItem("waxy.token"); $("#status").innerHTML = `${e.message || "Couldn't check your login."} <a href="">Try again</a>`; return; }
+  $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.`;
+  $("#ballotCard").hidden = false;
+  $("#who").innerHTML = `Logged in as <b>${me.login}</b>.` + (me.ballot ? ` You've voted: ${me.ballot.picks.map((p, i) => `${place[i]} ${p}`).join(", ")}. Voting again replaces it.` : "");
+  if (V.followersOnly && !me.follower) {
+    $("#who").innerHTML += ` <b>Follow <a href="https://twitch.tv/${V.channel}">twitch.tv/${V.channel}</a> to vote</b>, then reload this page.`;
+    return;
+  }
+  const picks = me.ballot ? [...me.ballot.picks] : P.map(() => "");
+  function render() {
+    $("#picks").innerHTML = P.map((pts, i) => `<label>${place[i]} <small>${pts} pt${pts === 1 ? "" : "s"}</small>
+      <select data-i="${i}"><option value="">Choose a player</option>${V.shortlist.map((n) => `<option ${picks[i] === n ? "selected" : ""} ${picks.includes(n) && picks[i] !== n ? "disabled" : ""}>${n}</option>`).join("")}</select></label>`).join("");
+    $("#submit").disabled = picks.some((p) => !p);
+  }
+  $("#picks").addEventListener("change", (e) => { picks[+e.target.dataset.i] = e.target.value; render(); });
+  $("#submit").addEventListener("click", async () => {
+    $("#submit").disabled = true; $("#msg").textContent = "Saving…";
+    try {
+      const r = await api("/api/vote", { token, picks });
+      $("#msg").innerHTML = `<b>${r.replaced ? "Ballot updated" : "Vote counted"}.</b> ${r.ballot.picks.map((p, i) => `${place[i]} ${p}`).join(", ")}.`;
+    } catch (e) { $("#msg").textContent = e.message || "Couldn't save your vote. Try again."; }
+    $("#submit").disabled = false;
+  });
+  render();
+})();
+</script>
+</body>
+</html>

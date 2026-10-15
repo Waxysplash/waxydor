@@ -1,0 +1,7 @@
+{
+  "name": "waxydor-vote-api",
+  "private": true,
+  "type": "module",
+  "description": "Waxy d'Or fan vote: one ballot per Twitch account. Deployed on Vercel with this folder as the project root.",
+  "engines": { "node": ">=20" }
+}

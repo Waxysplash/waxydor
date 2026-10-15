@@ -173,7 +173,7 @@
     <div class="card"><h3>Ties and awards</h3>
       <ul class="rules">
         <li><b>Ties:</b> on the same index, more appearances ranks higher. Still level, more contribution points.</li>
-        <li><b>Waxy d'Or (player of the season):</b> the top five qualified players on the index make the shortlist. Fans vote 5-3-1, one ballot each. The captain picks the winner with the stats and the fan vote in front of him. The captain's call is final.</li>
+        <li><b>Waxy d'Or (player of the season):</b> the top five qualified players on the index make the shortlist. Fans vote 5-3-1 on the <a href="vote.html">fan vote page</a>: log in with Twitch, one ballot per account${config.fanVote && config.fanVote.followersOnly ? ", followers only" : ""}. The captain picks the winner with the stats and the fan vote in front of him. The captain's call is final.</li>
         <li><b>Fans' Player of the Season:</b> the fan vote winner, even if the captain picks someone else.</li>
         <li><b>Automatic awards on season totals:</b> Golden Boot (goals), Playmaker (assists), Mr. Reliable (MOTM), Iron Man (appearances).</li>
         <li><b>In chat:</b> <code>!table</code> shows the top three by the Waxy index, the same as this page.</li>
