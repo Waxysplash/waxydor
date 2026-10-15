@@ -128,6 +128,6 @@
     "followersOnly": true,
     "channel": "waxysplash",
     "twitchClientId": "gh09zad39x7wvbd1susxb7fxuri0tp",
-    "apiUrl": ""
+    "apiUrl": "https://waxydor-vote-api.vercel.app"
   }
 }
