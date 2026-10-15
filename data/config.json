@@ -116,18 +116,25 @@
     }
   ],
   "fanVote": {
-    "season": "s1",
-    "opens": "2026-10-24T00:00:00-05:00",
-    "closes": "2026-10-27T23:59:59-05:00",
-    "shortlist": [],
+    "season": "test",
+    "opens": "2026-10-15T18:11:01.043Z",
+    "closes": "2026-10-15T19:31:01.043Z",
+    "shortlist": [
+      "George-Truly",
+      "Melo2Mellow",
+      "AuzzyBoz",
+      "Joshthomas213",
+      "oKingJJo"
+    ],
     "points": [
       5,
       3,
       1
     ],
-    "followersOnly": true,
+    "followersOnly": false,
     "channel": "waxysplash",
     "twitchClientId": "gh09zad39x7wvbd1susxb7fxuri0tp",
-    "apiUrl": "https://waxydor-vote-api.vercel.app"
+    "apiUrl": "https://waxydor-vote-api.vercel.app",
+    "test": true
   }
 }
