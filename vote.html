@@ -29,6 +29,11 @@
     <button class="vbtn" id="submit" disabled>Cast my vote</button>
     <div class="note" id="msg"></div>
   </div>
+  <div class="card captain" id="captainCard" hidden>
+    <h3>Captain's view · live totals</h3>
+    <div class="note">Only you can see this, because you're logged in as the channel owner. Fans see the totals when voting closes.</div>
+    <div id="captainResults"></div>
+  </div>
   <div class="card" id="resultsCard" hidden>
     <h3>Fan vote results</h3>
     <div id="results"></div>
@@ -99,6 +104,14 @@
   catch (e) { sessionStorage.removeItem("waxy.token"); $("#status").innerHTML = `${e.message || "Couldn't check your login."} <a href="">Try again</a>`; return; }
   $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.`;
   $("#ballotCard").hidden = false;
+  function showCaptain(c) {
+    if (!c) return;
+    $("#captainCard").hidden = false;
+    $("#captainResults").innerHTML = `<div class="note">${c.ballots} ballot${c.ballots === 1 ? "" : "s"} so far.</div>
+      <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th><th>Points</th><th>1st-place votes</th></tr></thead><tbody>
+      ${c.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td><td><span class="idx">${x.points}</span></td><td>${x.first}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+  showCaptain(me.captain);
   $("#who").innerHTML = `Logged in as <b>${me.login}</b>.` + (me.ballot ? ` You've voted: ${me.ballot.picks.map((p, i) => `${place[i]} ${p}`).join(", ")}. Voting again replaces it.` : "");
   if (V.followersOnly && !me.follower) {
     $("#who").innerHTML += ` <b>Follow <a href="https://twitch.tv/${V.channel}">twitch.tv/${V.channel}</a> to vote</b>, then reload this page.`;
@@ -116,6 +129,7 @@
     try {
       const r = await api("/api/vote", { token, picks });
       $("#msg").innerHTML = `<b>${r.replaced ? "Ballot updated" : "Vote counted"}.</b> ${r.ballot.picks.map((p, i) => `${place[i]} ${p}`).join(", ")}.`;
+      if (me.captain) api("/api/vote", { token }).then((x) => showCaptain(x.captain)).catch(() => {});
     } catch (e) { $("#msg").textContent = e.message || "Couldn't save your vote. Try again."; }
     $("#submit").disabled = false;
   });
