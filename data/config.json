@@ -79,14 +79,14 @@
     "logo": "brand/logo.png"
   },
   "divisionOverride": {
-    "division": "2",
-    "whileEADivisionIs": "3",
-    "note": "EA's public API still reported Division 3 on 13 Oct 2026 while the club was in Division 2. Applies only while EA says 3; once EA's number changes, EA's value is used again."
+    "division": "1",
+    "whileEADivisionIs": "2",
+    "note": "Promoted to Division 1 on 14 Oct 2026 (Kamal). EA's public API still reported Division 2 on 15 Oct. Applies only while EA says 2."
   },
   "bigGames": [
     {
       "matchId": "101162525420385",
-      "label": "Div 1 push · needed the draw",
+      "label": "Promotion to Div 1 · needed the draw",
       "opponent": "MINUS ELEVEN FC",
       "date": "2026-10-14"
     },
