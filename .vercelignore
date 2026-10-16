@@ -1,5 +1,4 @@
-# Not part of the public site: the vote server deploys separately, scripts run in GitHub Actions.
-vote-api
+# Not part of the public site; scripts run in GitHub Actions. (vote-api must NOT be listed: the vote server project reads this file too.)
 scripts
 node_modules
 .github
