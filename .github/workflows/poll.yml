@@ -17,7 +17,7 @@ jobs:
       - run: node scripts/poll.mjs
       - name: Commit if changed
         run: |
-          git config user.name "waxydor-bot"
-          git config user.email "actions@users.noreply.github.com"
+          git config user.name "Waxysplash"
+          git config user.email "259485011+Waxysplash@users.noreply.github.com"
           git add data
           if git diff --cached --quiet; then echo "no change"; else git commit -m "data: poll $(date -u +%Y-%m-%dT%H:%MZ)" && git push; fi

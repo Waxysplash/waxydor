@@ -1,0 +1,9 @@
+# Not part of the public site: the vote server deploys separately, scripts run in GitHub Actions.
+vote-api
+scripts
+node_modules
+.github
+package.json
+package-lock.json
+README.md
+LINKS.md

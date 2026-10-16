@@ -7,7 +7,9 @@ window.Waxy = (function () {
 
   async function load() {
     const bust = "?t=" + Math.floor(Date.now() / 60000);
-    const j = (f) => fetch("../data/" + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
+    // On waxysplash.com the stats come straight from GitHub, so the 20-minute poll never needs a redeploy.
+    const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "../data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+    const j = (f) => fetch(DATA + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
     if (!window.WaxyRanking) await new Promise((res, rej) => { const t = document.createElement("script"); t.src = "../ranking.js" + bust; t.onload = res; t.onerror = rej; document.head.appendChild(t); });
     const [config, members, club, store] = await Promise.all([j("config.json"), j("members.json"), j("club.json"), j("matches.json")]);
     const now = new Date();

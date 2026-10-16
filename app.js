@@ -1,7 +1,9 @@
 (async function () {
   const $ = (s) => document.querySelector(s);
   const bust = "?t=" + Math.floor(Date.now() / 60000);
-  const load = (f) => fetch("data/" + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
+// On waxysplash.com the stats come straight from GitHub, so the 20-minute poll never needs a redeploy.
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const load = (f) => fetch(DATA + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
   const [config, members, club, matchStore, awardsData] = await Promise.all([
     load("config.json"), load("members.json"), load("club.json"), load("matches.json"), load("awards.json"),
   ]);

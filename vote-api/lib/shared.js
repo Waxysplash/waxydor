@@ -4,7 +4,7 @@
 // site's data/config.json, so the page and the server can never disagree.
 
 const CONFIG_URL = process.env.CONFIG_URL || "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/config.json";
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://waxysplash.github.io,http://localhost:8765").split(",");
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://waxysplash.com,https://www.waxysplash.com,https://waxysplash.github.io,http://localhost:8765").split(",");
 
 export function cors(req, res) {
   const origin = req.headers.origin;

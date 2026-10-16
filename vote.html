@@ -46,7 +46,9 @@
 <script>
 (async function () {
   const $ = (s) => document.querySelector(s);
-  const cfg = await fetch("data/config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json());
+  // On waxysplash.com the stats come straight from GitHub, so the 20-minute poll never needs a redeploy.
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const cfg = await fetch(DATA + "config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json());
   const V = cfg.fanVote || {}, P = V.points || [5, 3, 1];
   const fmt = (d) => new Date(d).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   const place = ["1st", "2nd", "3rd", "4th", "5th"];
