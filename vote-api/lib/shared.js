@@ -1,4 +1,4 @@
-// Shared helpers for the Waxy d'Or fan vote API (Vercel serverless functions).
+// Shared helpers for the Waxy d'Or fan vote API (Vercel serverless functions), called from waxysplash.com.
 // One ballot per Twitch account: ballots are stored in Redis under the voter's Twitch user ID,
 // so voting again replaces the earlier ballot. Rules (window, shortlist, points) come from the
 // site's data/config.json, so the page and the server can never disagree.

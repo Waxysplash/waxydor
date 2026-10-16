@@ -1,8 +1,9 @@
-# Not part of the public site; scripts run in GitHub Actions. (vote-api must NOT be listed: the vote server project reads this file too.)
-scripts
-node_modules
-.github
-package.json
-package-lock.json
-README.md
-LINKS.md
+# Not part of the public site; scripts run in GitHub Actions. Every pattern is anchored with /:
+# the vote server project (root vote-api/) reads this file too, so nothing here may match inside vote-api/.
+/scripts
+/node_modules
+/.github
+/package.json
+/package-lock.json
+/README.md
+/LINKS.md
