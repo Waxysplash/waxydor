@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-16T23:40:18.369Z",
+  "fetchedAt": "2026-10-17T01:58:40.387Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -684,48 +684,12 @@
       "prevGoals9": "0",
       "prevGoals10": "0",
       "favoritePosition": "forward"
-    },
-    {
-      "name": "lx_joonr",
-      "gamesPlayed": "8",
-      "winRate": "75",
-      "goals": "0",
-      "assists": "1",
-      "cleanSheetsDef": "4",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "100",
-      "passSuccessRate": "87",
-      "ratingAve": "7.7",
-      "tacklesMade": "7",
-      "tackleSuccessRate": "70",
-      "proName": "joonr",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "180",
-      "proNationality": "70",
-      "proOverall": "78",
-      "proOverallStr": "78",
-      "manOfTheMatch": "1",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
     }
   ],
   "positionCount": {
     "midfielder": 5,
     "goalkeeper": 1,
     "forward": 8,
-    "defender": 5
+    "defender": 4
   }
 }
