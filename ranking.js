@@ -60,7 +60,7 @@
         let total = 0;
         for (const k in got) { br[k] += got[k]; total += got[k]; }
         // The extra is shown on its own line so the breakdown says exactly what the big game added.
-        if (big.has(String(x.matchId))) br.bigGames += total * (C.bigGameMultiplier - 1);
+        if (big.has(String(x.matchId)) || (C.playoffsAreBigGames && x.matchType === "playoffMatch")) br.bigGames += total * (C.bigGameMultiplier - 1);
       }
       const pos = Object.entries(posCount).sort((x, y) => y[1] - x[1])[0]?.[0]
         || (POSITIONS.includes(m.favoritePosition) ? m.favoritePosition : "forward");

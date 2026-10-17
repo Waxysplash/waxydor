@@ -17,6 +17,7 @@
     },
     "redCardPenalty": 2,
     "bigGameMultiplier": 1.5,
+    "playoffsAreBigGames": true,
     "ratingFloor": 6,
     "passFloor": 60,
     "passVolumeFull": 15,
