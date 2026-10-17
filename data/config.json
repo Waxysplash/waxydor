@@ -81,8 +81,8 @@
   },
   "divisionOverride": {
     "division": "1",
-    "whileEADivisionIs": "2",
-    "note": "Promoted to Division 1 on 14 Oct 2026 (Kamal). EA's public API still reported Division 2 on 15 Oct. Applies only while EA says 2."
+    "whileEADivisionIs": "4",
+    "note": "Kamal confirmed Division 1 on 17 Oct 2026 while EA's API reported 4 during the playoffs. Applies only while EA says 4."
   },
   "bigGames": [
     {
