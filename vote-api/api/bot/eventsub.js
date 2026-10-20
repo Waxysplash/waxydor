@@ -29,7 +29,10 @@ export default async function handler(req, res) {
   const { bot } = await ids();
   if (!text.startsWith("!") || e.chatter_user_id === bot?.id) return res.status(204).end();
   try {
-    const reply = await handleCommand(text, { login: e.chatter_user_login, name: e.chatter_user_name, id: e.chatter_user_id });
+    const reply = await handleCommand(text, {
+      login: e.chatter_user_login, name: e.chatter_user_name, id: e.chatter_user_id,
+      mod: (e.badges || []).some((b) => b.set_id === "moderator" || b.set_id === "broadcaster"),
+    });
     if (reply) await say(reply, e.message_id);
   } catch (err) {
     console.error("command failed", text, err);

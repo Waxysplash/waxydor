@@ -75,7 +75,7 @@
       "x": "@WaxySplash",
       "instagram": "@TTVWaxysplash",
       "tiktok": "@Waxysplash",
-      "discord": ""
+      "discord": "discord.gg/5Uu3nVP"
     },
     "logo": "brand/logo.png"
   },
@@ -135,7 +135,97 @@
     "note": "WaxyBot text commands and Twitch-name links. {user} = the chatter, {site} = the site link.",
     "twitchToPlayer": {},
     "commands": {
-      "!socials": "Twitch twitch.tv/waxysplash · TikTok @Waxysplash · X @WaxySplash · Instagram @TTVWaxysplash"
+      "!socials": "Twitch twitch.tv/waxysplash · TikTok @Waxysplash · X @WaxySplash · Instagram @TTVWaxysplash",
+      "!x5": {
+        "text": "Take care of the passes boys",
+        "cooldown": 30
+      },
+      "!welcome": {
+        "text": "Welcome to the splash pad ! Enjoy your stay and have fun",
+        "cooldown": 30
+      },
+      "!watermelon": {
+        "text": "🍉🍉🍉🍉🍉🍉",
+        "cooldown": 5
+      },
+      "!twitter": {
+        "text": "x.com/WaxySplash",
+        "cooldown": 0
+      },
+      "!x": {
+        "text": "x.com/WaxySplash",
+        "cooldown": 0
+      },
+      "!tiktok": {
+        "text": "https://www.tiktok.com/@waxysplash",
+        "cooldown": 30
+      },
+      "!speed": {
+        "text": "Wartime!",
+        "cooldown": 30
+      },
+      "!soccer": {
+        "text": "Football",
+        "cooldown": 30
+      },
+      "!shoutout": {
+        "text": "Check out {touser} at twitch.tv/{touser}",
+        "cooldown": 30,
+        "mods": true
+      },
+      "!so": {
+        "text": "Check out {touser} at twitch.tv/{touser}",
+        "cooldown": 30,
+        "mods": true
+      },
+      "!shop": {
+        "text": "https://waxysplash.myspreadshop.ca/",
+        "cooldown": 5
+      },
+      "!psn": {
+        "text": "TTVWaxysplash",
+        "cooldown": 0
+      },
+      "!offsides": {
+        "text": "Tommy Griez eh ! Ouu la la",
+        "cooldown": 30
+      },
+      "!lurk": {
+        "text": "In the bushes. You creep! <3",
+        "cooldown": 5
+      },
+      "!lucy": {
+        "text": "Nandos Gal",
+        "cooldown": 5
+      },
+      "!lickle": {
+        "text": "Goal Drought",
+        "cooldown": 30
+      },
+      "!jace": {
+        "text": "Why you moaning in my ear?",
+        "cooldown": 30
+      },
+      "!instagram": {
+        "text": "@TTVWaxysplash",
+        "cooldown": 30
+      },
+      "!gulagsplash": {
+        "text": "No place like home.",
+        "cooldown": 30
+      },
+      "!discord": {
+        "text": "https://discord.gg/5Uu3nVP join and have some fun !",
+        "cooldown": 5
+      },
+      "!club": {
+        "text": "Waxys Phantoms",
+        "cooldown": 5
+      },
+      "!#1": {
+        "text": "Thaichi",
+        "cooldown": 30
+      }
     }
   }
 }

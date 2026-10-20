@@ -139,6 +139,9 @@ export async function handleCommand(text, chatter) {
   const c = cmd.toLowerCase();
   const arg = rest.join(" ");
   const d = await loadData();
+  const def = (d.config.bot?.commands || {})[c];
+  const cooldown = (def && typeof def === "object" && def.cooldown) ?? 5;
+  if (cooldown > 0 && !chatter.mod && !(await redis("SET", "bot:cd:" + c, "1", "NX", "EX", cooldown))) return null;
   const site = d.config.siteUrl;
   const top = (n) => d.R.ranked.slice(0, n).map((r, i) => `${i + 1}. ${r.name} ${r.index}`).join(" | ");
 
@@ -179,11 +182,16 @@ export async function handleCommand(text, chatter) {
     case "!waxydor":
       return `The Waxy d'Or race, every stat, every match: ${site}`;
     case "!commands": case "!help":
-      return `Commands: !table !race !me !player <name> !last !record !vote !waxydor${Object.keys(d.config.bot?.commands || {}).length ? " " + Object.keys(d.config.bot.commands).join(" ") : ""}`;
+      return `Commands: !table !race !me !player <name> !last !record !vote !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
     default: {
-      // Simple text commands (!discord, !club, !socials, anything moved over from StreamElements) live in config.bot.commands.
-      const t = (d.config.bot?.commands || {})[c];
-      return t ? t.replace(/\{user\}/g, chatter.name).replace(/\{site\}/g, site) : null;
+      // Text commands (moved over from Streamlabs) live in config.bot.commands: a string, or { text, cooldown, mods }.
+      const def = (d.config.bot?.commands || {})[c];
+      if (!def) return null;
+      const t = typeof def === "string" ? { text: def } : def;
+      if (t.mods && !chatter.mod) return null;
+      const target = (rest[0] || "").replace(/^@/, "");
+      if (/\{touser\}/.test(t.text) && !target) return `Usage: ${c} <name>`;
+      return t.text.replace(/\{user\}/g, chatter.name).replace(/\{touser\}/g, target).replace(/\{site\}/g, site);
     }
   }
 }
