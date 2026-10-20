@@ -1,5 +1,5 @@
-// GET /api/bot/callback — Twitch sends the approver back here. We only need to know WHO approved:
-// the bot then chats with an app token, so no user token is stored. Once both the bot account and
+// GET /api/bot/callback — Twitch sends the approver back here. Chat runs on an app token; the only user
+// token kept is the bot account's refresh token, for !followage (Twitch shows followers only to mods). Once both the bot account and
 // the channel owner have approved, the chat subscription is created automatically.
 import { redis, loadVote } from "../../lib/shared.js";
 import { subscribeChat, ids } from "../../lib/bot.js";
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
       return page(res, "Wrong account", `You approved as ${who.login}. This step needs the channel owner, ${channel}.`, false);
   }
   await redis("SET", "bot:" + as, JSON.stringify(who));
+  if (as === "bot" && t.refresh_token) { await redis("SET", "bot:refresh", t.refresh_token); await redis("DEL", "bot:usertoken"); }
 
   const both = await ids();
   if (!both.bot || !both.broadcaster)

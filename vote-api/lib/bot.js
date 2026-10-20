@@ -34,6 +34,57 @@ export async function helix(method, path, body) {
   return j;
 }
 
+// The bot account's own token, refreshed as needed. Only used for things an app token can't do (!followage).
+async function botUserToken() {
+  const cached = await redis("GET", "bot:usertoken");
+  if (cached) return cached;
+  const refresh = await redis("GET", "bot:refresh");
+  if (!refresh) return null;
+  const r = await fetch("https://id.twitch.tv/oauth2/token", {
+    method: "POST",
+    body: new URLSearchParams({ client_id: CLIENT_ID(), client_secret: CLIENT_SECRET(), grant_type: "refresh_token", refresh_token: refresh }),
+  });
+  const j = await r.json();
+  if (!j.access_token) { console.error("bot token refresh failed", j); return null; }
+  await redis("SET", "bot:refresh", j.refresh_token);
+  await redis("SET", "bot:usertoken", j.access_token, "EX", Math.max(60, (j.expires_in || 3600) - 300));
+  return j.access_token;
+}
+
+function since(date, now = new Date()) {
+  const a = new Date(date), b = new Date(now);
+  // Whole calendar months first (a 31 Jan follow is "1 month" on 28/29 Feb), then the leftover days.
+  const addMonths = (n) => {
+    const y = a.getUTCFullYear(), m = a.getUTCMonth() + n;
+    const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    return new Date(Date.UTC(y, m, Math.min(a.getUTCDate(), last), a.getUTCHours(), a.getUTCMinutes()));
+  };
+  let months = (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth());
+  if (addMonths(months) > b) months--;
+  const days = Math.floor((b - addMonths(months)) / 864e5);
+  const part = (n, w) => (n ? `${n} ${w}${n === 1 ? "" : "s"}` : "");
+  return [part(Math.floor(months / 12), "year"), part(months % 12, "month"), part(days, "day")].filter(Boolean).join(", ") || "less than a day";
+}
+
+export { since };
+
+async function followage(login, name) {
+  const { bot, broadcaster } = await ids();
+  if (login.toLowerCase() === broadcaster.login.toLowerCase()) return `${name} is the captain. Following since day one.`;
+  const token = await botUserToken();
+  if (!token) return "!followage isn't set up yet.";
+  const u = await helix("GET", `users?login=${encodeURIComponent(login)}`);
+  const user = u.data?.[0];
+  if (!user) return `Can't find a Twitch user called ${login}.`;
+  const r = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcaster.id}&user_id=${user.id}`, {
+    headers: { Authorization: `Bearer ${token}`, "Client-Id": CLIENT_ID() },
+  });
+  if (!r.ok) { console.error("followage", r.status, await r.text()); return `!followage needs ${bot.login} to be a mod in the channel.`; }
+  const f = (await r.json()).data?.[0];
+  if (!f) return `${user.display_name} isn't following ${broadcaster.login} yet. Hit that follow button!`;
+  return `${user.display_name} has been following ${broadcaster.login} for ${since(f.followed_at)} (since ${new Date(f.followed_at).toUTCString().slice(5, 16)}).`;
+}
+
 export async function ids() {
   const [bot, broadcaster] = await Promise.all([redis("GET", "bot:bot"), redis("GET", "bot:broadcaster")]);
   return { bot: bot && JSON.parse(bot), broadcaster: broadcaster && JSON.parse(broadcaster) };
@@ -179,10 +230,14 @@ export async function handleCommand(text, chatter) {
       if (now <= new Date(v.closes)) return `Fan vote is OPEN until ${new Date(v.closes).toUTCString().slice(0, 22)} UTC. Log in with Twitch and pick your top 3: ${url}`;
       return `Fan vote is closed. Results: ${url}`;
     }
+    case "!followage": {
+      const target = (rest[0] || "").replace(/^@/, "");
+      return followage(target || chatter.login, target || chatter.name);
+    }
     case "!waxydor":
       return `The Waxy d'Or race, every stat, every match: ${site}`;
     case "!commands": case "!help":
-      return `Commands: !table !race !me !player <name> !last !record !vote !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
+      return `Commands: !table !race !me !player <name> !last !record !vote !followage !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
     default: {
       // Text commands (moved over from Streamlabs) live in config.bot.commands: a string, or { text, cooldown, mods }.
       const def = (d.config.bot?.commands || {})[c];
