@@ -28,11 +28,13 @@ export default async function handler(req, res) {
   const v = await (await fetch("https://id.twitch.tv/oauth2/validate", { headers: { Authorization: `OAuth ${t.access_token}` } })).json();
   const who = { id: v.user_id, login: v.login };
 
-  if (as === "broadcaster") {
-    const { channel } = await loadVote();
-    if (who.login.toLowerCase() !== String(channel).toLowerCase())
-      return page(res, "Wrong account", `You approved as ${who.login}. This step needs the channel owner, ${channel}.`, false);
-  }
+  const { channel } = await loadVote();
+  const isOwner = who.login.toLowerCase() === String(channel).toLowerCase();
+  if (as === "broadcaster" && !isOwner)
+    return page(res, "Wrong account", `You approved as ${who.login}. This step needs the channel owner, ${channel}.`, false);
+  // The bot must be its own account, never the channel owner, or it would talk in chat as the captain.
+  if (as === "bot" && isOwner)
+    return page(res, "Wrong account", `You approved as ${who.login}, the channel owner. Log in to Twitch as the bot account and open this link again.`, false);
   await redis("SET", "bot:" + as, JSON.stringify(who));
   if (as === "bot" && t.refresh_token) { await redis("SET", "bot:refresh", t.refresh_token); await redis("DEL", "bot:usertoken"); }
 
