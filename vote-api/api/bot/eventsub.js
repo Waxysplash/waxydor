@@ -1,7 +1,7 @@
 // POST /api/bot/eventsub — Twitch EventSub webhook for channel.chat.message.
 // Verifies Twitch's signature, answers "!" commands, ignores everything else.
 import { redis } from "../../lib/shared.js";
-import { webhookSecret, verifySignature, handleCommand, say, ids } from "../../lib/bot.js";
+import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent } from "../../lib/bot.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const body = JSON.parse(raw);
   const type = req.headers["twitch-eventsub-message-type"];
   if (type === "webhook_callback_verification") return res.status(200).setHeader("Content-Type", "text/plain").send(body.challenge);
-  if (type === "revocation") { console.warn("eventsub revoked", body.subscription?.status); return res.status(204).end(); }
+  if (type === "revocation") { console.warn("eventsub revoked", body.subscription?.status); await logEvent({ revoked: body.subscription?.status }); return res.status(204).end(); }
 
   // Twitch retries deliveries; answer each message once.
   const fresh = await redis("SET", "bot:seen:" + req.headers["twitch-eventsub-message-id"], "1", "NX", "EX", 600);
@@ -35,8 +35,10 @@ export default async function handler(req, res) {
       sub: (e.badges || []).some((b) => b.set_id === "subscriber" || b.set_id === "founder"),
     });
     if (reply) await say(reply, e.message_id);
+    await logEvent({ user: e.chatter_user_login, text: text.slice(0, 120), reply: reply ? reply.slice(0, 200) : null });
   } catch (err) {
     console.error("command failed", text, err);
+    await logEvent({ user: e.chatter_user_login, text: text.slice(0, 120), error: String(err.message || err).slice(0, 300) });
   }
   return res.status(204).end();
 }

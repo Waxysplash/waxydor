@@ -35,6 +35,14 @@ export async function helix(method, path, body) {
   return j;
 }
 
+// Every command and what the bot did with it, newest first, so problems can be traced after the fact.
+export async function logEvent(entry) {
+  try {
+    await redis("LPUSH", "bot:log", JSON.stringify({ t: new Date().toISOString(), ...entry }));
+    await redis("LTRIM", "bot:log", 0, 499);
+  } catch (e) { console.error("log failed", e); }
+}
+
 // The bot account's own token, refreshed as needed. Only used for things an app token can't do (!followage).
 async function botUserToken() {
   const cached = await redis("GET", "bot:usertoken");
