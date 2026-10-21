@@ -145,3 +145,4 @@ code { background: rgba(0,0,0,.3); padding: 1px 6px; border-radius: 6px; }
 .q-row .left { color: var(--muted); font-size: 12px; }
 .q-row.sub { border-color: rgba(242,201,76,.45); }
 .badge-sub { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #0e0b14; background: var(--accent-2); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
+.tab-live[hidden] { display: none; }
