@@ -30,6 +30,7 @@
     <div class="countdown" id="countdown"></div>
   </div>
 
+  <a class="queue-banner" id="queueBanner" href="#" data-goto="queue" hidden></a>
   <div class="card season-record" id="seasonRecord"></div>
 
   <nav class="tabs" id="tabs">
@@ -37,6 +38,7 @@
     <button data-tab="matches">Matches</button>
     <button data-tab="awards">Awards</button>
     <button data-tab="players">Players</button>
+    <button data-tab="queue">Queue <span class="tab-live" id="queueLive" hidden>LIVE</span></button>
     <button data-tab="rules">How it works</button>
   </nav>
 
@@ -72,6 +74,17 @@
     <div class="card">
       <h3>Squad</h3>
       <div class="players" id="players"></div>
+    </div>
+  </section>
+
+  <section id="tab-queue" hidden>
+    <div class="card">
+      <div class="q-head"><h3 id="queueTitle">Pro Clubs queue</h3><span class="note" id="queueUpdated"></span></div>
+      <div class="note">Viewers join from Twitch chat with <code>!join</code> and their position, e.g. <code>!join ST</code>. Subs ⭐ get priority, 3 matches per turn and first pick of position. <a href="queue.html">Full rules</a></div>
+      <h4 class="q-sub">On the pitch</h4>
+      <div class="q-list" id="queuePlaying"></div>
+      <h4 class="q-sub">In the queue</h4>
+      <div class="q-list" id="queueWaiting"></div>
     </div>
   </section>
 

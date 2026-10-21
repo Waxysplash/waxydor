@@ -34,7 +34,7 @@ async function withLock(fn) {
 // the front and ahead of everyone else; non-subs go to the back.
 export const ordered = (s) => s.waiting;
 function enqueue(s, rules, e) {
-  const entry = { login: e.login, name: e.name, ea: e.ea, pos: e.pos, sub: !!e.sub };
+  const entry = { login: e.login, name: e.name, pos: e.pos, sub: !!e.sub };
   let i = s.waiting.length;
   if (rules.subPriority && entry.sub) { i = 0; while (i < s.waiting.length && s.waiting[i].sub) i++; }
   s.waiting.splice(i, 0, entry);
@@ -43,8 +43,8 @@ function enqueue(s, rules, e) {
 export function publicView(s, rules) {
   return {
     open: s.open, updatedAt: s.updatedAt,
-    playing: s.playing.map(({ name, ea, pos, sub, left }) => ({ name, ea, pos, sub, matchesLeft: left })),
-    waiting: ordered(s, rules).map(({ name, ea, pos, sub }) => ({ name, ea, pos, sub })),
+    playing: s.playing.map(({ name, pos, sub, left }) => ({ name, pos, sub, matchesLeft: left })),
+    waiting: ordered(s, rules).map(({ name, pos, sub }) => ({ name, pos, sub })),
   };
 }
 
@@ -61,20 +61,16 @@ export async function command(c, args, chatter, rules, isFollower) {
     case "!join": {
       if (rules.followersOnly && !chatter.mod && !(await isFollower(chatter.id))) return `@${chatter.name} follow the channel first, then !join again.`;
       if (await redis("GET", "queue:ban:" + me)) return `@${chatter.name} you're out of the queue for tonight.`;
-      // "!join Melo2Mellow CM", "!join CM", or just "!join" once the EA name is remembered.
-      let pos = posOf(args.at(-1));
-      let ea = (pos ? args.slice(0, -1) : args).join(" ").trim();
-      const saved = JSON.parse((await redis("GET", "queue:ea:" + me)) || "null");
-      ea = ea || saved?.ea; pos = pos || saved?.pos || "ANY";
-      if (!ea) return `@${chatter.name} tell me your EA name and position: !join <EA name> <position>, e.g. !join Melo2Mellow CM`;
-      await redis("SET", "queue:ea:" + me, JSON.stringify({ ea, pos }));
+      // "!join ST": the position is all they type; who they are comes from the Twitch message itself.
+      const pos = args.map(posOf).find(Boolean);
+      if (!pos) return `@${chatter.name} ${args.length ? `"${args.join(" ").slice(0, 20)}" isn't a position. ` : ""}Type !join and your position, e.g. !join ST (GK CB LB RB CDM CM CAM LM RM LW RW ST, or ANY).`;
       return withLock((s) => {
         if (!s.open) return "The queue is closed right now.";
         if (s.playing.some((e) => e.login === me)) return `@${chatter.name} you're on the pitch already.`;
         const old = s.waiting.find((e) => e.login === me);
-        if (old) { Object.assign(old, { ea, pos, sub: chatter.sub }); return `@${chatter.name} updated: ${ea} (${pos}), #${where(s, rules, me)} in the queue.`; }
-        enqueue(s, rules, { login: me, name: chatter.name, ea, pos, sub: chatter.sub });
-        return `@${chatter.name} you're in at #${where(s, rules, me)} as ${ea} (${pos})${chatter.sub && rules.subPriority ? " · sub priority" : ""}.`;
+        if (old) { Object.assign(old, { pos, sub: !!chatter.sub }); return `@${chatter.name} position changed to ${pos}, you're #${where(s, rules, me)} in the queue.`; }
+        enqueue(s, rules, { login: me, name: chatter.name, pos, sub: chatter.sub });
+        return `@${chatter.name} you're in at #${where(s, rules, me)} (${pos})${chatter.sub && rules.subPriority ? " · ⭐ sub priority" : ""}.`;
       });
     }
     case "!leave":
@@ -85,7 +81,7 @@ export async function command(c, args, chatter, rules, isFollower) {
       });
     case "!queue": case "!q": case "!position": {
       const s = await load();
-      if (!s.open && !s.waiting.length && !s.playing.length) return "The queue is closed. It opens on Pro Clubs streams: !join <EA name> <position>.";
+      if (!s.open && !s.waiting.length && !s.playing.length) return "The queue is closed. It opens on Pro Clubs streams: !join <position>, e.g. !join ST.";
       const list = ordered(s, rules);
       const mine = where(s, rules, me);
       const on = s.playing.some((e) => e.login === me);
@@ -97,7 +93,7 @@ export async function command(c, args, chatter, rules, isFollower) {
   // Everything below is for mods and the captain.
   if (!chatter.mod) return null;
   switch (c) {
-    case "!qopen": return withLock((s) => { s.open = true; return "The Pro Clubs queue is OPEN! Type !join <EA name> <position> to get in. Followers only · subs get priority, 3 matches and first pick of position."; });
+    case "!qopen": return withLock((s) => { s.open = true; return "The Pro Clubs queue is OPEN! Type !join and your position to get in, e.g. !join ST. Followers only · subs get priority, 3 matches and first pick of position."; });
     case "!qclose": return withLock((s) => { s.open = false; return `Queue closed. ${s.waiting.length} still waiting stay in line for now.`; });
     case "!qclear": return withLock((s) => { Object.assign(s, { ...empty(), open: s.open }); return "Queue cleared."; });
     case "!next": {
@@ -109,7 +105,7 @@ export async function command(c, args, chatter, rules, isFollower) {
         if (!pick) return want ? `Nobody in the queue for ${want}.` : "Nobody waiting in the queue.";
         s.waiting = s.waiting.filter((e) => e !== pick);
         s.playing.push({ ...pick, left: turns(rules, pick.sub), calledAt: Date.now() });
-        return `${tag(pick)} you're up! Accept the Waxys Phantoms invite within ${rules.inviteMinutes} minutes · EA: ${pick.ea} · ${want || pick.pos} · ${turns(rules, pick.sub)} match${turns(rules, pick.sub) === 1 ? "" : "es"}.`;
+        return `${tag(pick)} you're up at ${want || pick.pos}! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes · ${turns(rules, pick.sub)} match${turns(rules, pick.sub) === 1 ? "" : "es"}.`;
       });
     }
     case "!ft": case "!fulltime":
@@ -137,7 +133,7 @@ export async function command(c, args, chatter, rules, isFollower) {
         if (!e) return `${target || "That player"} isn't on the pitch from the queue.`;
         s.playing = s.playing.filter((x) => x !== e);
         // Missed the invite: back in line behind the next noShowPenalty players, sub or not.
-        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, ea: e.ea, pos: e.pos, sub: e.sub });
+        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, pos: e.pos, sub: e.sub });
         return `${tag(e)} missed the invite, back in the queue at #${where(s, rules, e.login)}. !next for the next player.`;
       });
     case "!kick":

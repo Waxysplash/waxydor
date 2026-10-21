@@ -225,5 +225,27 @@
       <div><b>${r.rating.toFixed(1)}</b><span>rating</span></div><div><b>${r.passPct}%</b><span>pass</span></div><div><b>${r.winPct}%</b><span>win</span></div></div>
       <div class="bars">${WaxyRanking.FACTORS.map(([k, label]) => `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / C.weights[k]}%"></s></i><b>${fmt1(r.parts[k])}/${C.weights[k]}</b></div>`).join("")}</div></div>`).join("");
 
+  // ---------- live Pro Clubs queue ----------
+  const QAPI = ((config.fanVote && config.fanVote.apiUrl) || "").replace(/\/$/, "");
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const qRow = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
+    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}</div><div class="ps">${esc(e.pos)}</div>
+    <div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
+  async function refreshQueue() {
+    if (!QAPI) return;
+    try {
+      const q = await fetch(QAPI + "/api/queue").then((r) => r.json());
+      const live = q.open || q.playing.length > 0;
+      $("#queueLive").hidden = !q.open;
+      $("#queueBanner").hidden = !q.open;
+      $("#queueBanner").textContent = `Pro Clubs queue is open · ${q.waiting.length} waiting · ${q.playing.length} on the pitch · tap to see it`;
+      $("#queueTitle").textContent = q.open ? "Pro Clubs queue · OPEN" : "Pro Clubs queue · closed";
+      $("#queuePlaying").innerHTML = q.playing.length ? q.playing.map((e, i) => qRow(e, i, true)).join("") : `<div class="note">Nobody from the queue on the pitch.</div>`;
+      $("#queueWaiting").innerHTML = q.waiting.length ? q.waiting.map((e, i) => qRow(e, i, false)).join("") : `<div class="note">${live ? "Nobody waiting." : "The queue opens on Pro Clubs streams."}</div>`;
+      $("#queueUpdated").textContent = q.updatedAt ? "Updated " + new Date(q.updatedAt).toLocaleTimeString() : "";
+    } catch (e) { $("#queueUpdated").textContent = "Couldn't reach the queue, retrying…"; }
+  }
+  refreshQueue(); setInterval(refreshQueue, 10000);
+
   $("#footer").textContent = `Stats from EA Sports FC Pro Clubs, refreshed every 20 minutes. ${S.matches.length} matches on record. Season windows and awards are set by the captain.`;
 })();

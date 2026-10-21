@@ -57,10 +57,10 @@
     <h3>How to join</h3>
     <ol class="rules">
       <li>Follow <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a> and come to a Pro Clubs stream.</li>
-      <li>When the queue is open, type <code>!join &lt;EA name&gt; &lt;position&gt;</code> in chat, e.g. <code>!join Melo2Mellow CM</code>. After the first time, <code>!join</code> is enough.</li>
-      <li>When WaxyBot tags you, accept the <b>Waxys Phantoms</b> invite in EA FC.</li>
+      <li>When the queue is open, type <code>!join</code> and your position in chat, e.g. <code>!join ST</code>. WaxyBot knows who you are from your Twitch name.</li>
+      <li>When WaxyBot tags you, watch for the <b>Waxys Phantoms</b> invite in EA FC and accept it.</li>
     </ol>
-    <div class="note cmds">In chat: <code>!join</code> <code>!leave</code> <code>!queue</code> · Positions: GK CB LB RB CDM CM CAM LM RM LW RW ST, or ANY.</div>
+    <div class="note cmds">In chat: <code>!join ST</code> <code>!leave</code> <code>!queue</code> · Positions: GK CB LB RB CDM CM CAM LM RM LW RW ST, or ANY.</div>
   </div>
 
   <div class="card">
@@ -90,13 +90,13 @@
   $("#perks").innerHTML = perks.map(([t, d]) => `<div class="perk"><b>⭐ ${t}</b><span>${d}</span></div>`).join("");
 
   const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
-    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}<small>EA: ${esc(e.ea)}</small></div>
+    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}</div>
     <div class="ps">${esc(e.pos)}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
   async function refresh() {
     try {
       const s = await fetch(API + "/api/queue").then((r) => r.json());
       $("#status").className = "q-status" + (s.open ? " open" : "");
-      $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join in chat" : "It opens on Pro Clubs streams"}</span>`;
+      $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join and your position in chat" : "It opens on Pro Clubs streams"}</span>`;
       $("#playing").innerHTML = s.playing.length ? s.playing.map((e, i) => row(e, i, true)).join("") : `<div class="note">Nobody from the queue right now.</div>`;
       $("#waiting").innerHTML = s.waiting.length ? s.waiting.map((e, i) => row(e, i, false)).join("") : `<div class="note">${s.open ? "Empty. Be first: !join" : "Empty."}</div>`;
       $("#updated").textContent = s.updatedAt ? "Updated " + new Date(s.updatedAt).toLocaleTimeString() : "";
