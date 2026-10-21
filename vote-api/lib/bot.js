@@ -80,6 +80,19 @@ async function followedAt(userId) {
   return (await r.json()).data?.[0]?.followed_at || null;
 }
 
+// Health check for /api/bot/status: can the bot read the channel's followers right now?
+export async function followCheck() {
+  const { broadcaster } = await ids();
+  const token = await botUserToken();
+  if (!token) return "no bot token";
+  const r = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcaster.id}&first=1`, {
+    headers: { Authorization: `Bearer ${token}`, "Client-Id": CLIENT_ID() },
+  });
+  if (r.ok) return "ok";
+  const j = await r.json().catch(() => ({}));
+  return /permission/i.test(j.message || "") ? "bot is not a mod" : `twitch ${r.status}`;
+}
+
 // For the queue's followers-only rule. If Twitch can't be asked, let the viewer in rather than block them.
 async function isFollower(userId) {
   const { broadcaster } = await ids();
