@@ -3,6 +3,7 @@
 // data and the same ranking.js as the site, so chat and waxysplash.com never disagree.
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { redis } from "./shared.js";
+import * as queue from "./queue.js";
 
 const RAW = process.env.DATA_URL || "https://raw.githubusercontent.com/Waxysplash/waxydor/main/";
 const CLIENT_ID = () => process.env.BOT_CLIENT_ID;
@@ -67,6 +68,25 @@ function since(date, now = new Date()) {
 }
 
 export { since };
+
+async function followedAt(userId) {
+  const { broadcaster } = await ids();
+  const token = await botUserToken();
+  if (!token) return undefined;
+  const r = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcaster.id}&user_id=${userId}`, {
+    headers: { Authorization: `Bearer ${token}`, "Client-Id": CLIENT_ID() },
+  });
+  if (!r.ok) { console.error("followers", r.status, await r.text()); return undefined; }
+  return (await r.json()).data?.[0]?.followed_at || null;
+}
+
+// For the queue's followers-only rule. If Twitch can't be asked, let the viewer in rather than block them.
+async function isFollower(userId) {
+  const { broadcaster } = await ids();
+  if (userId === broadcaster.id) return true;
+  const at = await followedAt(userId);
+  return at !== null;
+}
 
 async function followage(login, name) {
   const { bot, broadcaster } = await ids();
@@ -190,6 +210,7 @@ export async function handleCommand(text, chatter) {
   const c = cmd.toLowerCase();
   const arg = rest.join(" ");
   const d = await loadData();
+  if (queue.QUEUE_COMMANDS.includes(c)) return queue.command(c, rest, chatter, d.config.queue || {}, isFollower);
   const def = (d.config.bot?.commands || {})[c];
   const cooldown = (def && typeof def === "object" && def.cooldown) ?? 5;
   if (cooldown > 0 && !chatter.mod && !(await redis("SET", "bot:cd:" + c, "1", "NX", "EX", cooldown))) return null;
@@ -237,7 +258,7 @@ export async function handleCommand(text, chatter) {
     case "!waxydor":
       return `The Waxy d'Or race, every stat, every match: ${site}`;
     case "!commands": case "!help":
-      return `Commands: !table !race !me !player <name> !last !record !vote !followage !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
+      return `Commands: !join !leave !queue !table !race !me !player <name> !last !record !vote !followage !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
     default: {
       // Text commands (moved over from Streamlabs) live in config.bot.commands: a string, or { text, cooldown, mods }.
       const def = (d.config.bot?.commands || {})[c];

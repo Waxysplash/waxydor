@@ -227,5 +227,21 @@
         "cooldown": 30
       }
     }
+  },
+  "queue": {
+    "followersOnly": true,
+    "matchesPerTurn": 1,
+    "subMatchesPerTurn": 3,
+    "subPriority": true,
+    "subFirstPick": true,
+    "inviteMinutes": 2,
+    "noShowPenalty": 3,
+    "rules": [
+      "Follow the channel to join. WaxyBot checks automatically.",
+      "Mic on, play your position, no rage quits. A rage quit takes you out of the queue for the night.",
+      "1 match per turn (subs: 3), then back of the queue. If nobody is waiting, you stay on.",
+      "When you're called, accept the Waxys Phantoms invite within 2 minutes or you drop back 3 places.",
+      "Waxys Phantoms squad regulars don't queue. The queue fills the spots that are left."
+    ]
   }
 }

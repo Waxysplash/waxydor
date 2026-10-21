@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pro Clubs Queue</title>
+<meta name="description" content="Join Waxys Phantoms on stream: the live Pro Clubs queue, the rules and sub perks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .q-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--loss); box-shadow: 0 0 0 4px rgba(255,92,122,.15); }
+  .q-status.open .q-dot { background: var(--win); box-shadow: 0 0 0 4px rgba(61,220,132,.18); }
+  .q-status b { font-size: 22px; }
+  .q-list { display: grid; gap: 8px; }
+  .q-row { display: grid; grid-template-columns: 40px 1fr auto auto; gap: 12px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .q-row .rk { font-weight: 800; font-size: 18px; color: var(--muted); text-align: center; }
+  .q-row .nm { font-weight: 700; }
+  .q-row .nm small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
+  .q-row .ps { font-weight: 800; color: var(--accent); }
+  .q-row.sub { border-color: rgba(242,201,76,.45); }
+  .q-row .left { color: var(--muted); font-size: 12px; }
+  .badge-sub { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #0e0b14; background: var(--accent-2); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
+  .perks { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .perk { background: var(--panel-2); border: 1px solid rgba(242,201,76,.35); border-radius: 12px; padding: 12px 14px; }
+  .perk b { display: block; color: var(--accent-2); font-size: 15px; margin-bottom: 4px; }
+  .perk span { color: var(--muted); font-size: 13px; }
+  .cmds code { margin-right: 4px; }
+  body.obs { background: transparent; }
+  body.obs .wrap > :not(#liveCard) { display: none; }
+  body.obs #liveCard { background: rgba(14,11,20,.85); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="crest">WP</div>
+      <div>
+        <h1>Play with Waxys Phantoms</h1>
+        <div class="sub"><a href="./">Waxy d'Or table</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card" id="liveCard">
+    <div class="q-status" id="status"><span class="q-dot"></span><b>Loading…</b></div>
+    <h3 style="margin-top:16px">On the pitch</h3>
+    <div class="q-list" id="playing"></div>
+    <h3 style="margin-top:16px">In the queue</h3>
+    <div class="q-list" id="waiting"></div>
+    <div class="note" id="updated"></div>
+  </div>
+
+  <div class="card">
+    <h3>How to join</h3>
+    <ol class="rules">
+      <li>Follow <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a> and come to a Pro Clubs stream.</li>
+      <li>When the queue is open, type <code>!join &lt;EA name&gt; &lt;position&gt;</code> in chat, e.g. <code>!join Melo2Mellow CM</code>. After the first time, <code>!join</code> is enough.</li>
+      <li>When WaxyBot tags you, accept the <b>Waxys Phantoms</b> invite in EA FC.</li>
+    </ol>
+    <div class="note cmds">In chat: <code>!join</code> <code>!leave</code> <code>!queue</code> · Positions: GK CB LB RB CDM CM CAM LM RM LW RW ST, or ANY.</div>
+  </div>
+
+  <div class="card">
+    <h3>Sub perks</h3>
+    <div class="perks" id="perks"></div>
+  </div>
+
+  <div class="card">
+    <h3>Queue rules</h3>
+    <ol class="rules" id="rules"></ol>
+  </div>
+</div>
+<script>
+(async function () {
+  const $ = (s) => document.querySelector(s);
+  if (new URLSearchParams(location.search).has("obs")) document.body.classList.add("obs");
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const cfg = await fetch(DATA + "config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json());
+  const Q = cfg.queue || {}, API = (cfg.fanVote && cfg.fanVote.apiUrl || "").replace(/\/$/, "");
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  $("#rules").innerHTML = (Q.rules || []).map((r) => `<li>${esc(r)}</li>`).join("");
+  const perks = [];
+  if (Q.subPriority) perks.push(["Queue priority", "Subs line up ahead of non-subs, in the order they joined."]);
+  if (Q.subMatchesPerTurn > Q.matchesPerTurn) perks.push([`${Q.subMatchesPerTurn} matches per turn`, `Everyone else plays ${Q.matchesPerTurn} match${Q.matchesPerTurn === 1 ? "" : "es"} per turn.`]);
+  if (Q.subFirstPick) perks.push(["First pick of position", "If a sub and a non-sub want the same spot, the sub gets it."]);
+  $("#perks").innerHTML = perks.map(([t, d]) => `<div class="perk"><b>⭐ ${t}</b><span>${d}</span></div>`).join("");
+
+  const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
+    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}<small>EA: ${esc(e.ea)}</small></div>
+    <div class="ps">${esc(e.pos)}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
+  async function refresh() {
+    try {
+      const s = await fetch(API + "/api/queue").then((r) => r.json());
+      $("#status").className = "q-status" + (s.open ? " open" : "");
+      $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join in chat" : "It opens on Pro Clubs streams"}</span>`;
+      $("#playing").innerHTML = s.playing.length ? s.playing.map((e, i) => row(e, i, true)).join("") : `<div class="note">Nobody from the queue right now.</div>`;
+      $("#waiting").innerHTML = s.waiting.length ? s.waiting.map((e, i) => row(e, i, false)).join("") : `<div class="note">${s.open ? "Empty. Be first: !join" : "Empty."}</div>`;
+      $("#updated").textContent = s.updatedAt ? "Updated " + new Date(s.updatedAt).toLocaleTimeString() : "";
+    } catch (e) { $("#updated").textContent = "Couldn't reach the queue. Retrying…"; }
+  }
+  refresh(); setInterval(refresh, 10000);
+})();
+</script>
+</body>
+</html>
