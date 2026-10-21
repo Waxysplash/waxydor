@@ -229,7 +229,7 @@
   const QAPI = ((config.fanVote && config.fanVote.apiUrl) || "").replace(/\/$/, "");
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const qRow = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
-    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}</div><div class="ps">${esc(e.pos)}</div>
+    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.note ? `<small style="display:block;color:var(--muted);font-weight:400;font-size:12px">${esc(e.note)}</small>` : ""}</div><div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div>
     <div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
   async function refreshQueue() {
     if (!QAPI) return;

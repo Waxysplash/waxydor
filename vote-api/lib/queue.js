@@ -34,7 +34,7 @@ async function withLock(fn) {
 // the front and ahead of everyone else; non-subs go to the back.
 export const ordered = (s) => s.waiting;
 function enqueue(s, rules, e) {
-  const entry = { login: e.login, name: e.name, pos: e.pos, sub: !!e.sub };
+  const entry = { login: e.login, name: e.name, pos: e.pos || "ANY", note: e.note || "", sub: !!e.sub };
   let i = s.waiting.length;
   if (rules.subPriority && entry.sub) { i = 0; while (i < s.waiting.length && s.waiting[i].sub) i++; }
   s.waiting.splice(i, 0, entry);
@@ -43,8 +43,8 @@ function enqueue(s, rules, e) {
 export function publicView(s, rules) {
   return {
     open: s.open, updatedAt: s.updatedAt,
-    playing: s.playing.map(({ name, pos, sub, left }) => ({ name, pos, sub, matchesLeft: left })),
-    waiting: ordered(s, rules).map(({ name, pos, sub }) => ({ name, pos, sub })),
+    playing: s.playing.map(({ name, pos, note, sub, left }) => ({ name, pos, note, sub, matchesLeft: left })),
+    waiting: ordered(s, rules).map(({ name, pos, note, sub }) => ({ name, pos, note, sub })),
   };
 }
 
@@ -61,16 +61,16 @@ export async function command(c, args, chatter, rules, isFollower) {
     case "!join": {
       if (rules.followersOnly && !chatter.mod && !(await isFollower(chatter.id))) return `@${chatter.name} follow the channel first, then !join again.`;
       if (await redis("GET", "queue:ban:" + me)) return `@${chatter.name} you're out of the queue for tonight.`;
-      // "!join ST": the position is all they type; who they are comes from the Twitch message itself.
-      const pos = args.map(posOf).find(Boolean);
-      if (!pos) return `@${chatter.name} ${args.length ? `"${args.join(" ").slice(0, 20)}" isn't a position. ` : ""}Type !join and your position, e.g. !join ST (GK CB LB RB CDM CM CAM LM RM LW RW ST, or ANY).`;
+      // Anything after !join is fine: it's kept as their note (Streamlabs-style), and a position in it is picked up.
+      const note = args.join(" ").replace(/\s+/g, " ").trim().slice(0, 40);
+      const pos = args.map(posOf).find(Boolean) || "ANY";
       return withLock((s) => {
-        if (!s.open) return "The queue is closed right now.";
+        if (!s.open) return `@${chatter.name} the queue is closed right now.`;
         if (s.playing.some((e) => e.login === me)) return `@${chatter.name} you're on the pitch already.`;
         const old = s.waiting.find((e) => e.login === me);
-        if (old) { Object.assign(old, { pos, sub: !!chatter.sub }); return `@${chatter.name} position changed to ${pos}, you're #${where(s, rules, me)} in the queue.`; }
-        enqueue(s, rules, { login: me, name: chatter.name, pos, sub: chatter.sub });
-        return `@${chatter.name} you're in at #${where(s, rules, me)} (${pos})${chatter.sub && rules.subPriority ? " · ⭐ sub priority" : ""}.`;
+        if (old) { Object.assign(old, { pos, note, sub: !!chatter.sub }); return `@${chatter.name} you're already in, #${where(s, rules, me)}${note ? ` (updated: ${note})` : ""}.`; }
+        enqueue(s, rules, { login: me, name: chatter.name, pos, note, sub: chatter.sub });
+        return `@${chatter.name} you're in the queue at #${where(s, rules, me)}${chatter.sub && rules.subPriority ? " · ⭐ sub priority" : ""}.`;
       });
     }
     case "!leave":
@@ -81,11 +81,11 @@ export async function command(c, args, chatter, rules, isFollower) {
       });
     case "!queue": case "!q": case "!position": {
       const s = await load();
-      if (!s.open && !s.waiting.length && !s.playing.length) return "The queue is closed. It opens on Pro Clubs streams: !join <position>, e.g. !join ST.";
+      if (!s.open && !s.waiting.length && !s.playing.length) return "The queue is closed. It opens on Pro Clubs streams: just type !join.";
       const list = ordered(s, rules);
       const mine = where(s, rules, me);
       const on = s.playing.some((e) => e.login === me);
-      const next = list.slice(0, 5).map((e, i) => `${i + 1}. ${e.name}${e.sub ? "⭐" : ""} (${e.pos})`).join(" | ");
+      const next = list.slice(0, 5).map((e, i) => `${i + 1}. ${e.name}${e.sub ? "⭐" : ""}${e.pos && e.pos !== "ANY" ? ` (${e.pos})` : ""}`).join(" | ");
       return `${s.open ? "Queue OPEN" : "Queue closed"} · ${list.length} waiting${next ? ": " + next : ""}${on ? ` · @${chatter.name} you're playing now` : mine ? ` · @${chatter.name} you're #${mine}` : ""}`;
     }
   }
@@ -93,21 +93,37 @@ export async function command(c, args, chatter, rules, isFollower) {
   // Everything below is for mods and the captain.
   if (!chatter.mod) return null;
   switch (c) {
-    case "!qopen": return withLock((s) => { s.open = true; return "The Pro Clubs queue is OPEN! Type !join and your position to get in, e.g. !join ST. Followers only · subs get priority, 3 matches and first pick of position."; });
+    case "!qopen": return withLock((s) => { s.open = true; return "The Pro Clubs queue is OPEN! Type !join to get in (add your position if you like, e.g. !join ST). Followers only · subs get priority, 3 matches and first pick of position."; });
     case "!qclose": return withLock((s) => { s.open = false; return `Queue closed. ${s.waiting.length} still waiting stay in line for now.`; });
     case "!qclear": return withLock((s) => { Object.assign(s, { ...empty(), open: s.open }); return "Queue cleared."; });
-    case "!next": {
-      // "!next" takes the first in line; "!next CB" takes the first who wants CB (or ANY). Subs are first in line, so they get first pick.
+    case "!next": case "!pick": case "!random": {
+      // !next = first in line · !next 3 = the next three · !next CB = first who wants CB (or ANY; subs are first in line,
+      // so they get first pick) · !pick @name = that person · !random = a random waiting player (Streamlabs-style).
+      const count = /^\d+$/.test(args[0] || "") ? Math.min(+args[0], 11) : 1;
       const want = posOf(args[0]);
       return withLock((s) => {
-        const list = ordered(s, rules);
-        const pick = want ? list.find((e) => e.pos === want) || list.find((e) => e.pos === "ANY") : list[0];
-        if (!pick) return want ? `Nobody in the queue for ${want}.` : "Nobody waiting in the queue.";
-        s.waiting = s.waiting.filter((e) => e !== pick);
-        s.playing.push({ ...pick, left: turns(rules, pick.sub), calledAt: Date.now() });
-        return `${tag(pick)} you're up at ${want || pick.pos}! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes · ${turns(rules, pick.sub)} match${turns(rules, pick.sub) === 1 ? "" : "es"}.`;
+        const called = [];
+        for (let i = 0; i < count; i++) {
+          const list = ordered(s, rules);
+          const pick = c === "!pick" ? list.find((e) => e.login === target)
+            : c === "!random" ? list[Math.floor(Math.random() * list.length)]
+            : want ? list.find((e) => e.pos === want) || list.find((e) => e.pos === "ANY") : list[0];
+          if (!pick) break;
+          s.waiting = s.waiting.filter((e) => e !== pick);
+          s.playing.push({ ...pick, pos: want || pick.pos, left: turns(rules, pick.sub), calledAt: Date.now() });
+          called.push(pick);
+        }
+        if (!called.length) return c === "!pick" ? `${target || "That player"} isn't waiting in the queue.` : want ? `Nobody in the queue for ${want}.` : "Nobody waiting in the queue.";
+        return `${called.map(tag).join(", ")} you're up! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes.${called.length === 1 ? ` ${turns(rules, called[0].sub)} match${turns(rules, called[0].sub) === 1 ? "" : "es"}${called[0].note ? ` · ${called[0].note}` : ""}.` : ""}`;
       });
     }
+    case "!remove":
+      // Take someone out without a ban (left, wrong person, etc.).
+      return withLock((s) => {
+        const was = [...s.waiting, ...s.playing].find((x) => x.login === target);
+        s.waiting = s.waiting.filter((x) => x.login !== target); s.playing = s.playing.filter((x) => x.login !== target);
+        return was ? `${tag(was)} removed from the queue.` : `${target || "That player"} isn't in the queue.`;
+      });
     case "!ft": case "!fulltime":
       // After each match: everyone from the queue on the pitch uses up a match. Turn over: back of the queue, unless nobody's waiting.
       return withLock((s) => {
@@ -133,7 +149,7 @@ export async function command(c, args, chatter, rules, isFollower) {
         if (!e) return `${target || "That player"} isn't on the pitch from the queue.`;
         s.playing = s.playing.filter((x) => x !== e);
         // Missed the invite: back in line behind the next noShowPenalty players, sub or not.
-        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, pos: e.pos, sub: e.sub });
+        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub });
         return `${tag(e)} missed the invite, back in the queue at #${where(s, rules, e.login)}. !next for the next player.`;
       });
     case "!kick":
@@ -149,4 +165,4 @@ export async function command(c, args, chatter, rules, isFollower) {
   return null;
 }
 
-export const QUEUE_COMMANDS = ["!join", "!leave", "!queue", "!q", "!position", "!qopen", "!qclose", "!qclear", "!next", "!ft", "!fulltime", "!noshow", "!kick"];
+export const QUEUE_COMMANDS = ["!join", "!leave", "!queue", "!q", "!position", "!qopen", "!qclose", "!qclear", "!next", "!pick", "!random", "!remove", "!ft", "!fulltime", "!noshow", "!kick"];

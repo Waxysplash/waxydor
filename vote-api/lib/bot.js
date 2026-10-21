@@ -172,6 +172,24 @@ export async function subscribeChat(callback) {
   });
 }
 
+// ---------- settings (data/config.json), cached for a minute ----------
+let cfgCache = { at: 0, c: null };
+export async function loadConfig() {
+  if (cfgCache.c && Date.now() - cfgCache.at < 60_000) return cfgCache.c;
+  const r = await fetch(RAW + "data/config.json?t=" + Math.floor(Date.now() / 60_000));
+  if (!r.ok) { if (cfgCache.c) return cfgCache.c; throw new Error("config " + r.status); }
+  cfgCache = { at: Date.now(), c: await r.json() };
+  return cfgCache.c;
+}
+
+// Commands added from chat (!addcom) live in Redis and win over the ones in config.bot.commands.
+async function customCommand(c, config) {
+  const fromChat = await redis("HGET", "bot:cmds", c);
+  if (fromChat) return JSON.parse(fromChat);
+  const def = (config.bot?.commands || {})[c];
+  return def ? (typeof def === "string" ? { text: def } : def) : null;
+}
+
 // ---------- club data (same files and ranking code as the site) ----------
 let cache = { at: 0, d: null };
 export async function loadData() {
@@ -226,17 +244,39 @@ export function matchLine(d, m) {
     (scorers ? ` · ${scorers}` : "") + (motm ? ` · MOTM ${motm.name}` : "");
 }
 
+// Timers (Nightbot/StreamElements-style): a message every N minutes, but only after M chat lines since the
+// last time, so the bot never talks to an empty room. "whenQueueOpen" timers only run while the queue is open.
+export async function runTimers(config) {
+  const timers = config.bot?.timers || [];
+  if (!timers.length) return;
+  let queueOpen = null;
+  for (const t of timers) {
+    const lines = await redis("INCR", "bot:timerlines:" + t.name);
+    if (lines < (t.minLines || 5)) continue;
+    if (t.whenQueueOpen) { queueOpen ??= (await queue.load()).open; if (!queueOpen) continue; }
+    if (!(await redis("SET", "bot:timer:" + t.name, "1", "NX", "EX", (t.minutes || 15) * 60))) continue;
+    await redis("SET", "bot:timerlines:" + t.name, 0);
+    await say(t.text);
+    await logEvent({ timer: t.name });
+  }
+}
+
+const STATS = ["!table", "!race", "!me", "!player", "!stats", "!last", "!record"];
+
 export async function handleCommand(text, chatter) {
   const [cmd, ...rest] = text.trim().split(/\s+/);
   const c = cmd.toLowerCase();
   const arg = rest.join(" ");
-  const d = await loadData();
-  if (queue.QUEUE_COMMANDS.includes(c)) return queue.command(c, rest, chatter, d.config.queue || {}, isFollower);
-  const def = (d.config.bot?.commands || {})[c];
-  const cooldown = (def && typeof def === "object" && def.cooldown) ?? 5;
+  const config = await loadConfig();
+  if (queue.QUEUE_COMMANDS.includes(c)) return queue.command(c, rest, chatter, config.queue || {}, isFollower);
+  const custom = await customCommand(c, config);
+  const cooldown = custom?.cooldown ?? 5;
   if (cooldown > 0 && !chatter.mod && !(await redis("SET", "bot:cd:" + c, "1", "NX", "EX", cooldown))) return null;
-  const site = d.config.siteUrl;
+  // Only the stats commands need the full club data and rankings; everything else answers straight away.
+  const d = STATS.includes(c) ? await loadData() : { config };
+  const site = config.siteUrl;
   const top = (n) => d.R.ranked.slice(0, n).map((r, i) => `${i + 1}. ${r.name} ${r.index}`).join(" | ");
+  const target = (rest[0] || "").replace(/^@/, "");
 
   switch (c) {
     case "!table":
@@ -278,17 +318,77 @@ export async function handleCommand(text, chatter) {
     }
     case "!waxydor":
       return `The Waxy d'Or race, every stat, every match: ${site}`;
-    case "!commands": case "!help":
-      return `Commands: !join !leave !queue !table !race !me !player <name> !last !record !vote !followage !waxydor${Object.entries(d.config.bot?.commands || {}).filter(([, v]) => !v.mods).map(([k]) => " " + k).join("")}`;
+    case "!uptime": {
+      const { broadcaster } = await ids();
+      const live = (await helix("GET", `streams?user_id=${broadcaster.id}`)).data?.[0];
+      if (!live) return `${broadcaster.login} is offline right now.`;
+      const mins = Math.floor((Date.now() - new Date(live.started_at)) / 60000);
+      return `Live for ${Math.floor(mins / 60) ? Math.floor(mins / 60) + "h " : ""}${mins % 60}m · ${live.game_name || "no category"}`;
+    }
+    case "!so": case "!shoutout": {
+      if (!chatter.mod) return null;
+      if (!target) return `Usage: ${c} @name`;
+      const u = (await helix("GET", `users?login=${encodeURIComponent(target.toLowerCase())}`)).data?.[0];
+      if (!u) return `Can't find ${target} on Twitch.`;
+      const ch = (await helix("GET", `channels?broadcaster_id=${u.id}`)).data?.[0];
+      return `Go check out ${u.display_name} at twitch.tv/${u.login}${ch?.game_name ? `, last seen playing ${ch.game_name}` : ""}! Drop them a follow 💜`;
+    }
+    case "!quote": {
+      const n = await redis("LLEN", "bot:quotes");
+      if (!n) return "No quotes yet. Mods can add one with !addquote <text>.";
+      const i = /^\d+$/.test(rest[0] || "") ? +rest[0] - 1 : Math.floor(Math.random() * n);
+      const q = await redis("LINDEX", "bot:quotes", i);
+      return q ? `#${i + 1}: ${JSON.parse(q).text}` : `There's no quote #${i + 1} (there are ${n}).`;
+    }
+    case "!addquote": {
+      if (!chatter.mod) return null;
+      if (!arg) return "Usage: !addquote <text>";
+      const n = await redis("RPUSH", "bot:quotes", JSON.stringify({ text: arg.slice(0, 300), by: chatter.login, at: new Date().toISOString() }));
+      return `Quote #${n} added.`;
+    }
+    case "!delquote": {
+      if (!chatter.mod) return null;
+      const i = +rest[0] - 1;
+      const q = await redis("LINDEX", "bot:quotes", i);
+      if (!q) return "Usage: !delquote <number>";
+      await redis("LSET", "bot:quotes", i, "__deleted__"); await redis("LREM", "bot:quotes", 1, "__deleted__");
+      return `Quote #${i + 1} deleted.`;
+    }
+    case "!addcom": case "!editcom": {
+      // Nightbot-style: !addcom !name reply text. {user} = who typed it, {touser} = who they named, {count} = times used.
+      if (!chatter.mod) return null;
+      const name = (rest[0] || "").toLowerCase();
+      const reply = rest.slice(1).join(" ");
+      if (!name.startsWith("!") || !reply) return `Usage: ${c} !name reply text ({user} {touser} {count} work)`;
+      if (STATS.includes(name) || queue.QUEUE_COMMANDS.includes(name)) return `${name} is a built-in command.`;
+      const exists = await redis("HEXISTS", "bot:cmds", name) || !!(config.bot?.commands || {})[name];
+      if (c === "!addcom" && exists) return `${name} already exists. Use !editcom.`;
+      await redis("HSET", "bot:cmds", name, JSON.stringify({ text: reply.slice(0, 400), cooldown: 10 }));
+      return `${name} ${exists ? "updated" : "added"}.`;
+    }
+    case "!delcom": {
+      if (!chatter.mod) return null;
+      const name = (rest[0] || "").toLowerCase();
+      const gone = await redis("HDEL", "bot:cmds", name);
+      if (gone) return `${name} deleted.`;
+      if ((config.bot?.commands || {})[name]) { await redis("HSET", "bot:cmds", name, JSON.stringify({ text: "", off: true })); return `${name} turned off.`; }
+      return `There's no ${name} command.`;
+    }
+    case "!commands": case "!help": {
+      const flat = (await redis("HGETALL", "bot:cmds")) || [];
+      const fromChat = {};
+      for (let k = 0; k < flat.length; k += 2) fromChat[flat[k]] = JSON.parse(flat[k + 1]);
+      const all = { ...(config.bot?.commands || {}), ...fromChat };
+      const text = Object.entries(all).filter(([, v]) => !(v && (v.mods || v.off))).map(([k]) => k).join(" ");
+      return `Commands: !join !leave !queue !uptime !quote !table !race !me !player <name> !last !record !vote !followage !waxydor ${text}`.slice(0, 500);
+    }
     default: {
-      // Text commands (moved over from Streamlabs) live in config.bot.commands: a string, or { text, cooldown, mods }.
-      const def = (d.config.bot?.commands || {})[c];
-      if (!def) return null;
-      const t = typeof def === "string" ? { text: def } : def;
-      if (t.mods && !chatter.mod) return null;
-      const target = (rest[0] || "").replace(/^@/, "");
-      if (/\{touser\}/.test(t.text) && !target) return `Usage: ${c} <name>`;
-      return t.text.replace(/\{user\}/g, chatter.name).replace(/\{touser\}/g, target).replace(/\{site\}/g, site);
+      // Text commands: from chat (!addcom) or config.bot.commands. A string, or { text, cooldown, mods }.
+      if (!custom || custom.off || !custom.text) return null;
+      if (custom.mods && !chatter.mod) return null;
+      if (/\{touser\}/.test(custom.text) && !target) return `Usage: ${c} @name`;
+      const count = /\{count\}/.test(custom.text) ? await redis("HINCRBY", "bot:counts", c, 1) : 0;
+      return custom.text.replace(/\{user\}/g, chatter.name).replace(/\{touser\}/g, target).replace(/\{count\}/g, count).replace(/\{site\}/g, site);
     }
   }
 }

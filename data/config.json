@@ -168,16 +168,6 @@
         "text": "Football",
         "cooldown": 30
       },
-      "!shoutout": {
-        "text": "Check out {touser} at twitch.tv/{touser}",
-        "cooldown": 30,
-        "mods": true
-      },
-      "!so": {
-        "text": "Check out {touser} at twitch.tv/{touser}",
-        "cooldown": 30,
-        "mods": true
-      },
       "!shop": {
         "text": "https://waxysplash.myspreadshop.ca/",
         "cooldown": 5
@@ -226,7 +216,28 @@
         "text": "Thaichi",
         "cooldown": 30
       }
-    }
+    },
+    "timers": [
+      {
+        "name": "queue",
+        "text": "⚽ The Pro Clubs queue is OPEN. Type !join to get a game with Waxys Phantoms. Subs ⭐ get priority. Live queue: https://waxysplash.github.io/waxydor/queue.html",
+        "minutes": 10,
+        "minLines": 5,
+        "whenQueueOpen": true
+      },
+      {
+        "name": "waxydor",
+        "text": "🏆 Who's winning the Waxy d'Or? Type !race for the shortlist, !me for your own score. Full table: https://waxysplash.github.io/waxydor/",
+        "minutes": 25,
+        "minLines": 10
+      },
+      {
+        "name": "socials",
+        "text": "Enjoying the stream? Hit follow 💜 · Discord: https://discord.gg/5Uu3nVP · TikTok @Waxysplash · !commands for everything WaxyBot can do",
+        "minutes": 30,
+        "minLines": 10
+      }
+    ]
   },
   "queue": {
     "followersOnly": true,
@@ -237,7 +248,7 @@
     "inviteMinutes": 2,
     "noShowPenalty": 3,
     "rules": [
-      "Follow the channel to join. WaxyBot checks automatically.",
+      "Type !join in chat to get in. Followers only: WaxyBot checks automatically.",
       "Mic on, play your position, no rage quits. A rage quit takes you out of the queue for the night.",
       "1 match per turn (subs: 3), then back of the queue. If nobody is waiting, you stay on.",
       "When you're called, accept the Waxys Phantoms invite within 2 minutes or you drop back 3 places.",

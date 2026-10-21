@@ -1,7 +1,7 @@
 // POST /api/bot/eventsub — Twitch EventSub webhook for channel.chat.message.
 // Verifies Twitch's signature, answers "!" commands, ignores everything else.
 import { redis } from "../../lib/shared.js";
-import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent } from "../../lib/bot.js";
+import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent, runTimers, loadConfig } from "../../lib/bot.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -27,7 +27,11 @@ export default async function handler(req, res) {
   const e = body.event || {};
   const text = e.message?.text || "";
   const { bot } = await ids();
-  if (!text.startsWith("!") || e.chatter_user_id === bot?.id) return res.status(204).end();
+  if (e.chatter_user_id === bot?.id) return res.status(204).end();
+  if (!text.startsWith("!")) {
+    try { await runTimers(await loadConfig()); } catch (err) { console.error("timers", err); }
+    return res.status(204).end();
+  }
   try {
     const reply = await handleCommand(text, {
       login: e.chatter_user_login, name: e.chatter_user_name, id: e.chatter_user_id,
