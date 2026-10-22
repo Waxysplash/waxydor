@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-22T05:34:22.792Z",
+  "fetchedAt": "2026-10-22T10:34:48.712Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -506,42 +506,6 @@
       "favoritePosition": "forward"
     },
     {
-      "name": "hitbank",
-      "gamesPlayed": "2",
-      "winRate": "50",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "21",
-      "passSuccessRate": "77",
-      "ratingAve": "7.2",
-      "tacklesMade": "1",
-      "tackleSuccessRate": "20",
-      "proName": "L. Foster",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "174",
-      "proNationality": "95",
-      "proOverall": "74",
-      "proOverallStr": "74",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
-    },
-    {
       "name": "Probud07",
       "gamesPlayed": "24",
       "winRate": "79",
@@ -798,6 +762,6 @@
     "midfielder": 6,
     "goalkeeper": 1,
     "forward": 6,
-    "defender": 7
+    "defender": 6
   }
 }
