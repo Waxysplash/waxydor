@@ -43,7 +43,7 @@ function enqueue(s, rules, e) {
 export function publicView(s, rules) {
   return {
     open: s.open, updatedAt: s.updatedAt,
-    playing: s.playing.map(({ name, pos, note, sub, left }) => ({ name, pos, note, sub, matchesLeft: left })),
+    playing: s.playing.map(({ login, name, pos, note, sub, left }) => ({ login, name, pos, note, sub, matchesLeft: left })),
     waiting: ordered(s, rules).map(({ login, name, pos, note, sub }) => ({ login, name, pos, note, sub })),
   };
 }
@@ -142,6 +142,15 @@ export async function command(c, args, chatter, rules, isFollower) {
         if (done.length && s.waiting.length) parts.push(`${done.length} spot${done.length === 1 ? "" : "s"} open: !next to call up the next player.`);
         return parts.join(" ") || `Match counted. ${s.playing.map((e) => `${e.name} ${e.left} left`).join(", ")}`;
       });
+    case "!back":
+      // Undo a pick: off the pitch and back to the front of the queue, no penalty.
+      return withLock((s) => {
+        const e = s.playing.find((x) => x.login === target);
+        if (!e) return `${target || "That player"} isn't on the pitch from the queue.`;
+        s.playing = s.playing.filter((x) => x !== e);
+        s.waiting.unshift({ login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub });
+        return `${tag(e)} is back in the queue at #1.`;
+      });
     case "!noshow":
       // Missed the invite: back into the queue, a few places down.
       return withLock((s) => {
@@ -165,4 +174,4 @@ export async function command(c, args, chatter, rules, isFollower) {
   return null;
 }
 
-export const QUEUE_COMMANDS = ["!join", "!leave", "!queue", "!q", "!position", "!qopen", "!qclose", "!qclear", "!next", "!pick", "!random", "!remove", "!ft", "!fulltime", "!noshow", "!kick"];
+export const QUEUE_COMMANDS = ["!join", "!leave", "!queue", "!q", "!position", "!qopen", "!qclose", "!qclear", "!next", "!pick", "!random", "!remove", "!back", "!ft", "!fulltime", "!noshow", "!kick"];

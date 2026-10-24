@@ -33,6 +33,11 @@
   .q-row.pick { cursor: pointer; }
   .q-row.pick:hover { border-color: var(--accent); }
   .q-row.busy { opacity: .5; pointer-events: none; }
+  .q-row.has-acts { grid-template-columns: 40px 1fr auto auto auto; }
+  .q-row .acts { display: flex; gap: 6px; }
+  @media (max-width: 520px) { .q-row.has-acts { grid-template-columns: 40px 1fr auto auto; } .q-row .acts { grid-column: 2 / -1; } }
+  .q-row .acts button { font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--ink, inherit); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
+  .q-row .acts button:hover { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -120,9 +125,10 @@
     if (e) $("#captain").insertAdjacentHTML("afterbegin", `${esc(e.message)} `);
   }
 
-  const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}${captain && !playing ? " pick" : ""}"${captain && !playing ? ` data-login="${esc(e.login)}" title="Put ${esc(e.name)} on the pitch"` : ""}><div class="rk">${playing ? "▶" : i + 1}</div>
+  const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}${captain && !playing ? " pick" : ""}${captain && playing ? " has-acts" : ""}"${captain && !playing ? ` data-login="${esc(e.login)}" title="Put ${esc(e.name)} on the pitch"` : ""}><div class="rk">${playing ? "▶" : i + 1}</div>
     <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.note ? `<small>${esc(e.note)}</small>` : ""}</div>
-    <div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
+    <div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div>${captain && playing ? `<div class="acts">
+    <button data-act="back" data-login="${esc(e.login)}" title="Back to the front of the queue">Back to queue</button><button data-act="remove" data-login="${esc(e.login)}" title="Take off the pitch and out of the queue">Remove</button></div>` : ""}</div>`;
   function render(s) {
       $("#status").className = "q-status" + (s.open ? " open" : "");
       $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join in chat" : "It opens on Pro Clubs streams"}</span>`;
@@ -136,15 +142,16 @@
   }
 
   // Captain: click a name in the queue to put them on the pitch (same as !pick @name; WaxyBot tags them in chat).
-  $("#waiting").addEventListener("click", async (ev) => {
-    const r = ev.target.closest(".q-row.pick");
-    if (!r) return;
+  // On the pitch: Back to queue (front of the line) or Remove.
+  async function act(r, action, login) {
     r.classList.add("busy");
-    try { const j = await post({ pick: r.dataset.login }); render(j.queue); $("#captain").textContent = j.message || ""; }
+    try { const j = await post({ action, login }); render(j.queue); $("#captain").textContent = j.message || ""; }
     catch (e) { r.classList.remove("busy"); if (e.status === 401 || e.status === 403) loggedOut(e); else $("#captain").textContent = e.message; }
-  });
+  }
+  $("#waiting").addEventListener("click", (ev) => { const r = ev.target.closest(".q-row.pick"); if (r) act(r, "pick", r.dataset.login); });
+  $("#playing").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-act]"); if (b) act(b.closest(".q-row"), b.dataset.act, b.dataset.login); });
   if (token) {
-    try { await post({}); captain = true; $("#captain").textContent = "Captain: click a name in the queue to put them on the pitch."; }
+    try { await post({}); captain = true; $("#captain").textContent = "Captain: click a name in the queue to put them on the pitch. Back to queue or Remove on the pitch."; }
     catch (e) { loggedOut(e.status === 401 ? null : e); }
   } else loginLink();
   refresh(); setInterval(refresh, 10000);
