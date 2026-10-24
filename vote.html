@@ -31,7 +31,7 @@
   </div>
   <div class="card captain" id="captainCard" hidden>
     <h3>Captain's view · live totals</h3>
-    <div class="note">Only you can see this, because you're logged in as the channel owner. Fans see the totals when voting closes.</div>
+    <div class="note">Only you can see this, because you're logged in as the channel owner. Fans only ever see the finishing order, never the points.</div>
     <div id="captainResults"></div>
   </div>
   <div class="card" id="resultsCard" hidden>
@@ -58,7 +58,7 @@
     <li><b>One vote per Twitch account.</b> Log in with Twitch; voting again replaces your earlier ballot, it never adds a second one.</li>
     ${V.followersOnly ? `<li><b>Followers only:</b> you need to follow <a href="https://twitch.tv/${V.channel}">twitch.tv/${V.channel}</a>.</li>` : ""}
     <li><b>Voting:</b> ${V.opens ? `${fmt(V.opens)} to ${fmt(V.closes)}` : "dates announced at the end of the season"}.</li>
-    <li><b>Results:</b> each player's total and number of 1st-place votes are published when voting closes. Nobody's individual ballot is published.</li>
+    <li><b>Results:</b> the finishing order is published when voting closes. Points totals and individual ballots are not.</li>
     <li><b>What it decides:</b> the winner is the Fans' Player of the Season. The captain picks the Waxy d'Or with the stats and the fan vote in front of him.</li>`;
 
   const now = Date.now(), opens = new Date(V.opens).getTime(), closes = new Date(V.closes).getTime();
@@ -74,30 +74,44 @@
     return;
   }
 
-  if (phase === "closed") {
-    $("#status").innerHTML = `Voting closed ${fmt(V.closes)}.`;
-    const r = await api("/api/results");
-    $("#resultsCard").hidden = false;
-    $("#results").innerHTML = `<div class="note">${r.ballots} ballot${r.ballots === 1 ? "" : "s"} counted.</div>
-      <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th><th>Points</th><th>1st-place votes</th></tr></thead><tbody>
-      ${r.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td><td><span class="idx">${x.points}</span></td><td>${x.first}</td></tr>`).join("")}</tbody></table></div>`;
-    return;
-  }
-
-  // Voting is open. Twitch hands the login back in the URL fragment; keep it for this tab only.
+  // Twitch hands the login back in the URL fragment; keep it for this tab only.
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get("access_token")) {
     if (h.get("state") === sessionStorage.getItem("waxy.state")) sessionStorage.setItem("waxy.token", h.get("access_token"));
     history.replaceState(null, "", location.pathname);
   }
   const token = sessionStorage.getItem("waxy.token");
-  api("/api/results").then((r) => { $("#status").insertAdjacentHTML("beforeend", ` <span class="note">${r.ballots} ballot${r.ballots === 1 ? "" : "s"} cast so far.</span>`); }).catch(() => {});
-  if (!token) {
+  function loginUrl() {
     const state = crypto.getRandomValues(new Uint32Array(4)).join("-");
     sessionStorage.setItem("waxy.state", state);
     const u = new URL("https://id.twitch.tv/oauth2/authorize");
     u.search = new URLSearchParams({ client_id: V.twitchClientId, redirect_uri: location.origin + location.pathname, response_type: "token", scope: "user:read:follows", state }).toString();
-    $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.<br><a class="vbtn twitch" href="${u}">Log in with Twitch to vote</a>`;
+    return u;
+  }
+  function showCaptain(c) {
+    if (!c) return;
+    $("#captainCard").hidden = false;
+    $("#captainResults").innerHTML = `<div class="note">${c.ballots} ballot${c.ballots === 1 ? "" : "s"}${phase === "closed" ? " counted" : " so far"}.</div>
+      <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th><th>Points</th><th>1st-place votes</th></tr></thead><tbody>
+      ${c.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td><td><span class="idx">${x.points}</span></td><td>${x.first}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+
+  if (phase === "closed") {
+    $("#status").innerHTML = `Voting closed ${fmt(V.closes)}.`;
+    const r = await api("/api/results");
+    $("#resultsCard").hidden = false;
+    // Finishing order only. The points stay in the captain's view.
+    $("#results").innerHTML = `<div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th></tr></thead><tbody>
+      ${r.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td></tr>`).join("")}</tbody></table></div>`;
+    if (token) api("/api/vote", { token }).then((me) => showCaptain(me.captain)).catch(() => sessionStorage.removeItem("waxy.token"));
+    else $("#results").insertAdjacentHTML("beforeend", `<div class="note"><a href="${loginUrl()}">Captain's login</a></div>`);
+    return;
+  }
+
+  // Voting is open.
+  api("/api/results").then((r) => { $("#status").insertAdjacentHTML("beforeend", ` <span class="note">${r.ballots} ballot${r.ballots === 1 ? "" : "s"} cast so far.</span>`); }).catch(() => {});
+  if (!token) {
+    $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.<br><a class="vbtn twitch" href="${loginUrl()}">Log in with Twitch to vote</a>`;
     return;
   }
 
@@ -106,13 +120,6 @@
   catch (e) { sessionStorage.removeItem("waxy.token"); $("#status").innerHTML = `${e.message || "Couldn't check your login."} <a href="">Try again</a>`; return; }
   $("#status").innerHTML = `Voting is open until <b>${fmt(V.closes)}</b>.`;
   $("#ballotCard").hidden = false;
-  function showCaptain(c) {
-    if (!c) return;
-    $("#captainCard").hidden = false;
-    $("#captainResults").innerHTML = `<div class="note">${c.ballots} ballot${c.ballots === 1 ? "" : "s"} so far.</div>
-      <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th><th>Points</th><th>1st-place votes</th></tr></thead><tbody>
-      ${c.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td><td><span class="idx">${x.points}</span></td><td>${x.first}</td></tr>`).join("")}</tbody></table></div>`;
-  }
   showCaptain(me.captain);
   $("#who").innerHTML = `Logged in as <b>${me.login}</b>.` + (me.ballot ? ` You've voted: ${me.ballot.picks.map((p, i) => `${place[i]} ${p}`).join(", ")}. Voting again replaces it.` : "");
   if (V.followersOnly && !me.follower) {

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Waxy d'Or reveal · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080. Tick "Refresh browser when scene becomes active" so the reveal replays on every switch.
+     Params: ?name=George-Truly (EA name; leave out to hold on "goes to…") &wait=6 (seconds before the name) &stats=0 (no stat tiles) */
+  .stage { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; gap: 18px; }
+  .eyebrow { opacity: 0; animation: up .9s .2s ease-out forwards; }
+  .title { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 150px; line-height: .9; color: var(--gold); text-shadow: 0 10px 60px rgba(242, 201, 76, .3); opacity: 0; animation: up 1s .6s ease-out forwards; }
+  .goes { font-family: var(--display); font-weight: 600; font-size: 54px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: up 1s 2s ease-out forwards; }
+  .name { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 190px; line-height: .95; letter-spacing: -.01em; color: var(--text); text-shadow: 0 0 80px rgba(242, 201, 76, .55); margin-top: 10px; }
+  .name, .tiles { opacity: 0; }
+  .revealed .name { animation: slam .9s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+  .revealed .tiles { animation: up .9s .7s ease-out forwards; }
+  .revealed .goes { animation: none; opacity: .35; transition: opacity .6s; }
+  .tiles { display: flex; gap: 18px; margin-top: 18px; }
+  .tile .num { color: var(--gold); }
+  .flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(900px 500px at 50% 55%, rgba(242, 201, 76, .45), transparent 70%); }
+  .revealed .flash { animation: flash 2.4s ease-out forwards; }
+  @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes slam { from { opacity: 0; transform: scale(1.6); filter: blur(12px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: .35; } }
+</style>
+</head>
+<body>
+<div class="scene" id="scene">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div><div class="stripes"></div><div class="grain"></div>
+  <div class="flash"></div>
+  <div class="stage">
+    <div class="eyebrow" id="eyebrow">Waxys Phantoms<span class="dot">·</span>Awards night</div>
+    <div class="title">The Waxy d'Or</div>
+    <div class="goes">goes to…</div>
+    <div class="name" id="name"></div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const name = W.param("name", "");
+  let d = null; try { d = await W.load(); } catch (e) {}
+  if (d) document.getElementById("eyebrow").innerHTML = `Waxys Phantoms<span class="dot">·</span>${d.season.name} awards`;
+  if (!name) return;
+  document.getElementById("name").textContent = name;
+  const r = d && [...d.rows, ...d.unq].find((x) => x.name.toLowerCase() === name.toLowerCase());
+  if (r && W.param("stats", "1") !== "0") {
+    const tile = (label, v) => `<div class="plate tile"><div class="label">${label}</div><div class="num">${v}</div></div>`;
+    document.getElementById("tiles").innerHTML = tile("Goals", r.g) + tile("Assists", r.a) + tile("Apps", r.gp) + tile("Waxy index", r.idx);
+  }
+  setTimeout(() => document.getElementById("scene").classList.add("revealed"), +W.param("wait", "6") * 1000);
+})();
+</script>
+</body>
+</html>
