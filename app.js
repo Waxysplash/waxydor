@@ -92,8 +92,10 @@
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
     const status = r.gaffer ? "The gaffer · not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
+    const v = r.vsPos;
+    const vs = v ? `<div class="bd-pts">Against an average player in the same position: <b>${v.points.toFixed(2)}×</b> the contribution points, <b>${v.motm.toFixed(2)}×</b> the MOTMs, match rating <b>${v.rating >= 0 ? "+" : "−"}${Math.abs(v.rating).toFixed(2)}</b></div>` : "";
     return `<div class="bd-parts">${parts}${r.penalty ? `<span class="neg"><b>−${r.penalty}</b> red cards</span>` : ""}</div>
-      <div class="bd-pts"><b>${fmt1(r.points)} contribution points</b> in ${r.gp} apps (${fmt1(r.ppg)} per game, main position ${r.pos}): ${pts || "none yet"}</div>
+      <div class="bd-pts"><b>${fmt1(r.points)} contribution points</b> in ${r.gp} apps (${fmt1(r.ppg)} per game, main position ${r.pos}): ${pts || "none yet"}</div>${vs}
       <div class="bd-st">${status}${r.index != null ? ` · index ${r.index}` : ` · index shown from ${C.compareMinGames} apps`}</div>`;
   };
   const rowHtml = (r, i) => `<tr class="${r.qualified || r.gaffer ? "" : "unq"} rank-${i} prow">
@@ -146,7 +148,7 @@
       </ul>
     </div>
     <div class="card"><h3>The Waxy index, out of 100</h3>
-      <div class="note">In order of weight. In each factor, the best regular (${C.compareMinGames}+ apps) gets the full points and everyone else gets their share of it.</div>
+      <div class="note">In order of weight. In each factor, the best regular (${C.compareMinGames}+ apps) gets the full points and everyone else gets their share of it.${season.positionRelative ? ` <b>Every position can win it:</b> contribution points, man of the match and match rating are judged against an average player in the same position, so a defender who outdoes the other defenders scores as well as a striker who outdoes the other strikers. The averages come from every match the club has saved, and each match counts by the position played in it.` : ""}</div>
       <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Factor</th><th>Points</th><th class="name">What it rewards</th></tr></thead><tbody>
         ${WaxyRanking.FACTORS.map(([k, label, what], i) => `<tr><td>${i + 1}</td><td class="name">${label}</td><td><b>${C.weights[k]}</b></td><td class="name wrap">${what}${k === "rating" ? ` (scored from ${C.ratingFloor.toFixed(1)} up to the best)` : k === "passAccuracy" ? ` (scored from ${C.passFloor}% up to the best, in full at ${C.passVolumeFull}+ completed passes per game, ${C.passVolumeFullKeeper}+ for keepers, and less below that)` : k === "accuracy" ? " (half each)" : ""}</td></tr>`).join("")}
         <tr><td>–</td><td class="name">Red cards</td><td><b>−${C.redCardPenalty}</b></td><td class="name wrap">Each one taken off the total</td></tr>
