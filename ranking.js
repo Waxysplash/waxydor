@@ -71,14 +71,26 @@
     }
 
     const all = members.members.map((m) => {
-      const b = baseBy.get(m.name) || {};
-      const d = (k) => n(m[k]) - n(b[k]);
+      // Every saved match is scored by the position played in it.
+      const lines = seasonMatches.flatMap((x) => x.players.filter((p) => p.name === m.name).map((p) => ({ p, x })));
+      let d;
+      if (baseBy.has(m.name) || season.fromZero) {
+        const b = baseBy.get(m.name) || {};
+        d = (k) => n(m[k]) - n(b[k]);
+      } else {
+        // Missing from the start-of-season snapshot (new, or EA left them off the list that day), so EA's totals would
+        // include earlier seasons. Their season is just their saved matches.
+        const sum = (f) => lines.reduce((t, { p, x }) => t + f(p, x), 0);
+        const fromLines = {
+          gamesPlayed: lines.length, goals: sum((p) => n(p.goals)), assists: sum((p) => n(p.assists)), manOfTheMatch: sum((p) => n(p.mom)),
+          passesMade: sum((p) => n(p.passesMade)), tacklesMade: sum((p) => n(p.tacklesMade)), redCards: sum((p) => n(p.redCards)),
+          cleanSheetsDef: sum((p, x) => x.goalsAgainst === 0 && (p.pos === "defender" || p.pos === "goalkeeper") ? 1 : 0), cleanSheetsGK: 0,
+        };
+        d = (k) => fromLines[k] || 0;
+      }
       const gp = d("gamesPlayed"), g = d("goals"), a = d("assists"), mom = d("manOfTheMatch");
       const passes = d("passesMade"), tackles = d("tacklesMade"), reds = d("redCards");
       const csEA = d("cleanSheetsDef") + d("cleanSheetsGK");
-
-      // Every saved match is scored by the position played in it.
-      const lines = seasonMatches.flatMap((x) => x.players.filter((p) => p.name === m.name).map((p) => ({ p, x })));
       const posCount = {};
       const L = { g: 0, a: 0, tk: 0, pm: 0, sh: 0, csDefGk: 0, wins: 0, rating: 0, pa: 0, ta: 0 };
       const br = Object.fromEntries(BREAKDOWN.map((k) => [k, 0]));
