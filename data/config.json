@@ -11,8 +11,8 @@
       "appearances": 10,
       "rating": 15,
       "passAccuracy": 15,
-      "winRate": 10,
-      "motm": 10,
+      "winRate": 15,
+      "motm": 5,
       "accuracy": 5
     },
     "redCardPenalty": 2,
