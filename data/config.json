@@ -55,6 +55,8 @@
       "tackle": 0.25,
       "passesPerPoint": 20,
       "missedShot": -0.25,
+      "bigMiss": -2,
+      "hatTrick": 2,
       "concededAllowance": 3
     }
   },
@@ -74,6 +76,40 @@
         "winRate": 10,
         "motm": 10,
         "accuracy": 5
+      },
+      "points": {
+        "forward": {
+          "goal": 4,
+          "assist": 3,
+          "cleanSheet": 0,
+          "save": 0,
+          "conceded": 0
+        },
+        "midfielder": {
+          "goal": 5,
+          "assist": 4,
+          "cleanSheet": 1,
+          "save": 0,
+          "conceded": 0
+        },
+        "defender": {
+          "goal": 6,
+          "assist": 5,
+          "cleanSheet": 4,
+          "save": 0,
+          "conceded": -1
+        },
+        "goalkeeper": {
+          "goal": 6,
+          "assist": 5,
+          "cleanSheet": 4,
+          "save": 0.5,
+          "conceded": -1
+        },
+        "tackle": 0.25,
+        "passesPerPoint": 20,
+        "missedShot": -0.25,
+        "concededAllowance": 3
       }
     },
     {
@@ -129,6 +165,7 @@
       "date": "2026-10-14"
     }
   ],
+  "bigMisses": [],
   "fanVote": {
     "season": "s1",
     "opens": "2026-10-23T03:45:00Z",

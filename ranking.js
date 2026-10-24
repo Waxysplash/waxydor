@@ -12,20 +12,24 @@
     ["motm", "Man of the match per game", "Being the best player on the pitch"],
     ["accuracy", "Shot and tackle accuracy", "Finishing chances and winning tackles cleanly"],
   ];
-  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "conceded", "bigGames"];
+  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "hatTricks", "conceded", "bigGames"];
 
   function inSeason(season) {
     return (m) => new Date(m.date) >= new Date(season.start) && new Date(m.date) <= new Date(season.end);
   }
 
   function rank({ config, members, matches, snapshot, season }) {
-    const C = config.index, P = C.points;
+    // A season can keep its own point values (season.points), so a finished season isn't rescored when the rules change.
+    const C = config.index, P = season.points || C.points;
     const gname = (config.gaffer || "").toLowerCase();
     const seasonMatches = (matches || []).filter(inSeason(season));
     const baseBy = new Map(((snapshot && snapshot.members) || []).map((m) => [m.name, m]));
     const pts = (pos) => P[pos] || P.forward;
     // Big games are picked by the captain (config.bigGames); everything a player does in one counts bigGameMultiplier times.
     const big = new Set((config.bigGames || []).map((b) => String(b.matchId)));
+    // Big misses are logged by the captain after the stream (config.bigMisses), one entry per miss.
+    const misses = new Map();
+    for (const b of config.bigMisses || []) { const k = b.matchId + "|" + b.player; misses.set(k, (misses.get(k) || 0) + (b.count || 1)); }
     const posOf = (p) => POSITIONS.includes(p.pos) ? p.pos : "forward";
     // One match line, scored by the position played. bigExtra is what a big game adds on top.
     function scoreLine(p, x) {
@@ -40,6 +44,8 @@
         tackles: n(p.tacklesMade) * P.tackle,
         passes: n(p.passesMade) / P.passesPerPoint,
         missedShots: Math.max(0, n(p.shots) - n(p.goals)) * P.missedShot,
+        bigMisses: (misses.get(x.matchId + "|" + p.name) || 0) * n(P.bigMiss),
+        hatTricks: n(p.goals) >= 3 ? n(P.hatTrick) : 0,
         conceded: Math.max(0, n(p.goalsConceded) - P.concededAllowance) * R.conceded,
       };
       let total = 0;
