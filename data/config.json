@@ -175,7 +175,24 @@
       "date": "2026-10-14"
     }
   ],
-  "bigMisses": [],
+  "bigMisses": [
+    {
+      "matchId": "135616778750097",
+      "player": "AuzzyBoz",
+      "opponent": "Useless",
+      "date": "2026-10-24",
+      "count": 1,
+      "note": "Game not given; logged on the last game of the night"
+    },
+    {
+      "matchId": "135740475950312",
+      "player": "CHIN0_LOKZ650",
+      "opponent": "Panhandle FC",
+      "date": "2026-10-24",
+      "count": 3,
+      "note": "Game not given; logged on the last game of the night"
+    }
+  ],
   "fanVote": {
     "season": "s1",
     "opens": "2026-10-23T03:45:00Z",
