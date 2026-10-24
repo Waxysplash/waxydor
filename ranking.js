@@ -98,7 +98,7 @@
       const passes = d("passesMade"), tackles = d("tacklesMade"), reds = d("redCards");
       const csEA = d("cleanSheetsDef") + d("cleanSheetsGK");
       const posCount = {};
-      const L = { g: 0, a: 0, tk: 0, pm: 0, sh: 0, csDefGk: 0, wins: 0, rating: 0, pa: 0, ta: 0 };
+      const L = { g: 0, a: 0, tk: 0, pm: 0, sh: 0, csDefGk: 0, wins: 0, rating: 0, pa: 0, ta: 0, sv: 0, gc: 0 };
       const br = Object.fromEntries(BREAKDOWN.map((k) => [k, 0]));
       const exp = { pts: 0, mom: 0, rating: 0 };
       for (const { p, x } of lines) {
@@ -107,6 +107,7 @@
         if (cs && (pos === "defender" || pos === "goalkeeper")) L.csDefGk++;
         L.g += n(p.goals); L.a += n(p.assists); L.tk += n(p.tacklesMade); L.pm += n(p.passesMade); L.sh += n(p.shots);
         L.wins += x.result === "W" ? 1 : 0; L.rating += n(p.rating); L.pa += n(p.passAttempts); L.ta += n(p.tackleAttempts);
+        if (pos === "goalkeeper") { L.sv += n(p.saves); L.gc += n(p.goalsConceded); }
         for (const k in got) br[k] += got[k];
         // The extra is shown on its own line so the breakdown says exactly what the big game added.
         br.bigGames += bigExtra;
@@ -156,7 +157,7 @@
       const form = seasonMatches.filter((x) => x.players.some((p) => p.name === m.name)).slice(0, 5).map((x) => x.result);
       return {
         name: m.name, pro: m.proName, pos, ovr: n(m.proOverall), gp, g, a, ga: g + a, mom, passes, tackles, reds,
-        shots: totalShots, rating, shotPct, passPct, tacklePct, winPct, form, breakdown: br,
+        shots: totalShots, rating, shotPct, passPct, tacklePct, winPct, form, breakdown: br, savePct: L.sv + L.gc ? Math.round(100 * L.sv / (L.sv + L.gc)) : null,
         points: Math.round(contribution * 10) / 10, ppg: gp ? contribution / gp : 0, cmp, vsPos,
         gaffer: m.name.toLowerCase() === gname,
       };
@@ -182,10 +183,14 @@
         appearances: clamp(r.gp / best.gp),
         rating: between(r.cmp.rating, C.ratingFloor, best.rating),
         // Accuracy only counts in full at passVolumeFull completed passes per game, so 2/2 can't beat 40/47.
-        passAccuracy: between(r.passPct, C.passFloor, best.pass) * clamp((r.passes / r.gp) / (r.pos === "goalkeeper" ? C.passVolumeFullKeeper : C.passVolumeFull)),
+        // A season can set the volume per position (season.passVolume), since defenders and keepers pass less by the nature of the job.
+        passAccuracy: between(r.passPct, C.passFloor, best.pass) * clamp((r.passes / r.gp) / (season.passVolume ? season.passVolume[r.pos] : r.pos === "goalkeeper" ? C.passVolumeFullKeeper : C.passVolumeFull)),
         winRate: clamp(r.winPct / best.win),
         motm: clamp(r.cmp.mom / best.mom),
-        accuracy: (clamp(r.shotPct / best.shot) + clamp(r.tacklePct / best.tackle)) / 2,
+        // Keepers don't shoot or tackle, so in a season with keeperSaves their accuracy is save percentage instead.
+        accuracy: season.keeperSaves && r.pos === "goalkeeper" && r.savePct != null
+          ? between(r.savePct, season.keeperSaves.floor, season.keeperSaves.full)
+          : (clamp(r.shotPct / best.shot) + clamp(r.tacklePct / best.tackle)) / 2,
       };
       r.parts = Object.fromEntries(FACTORS.map(([k]) => [k, Math.round(W[k] * share[k] * 10) / 10]));
       r.penalty = r.reds * C.redCardPenalty;
