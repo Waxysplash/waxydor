@@ -44,7 +44,7 @@ export function publicView(s, rules) {
   return {
     open: s.open, updatedAt: s.updatedAt,
     playing: s.playing.map(({ name, pos, note, sub, left }) => ({ name, pos, note, sub, matchesLeft: left })),
-    waiting: ordered(s, rules).map(({ name, pos, note, sub }) => ({ name, pos, note, sub })),
+    waiting: ordered(s, rules).map(({ login, name, pos, note, sub }) => ({ login, name, pos, note, sub })),
   };
 }
 

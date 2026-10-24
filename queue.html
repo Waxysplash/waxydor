@@ -30,6 +30,9 @@
   body.obs { background: transparent; }
   body.obs .wrap > :not(#liveCard) { display: none; }
   body.obs #liveCard { background: rgba(14,11,20,.85); }
+  .q-row.pick { cursor: pointer; }
+  .q-row.pick:hover { border-color: var(--accent); }
+  .q-row.busy { opacity: .5; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -52,6 +55,7 @@
     <div class="q-list" id="waiting"></div>
     <div class="note" id="updated"></div>
   </div>
+  <div class="note" id="captain"></div>
 
   <div class="card">
     <h3>How to join</h3>
@@ -89,19 +93,60 @@
   if (Q.subFirstPick) perks.push(["First pick of position", "If a sub and a non-sub want the same spot, the sub gets it."]);
   $("#perks").innerHTML = perks.map(([t, d]) => `<div class="perk"><b>⭐ ${t}</b><span>${d}</span></div>`).join("");
 
-  const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
+  // Captain's login: Twitch hands it back in the URL fragment. Kept in this browser so the page stays logged in on stream.
+  const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("access_token")) {
+    if (h.get("state") === store.get("waxy.qstate")) store.set("waxy.qtoken", h.get("access_token"));
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  let token = store.get("waxy.qtoken"), captain = false;
+  function loginLink() {
+    const state = "queue-" + crypto.getRandomValues(new Uint32Array(4)).join("-");
+    store.set("waxy.qstate", state);
+    const u = new URL("https://id.twitch.tv/oauth2/authorize");
+    u.search = new URLSearchParams({ client_id: cfg.fanVote.twitchClientId, redirect_uri: new URL("vote.html", location.href).href, response_type: "token", scope: "user:read:follows", state }).toString();
+    $("#captain").innerHTML = `<a href="${u}">Captain's login</a>`;
+  }
+  async function post(body) {
+    const r = await fetch(API + "/api/queue", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, ...body }) });
+    const j = await r.json();
+    if (!r.ok) throw Object.assign(new Error(j.message || "Something went wrong."), { status: r.status });
+    return j;
+  }
+  function loggedOut(e) {
+    captain = false; token = null; store.set("waxy.qtoken", null); loginLink();
+    if (e) $("#captain").insertAdjacentHTML("afterbegin", `${esc(e.message)} `);
+  }
+
+  const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}${captain && !playing ? " pick" : ""}"${captain && !playing ? ` data-login="${esc(e.login)}" title="Put ${esc(e.name)} on the pitch"` : ""}><div class="rk">${playing ? "▶" : i + 1}</div>
     <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.note ? `<small>${esc(e.note)}</small>` : ""}</div>
     <div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
-  async function refresh() {
-    try {
-      const s = await fetch(API + "/api/queue").then((r) => r.json());
+  function render(s) {
       $("#status").className = "q-status" + (s.open ? " open" : "");
       $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join in chat" : "It opens on Pro Clubs streams"}</span>`;
       $("#playing").innerHTML = s.playing.length ? s.playing.map((e, i) => row(e, i, true)).join("") : `<div class="note">Nobody from the queue right now.</div>`;
       $("#waiting").innerHTML = s.waiting.length ? s.waiting.map((e, i) => row(e, i, false)).join("") : `<div class="note">${s.open ? "Empty. Be first: !join" : "Empty."}</div>`;
       $("#updated").textContent = s.updatedAt ? "Updated " + new Date(s.updatedAt).toLocaleTimeString() : "";
-    } catch (e) { $("#updated").textContent = "Couldn't reach the queue. Retrying…"; }
   }
+  async function refresh() {
+    try { render(await fetch(API + "/api/queue").then((r) => r.json())); }
+    catch (e) { $("#updated").textContent = "Couldn't reach the queue. Retrying…"; }
+  }
+
+  // Captain: click a name in the queue to put them on the pitch (same as !pick @name; WaxyBot tags them in chat).
+  $("#waiting").addEventListener("click", async (ev) => {
+    const r = ev.target.closest(".q-row.pick");
+    if (!r) return;
+    r.classList.add("busy");
+    try { const j = await post({ pick: r.dataset.login }); render(j.queue); $("#captain").textContent = j.message || ""; }
+    catch (e) { r.classList.remove("busy"); if (e.status === 401 || e.status === 403) loggedOut(e); else $("#captain").textContent = e.message; }
+  });
+  if (token) {
+    try { await post({}); captain = true; $("#captain").textContent = "Captain: click a name in the queue to put them on the pitch."; }
+    catch (e) { loggedOut(e.status === 401 ? null : e); }
+  } else loginLink();
   refresh(); setInterval(refresh, 10000);
 })();
 </script>

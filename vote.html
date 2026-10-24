@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+  // The queue page's captain login comes back through here (the address registered with Twitch); send it on.
+  if (/[#&]state=queue-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "queue.html#"));
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Waxy d'Or Fan Vote</title>
 <meta name="description" content="Vote for the Waxys Phantoms player of the season. One ballot per Twitch account.">
