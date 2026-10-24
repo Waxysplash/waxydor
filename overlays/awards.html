@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Awards · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* OBS browser source 1920x1080. Tick "Refresh browser when scene becomes active" so the cards animate in on every switch.
+     Params: ?show=auto (Golden Boot, Playmaker, Mr. Reliable, Iron Man) | fans (Fans' Player of the Season) | nominees (Waxy d'Or shortlist)
+             &season=s1 (which season; leave out for the current one) &name= (fans only: override the winner) */
+  .stage { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; gap: 22px; padding: 0 80px; }
+  .in { opacity: 0; animation: up .9s ease-out forwards; }
+  .title { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 120px; line-height: .9; color: var(--gold); text-shadow: 0 10px 60px rgba(242, 201, 76, .3); }
+  .cards { display: flex; gap: 26px; margin-top: 30px; }
+  .card { display: grid; gap: 10px; align-content: start; padding: 30px 28px 32px; width: 400px; text-align: center; }
+  .card .label { color: var(--gold); font-size: 20px; }
+  .card .who { font-family: var(--display); font-weight: 800; font-size: 54px; text-transform: uppercase; line-height: 1; overflow-wrap: anywhere; }
+  .card .num { font-size: 72px; line-height: 1; color: var(--gold); }
+  .card .num small { font-size: 26px; color: var(--muted); font-weight: 700; margin-left: 8px; }
+  .nominees .card { width: 330px; }
+  .nominees .card .who { font-size: 46px; }
+  .nominees .card .line { font-size: 22px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .big { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 190px; line-height: .95; color: var(--text); text-shadow: 0 0 80px rgba(242, 201, 76, .5); }
+  .sub { font-size: 30px; color: var(--muted); }
+  @keyframes up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div><div class="stripes"></div><div class="grain"></div>
+  <div class="stage" id="stage"></div>
+</div>
+<script src="common.js"></script>
+<script>
+(async function () {
+  const W = window.Waxy;
+  const d = await W.load();
+  const show = W.param("show", "auto");
+  const at = (s) => `style="animation-delay:${s}s"`;
+  const eyebrow = `<div class="eyebrow in">Waxys Phantoms<span class="dot">·</span>${d.season.name} awards</div>`;
+  const stage = document.getElementById("stage");
+
+  if (show === "auto") {
+    // Same rule as the site's Awards tab: highest total, ties go to the higher Waxy index. The gaffer isn't eligible.
+    const best = (k) => d.players.filter((r) => r[k] > 0).sort((a, b) => b[k] - a[k] || (b.idx ?? 0) - (a.idx ?? 0))[0];
+    const list = [["Golden Boot", "g", "goals"], ["Playmaker", "a", "assists"], ["Mr. Reliable", "mom", "MOTM"], ["Iron Man", "gp", "apps"]];
+    stage.innerHTML = eyebrow + `<div class="title in" ${at(.3)}>The season's honours</div>
+      <div class="cards">${list.map(([award, k, unit], i) => { const r = best(k); return `<div class="plate card in" ${at(1 + i * .5)}>
+        <div class="label">${award}</div><div class="who">${r ? r.name : "–"}</div><div class="num">${r ? r[k] : ""}<small>${unit}</small></div></div>`; }).join("")}</div>`;
+  }
+
+  if (show === "nominees") {
+    const all = [...d.rows, ...d.unq];
+    const noms = (d.config.fanVote?.shortlist || []).map((n) => all.find((r) => r.name === n) || { name: n }).sort((a, b) => (b.idx ?? 0) - (a.idx ?? 0));
+    stage.innerHTML = eyebrow + `<div class="title in" ${at(.3)}>The Waxy d'Or nominees</div>
+      <div class="cards nominees">${noms.map((r, i) => `<div class="plate card in" ${at(1 + i * .45)}>
+        <div class="who">${r.name}</div><div class="num">${r.idx ?? "–"}<small>index</small></div>
+        <div class="line">${r.gp != null ? `${r.g}G · ${r.a}A · ${r.gp} apps` : ""}</div></div>`).join("")}</div>`;
+  }
+
+  if (show === "fans") {
+    const V = d.config.fanVote || {};
+    let name = W.param("name", ""), sub = "Decided by the fan vote alone";
+    if (!name) {
+      try {
+        const r = await fetch(V.apiUrl.replace(/\/$/, "") + "/api/results").then((x) => x.json());
+        if (r.phase === "closed" && r.results?.length) name = r.results[0].name;
+        else sub = `Fan vote open until ${new Date(V.closes).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })}`;
+      } catch (e) {}
+    }
+    stage.innerHTML = eyebrow + `<div class="title in" ${at(.3)}>Fans' Player of the Season</div>
+      ${name ? `<div class="big in" ${at(1.6)}>${name}</div>` : ""}<div class="sub in" ${at(2.2)}>${sub}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

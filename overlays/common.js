@@ -11,10 +11,15 @@ window.Waxy = (function () {
     const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "../data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
     const j = (f) => fetch(DATA + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
     if (!window.WaxyRanking) await new Promise((res, rej) => { const t = document.createElement("script"); t.src = "../ranking.js" + bust; t.onload = res; t.onerror = rej; document.head.appendChild(t); });
-    const [config, members, club, store] = await Promise.all([j("config.json"), j("members.json"), j("club.json"), j("matches.json")]);
+    let [config, members, club, store] = await Promise.all([j("config.json"), j("members.json"), j("club.json"), j("matches.json")]);
     const now = new Date();
-    const season = config.seasons.find((s) => new Date(s.start) <= now && now <= new Date(s.end)) || config.seasons.at(-1);
+    const season = config.seasons.find((s) => s.id === param("season")) || config.seasons.find((s) => new Date(s.start) <= now && now <= new Date(s.end)) || config.seasons.at(-1);
     let snap = { members: [] }; try { snap = await j("snapshots/" + season.id + "-start.json"); } catch (e) {}
+    // A finished season (?season=s1) ends where the next one starts: use the totals frozen at that point, not today's.
+    const next = config.seasons[config.seasons.indexOf(season) + 1];
+    if (next && new Date(next.start) <= now) {
+      try { const f = await j("snapshots/" + next.id + "-start.json"); members = f; club = { ...club, overall: f.club.overall }; } catch (e) {}
+    }
     const R = WaxyRanking.rank({ config, members, matches: store.matches, snapshot: snap, season });
     const gaffer = R.gaffer;
     const players = R.rows;
@@ -29,7 +34,7 @@ window.Waxy = (function () {
     const record = `${o.wins}W ${o.ties}D ${o.losses}L`;
     const topScorer = [...players].sort((x, y) => y.g - x.g)[0] || null;
     const topAssist = [...players].sort((x, y) => y.a - x.a)[0] || null;
-    return { config, club, season, rows, unq, gaffer, phase, daysTo, record, topScorer, topAssist, brand: config.brand || {} };
+    return { config, club, season, players, rows, unq, gaffer, phase, daysTo, record, topScorer, topAssist, brand: config.brand || {} };
   }
 
   function socialsHtml(brand) {
