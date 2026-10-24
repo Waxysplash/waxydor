@@ -166,6 +166,8 @@
       gp: max((r) => r.gp), ppg: max((r) => r.cmp.ppg), rating: max((r) => r.cmp.rating), pass: max((r) => r.passPct),
       win: max((r) => r.winPct), mom: max((r) => r.cmp.mom), shot: max((r) => r.shotPct), tackle: max((r) => r.tacklePct),
     };
+    // A season can keep its own weights (season.weights), so a finished season isn't rescored when the rules change.
+    const W = season.weights || C.weights;
     const clamp = (v) => Math.max(0, Math.min(1, v));
     const between = (v, lo, hi) => clamp((v - lo) / Math.max(hi - lo, 0.01));
     for (const r of all) {
@@ -179,11 +181,11 @@
         motm: clamp(r.cmp.mom / best.mom),
         accuracy: (clamp(r.shotPct / best.shot) + clamp(r.tacklePct / best.tackle)) / 2,
       };
-      r.parts = Object.fromEntries(FACTORS.map(([k]) => [k, Math.round(C.weights[k] * share[k] * 10) / 10]));
+      r.parts = Object.fromEntries(FACTORS.map(([k]) => [k, Math.round(W[k] * share[k] * 10) / 10]));
       r.penalty = r.reds * C.redCardPenalty;
       r.qualified = r.gp >= C.minGames;
       // Below compareMinGames there is too little to go on, so no index is shown at all.
-      r.index = r.gp >= C.compareMinGames ? Math.max(0, Math.round(FACTORS.reduce((t, [k]) => t + C.weights[k] * share[k], 0) - r.penalty)) : null;
+      r.index = r.gp >= C.compareMinGames ? Math.max(0, Math.round(FACTORS.reduce((t, [k]) => t + W[k] * share[k], 0) - r.penalty)) : null;
     }
     // Ties: index, then appearances, then contribution points. Players short of the minimum sit below, provisional.
     const order = (x, y) => ((y.index ?? -1) - (x.index ?? -1)) || (y.gp - x.gp) || (y.points - x.points);
