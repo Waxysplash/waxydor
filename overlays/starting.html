@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>Starting soon · Waxys Phantoms</title>
-<link rel="stylesheet" href="brand.css">
+<link rel="stylesheet" href="brand.css?v=crest1">
 <style>
   /* OBS browser source 1920x1080. Params: ?at=19:00 (countdown to a local time) &md=12 (matchday number) &title=... */
   .wrap { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: 72px 96px 60px; }
   .top { display: flex; justify-content: space-between; align-items: center; }
   .brandline { display: flex; align-items: center; gap: 18px; }
-  .crest { width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, var(--purple), var(--violet)); display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 26px; color: #130a24; box-shadow: var(--glow); }
+  .crest { height: 96px; }
   .brandline .nm { font-family: var(--display); font-weight: 800; font-size: 40px; text-transform: uppercase; letter-spacing: .04em; line-height: 1; }
   .brandline .sb { color: var(--muted); font-size: 18px; margin-top: 4px; }
   .mid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 60px; align-items: center; }
@@ -28,7 +28,7 @@
   <div class="stripes"></div><div class="pitch"></div><div class="grain"></div>
   <div class="wrap">
     <div class="top in">
-      <div class="brandline"><div class="crest">WP</div><div><div class="nm" id="club">Waxys Phantoms</div><div class="sb" id="sub">Pro Clubs · twitch.tv/waxysplash</div></div></div>
+      <div class="brandline"><img class="crest" src="../brand/logo.png" alt="Waxys Phantoms crest"><div><div class="nm" id="club">Waxys Phantoms</div><div class="sb" id="sub">Pro Clubs · twitch.tv/waxysplash</div></div></div>
       <div class="chip gold" id="md">Matchday</div>
     </div>
     <div class="mid">

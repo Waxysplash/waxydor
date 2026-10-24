@@ -6,8 +6,8 @@ import { subscribeChat, ids } from "../../lib/bot.js";
 
 const page = (res, title, msg, ok) => res.status(ok ? 200 : 400).setHeader("Content-Type", "text/html; charset=utf-8").send(
   `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>WaxyBot</title>
-  <body style="font-family:system-ui;background:#0e0b14;color:#f3eefc;display:grid;place-items:center;min-height:90vh;margin:0">
-  <div style="max-width:520px;padding:24px"><h1 style="color:${ok ? "#f2c94c" : "#ff5c7a"}">${title}</h1><p style="line-height:1.5">${msg}</p></div>`);
+  <body style="font-family:system-ui;background:#16150e;color:#ece1c3;display:grid;place-items:center;min-height:90vh;margin:0">
+  <div style="max-width:520px;padding:24px"><h1 style="color:${ok ? "#d9a63b" : "#c9583f"}">${title}</h1><p style="line-height:1.5">${msg}</p></div>`);
 
 export default async function handler(req, res) {
   const { code, state, error, error_description } = req.query;

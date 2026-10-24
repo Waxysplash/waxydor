@@ -6,12 +6,12 @@
 <title>Pro Clubs Queue</title>
 <meta name="description" content="Join Waxys Phantoms on stream: the live Pro Clubs queue, the rules and sub perks.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=crest1">
 <style>
   .q-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .q-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--loss); box-shadow: 0 0 0 4px rgba(255,92,122,.15); }
-  .q-status.open .q-dot { background: var(--win); box-shadow: 0 0 0 4px rgba(61,220,132,.18); }
+  .q-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--loss); box-shadow: 0 0 0 4px rgba(201,88,63,.15); }
+  .q-status.open .q-dot { background: var(--win); box-shadow: 0 0 0 4px rgba(142,168,76,.18); }
   .q-status b { font-size: 22px; }
   .q-list { display: grid; gap: 8px; }
   .q-row { display: grid; grid-template-columns: 40px 1fr auto auto; gap: 12px; align-items: center; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
@@ -19,11 +19,11 @@
   .q-row .nm { font-weight: 700; }
   .q-row .nm small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
   .q-row .ps { font-weight: 800; color: var(--accent); }
-  .q-row.sub { border-color: rgba(242,201,76,.45); }
+  .q-row.sub { border-color: rgba(217,166,59,.45); }
   .q-row .left { color: var(--muted); font-size: 12px; }
-  .badge-sub { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #0e0b14; background: var(--accent-2); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
+  .badge-sub { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #1b1a12; background: var(--accent-2); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
   .perks { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-  .perk { background: var(--panel-2); border: 1px solid rgba(242,201,76,.35); border-radius: 12px; padding: 12px 14px; }
+  .perk { background: var(--panel-2); border: 1px solid rgba(217,166,59,.35); border-radius: 12px; padding: 12px 14px; }
   .perk b { display: block; color: var(--accent-2); font-size: 15px; margin-bottom: 4px; }
   .perk span { color: var(--muted); font-size: 13px; }
   .cmds code { margin-right: 4px; }
@@ -36,7 +36,7 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <div class="crest">WP</div>
+      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
       <div>
         <h1>Play with Waxys Phantoms</h1>
         <div class="sub"><a href="./">Waxy d'Or table</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>

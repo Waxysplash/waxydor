@@ -1,6 +1,6 @@
 // Renders the Twitch panel headers (320x100, exported at 2x) into brand/panels/*.png.
 // Run: node scripts/panels.mjs   (needs: npm install)
-import { createCanvas, GlobalFonts } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts, loadImage } from "@napi-rs/canvas";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -25,19 +25,26 @@ function spaced(x, text, startX, y, px) {
   for (const ch of text) { x.fillText(ch, cx, y); cx += x.measureText(ch).width + px; }
 }
 
+// Colours from the Waxys Phantoms crest: olive outline, cream lettering, brick-red shield, brass trim, gold star.
+const crest = await loadImage(join(ROOT, "brand/logo.png"));
+
 export function draw(p, dpr = 2) {
   const c = createCanvas(320 * dpr, 100 * dpr);
   const x = c.getContext("2d"); x.scale(dpr, dpr);
-  const g = x.createLinearGradient(0, 0, 320, 100); g.addColorStop(0, "#1a1230"); g.addColorStop(1, "#0b0912"); x.fillStyle = g; x.fillRect(0, 0, 320, 100);
-  const glow = x.createRadialGradient(40, 20, 0, 40, 20, 160); glow.addColorStop(0, "rgba(169,112,255,.45)"); glow.addColorStop(1, "rgba(169,112,255,0)"); x.fillStyle = glow; x.fillRect(0, 0, 320, 100);
-  x.save(); x.globalAlpha = .06; x.strokeStyle = "#fff"; x.lineWidth = 2; for (let i = -100; i < 420; i += 28) { x.beginPath(); x.moveTo(i, 100); x.lineTo(i + 60, 0); x.stroke(); } x.restore();
-  x.save(); x.translate(246, 0); x.beginPath(); x.moveTo(40, 0); x.lineTo(74, 0); x.lineTo(34, 100); x.lineTo(0, 100); x.closePath(); x.fillStyle = "rgba(169,112,255,.18)"; x.fill(); x.restore();
-  x.fillStyle = "#f2c94c"; x.fillRect(16, 22, 4, 56);
-  x.fillStyle = "#a970ff"; x.font = '700 12px "Barlow"'; spaced(x, p.kicker.toUpperCase(), 30, 36, 3);
-  x.fillStyle = "#f5f1ff"; x.font = '800 36px "Barlow Condensed"'; spaced(x, p.title.toUpperCase(), 30, 74, 0.5);
-  x.fillStyle = "rgba(166,151,194,.9)"; x.font = '700 10px "Barlow"';
-  const tag = "WAXYS PHANTOMS"; const w = [...tag].reduce((t, ch) => t + x.measureText(ch).width + 2, 0);
-  spaced(x, tag, 304 - w, 92, 2);
+  const g = x.createLinearGradient(0, 0, 320, 100); g.addColorStop(0, "#2c2a1d"); g.addColorStop(1, "#15140d"); x.fillStyle = g; x.fillRect(0, 0, 320, 100);
+  const glow = x.createRadialGradient(40, 20, 0, 40, 20, 160); glow.addColorStop(0, "rgba(157,58,43,.55)"); glow.addColorStop(1, "rgba(157,58,43,0)"); x.fillStyle = glow; x.fillRect(0, 0, 320, 100);
+  x.save(); x.globalAlpha = .05; x.strokeStyle = "#e9dcbb"; x.lineWidth = 2; for (let i = -100; i < 420; i += 28) { x.beginPath(); x.moveTo(i, 100); x.lineTo(i + 60, 0); x.stroke(); } x.restore();
+  // the crest on the right, where the old slash was
+  const ch = 80, cw = ch * crest.width / crest.height;
+  x.save(); x.shadowColor = "rgba(0,0,0,.55)"; x.shadowBlur = 8; x.shadowOffsetY = 3; x.drawImage(crest, 304 - cw, 10, cw, ch); x.restore();
+  x.fillStyle = "#d9a63b"; x.fillRect(16, 22, 4, 56);
+  x.fillStyle = "#c9a96a"; x.font = '700 12px "Barlow"'; spaced(x, p.kicker.toUpperCase(), 30, 36, 3);
+  // Shrink long titles so they stop short of the crest.
+  const title = p.title.toUpperCase(), room = 304 - cw - 12 - 30;
+  let size = 36;
+  const width = () => [...title].reduce((t, ch) => t + x.measureText(ch).width + 0.5, 0);
+  do { x.font = `800 ${size}px "Barlow Condensed"`; } while (width() > room && --size > 18);
+  x.fillStyle = "#e9dcbb"; spaced(x, title, 30, 74, 0.5);
   return c;
 }
 
