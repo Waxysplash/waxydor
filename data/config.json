@@ -86,11 +86,6 @@
     },
     "logo": "brand/logo.png"
   },
-  "divisionOverride": {
-    "division": "1",
-    "whileEADivisionIs": "4",
-    "note": "Kamal confirmed Division 1 on 17 Oct 2026 while EA's API reported 4 during the playoffs. Applies only while EA says 4."
-  },
   "bigGames": [
     {
       "matchId": "101162525420385",
