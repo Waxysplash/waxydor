@@ -32,22 +32,22 @@
         "conceded": 0
       },
       "midfielder": {
-        "goal": 5,
-        "assist": 4,
+        "goal": 7,
+        "assist": 6,
         "cleanSheet": 1,
         "save": 0,
         "conceded": 0
       },
       "defender": {
-        "goal": 6,
-        "assist": 5,
+        "goal": 8,
+        "assist": 7,
         "cleanSheet": 4,
         "save": 0,
         "conceded": -1
       },
       "goalkeeper": {
-        "goal": 6,
-        "assist": 5,
+        "goal": 8,
+        "assist": 7,
         "cleanSheet": 4,
         "save": 0.5,
         "conceded": -1
