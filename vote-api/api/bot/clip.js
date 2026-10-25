@@ -1,9 +1,11 @@
 // POST /api/bot/clip — the captain's clip key in OBS (obs/instant-replay.lua in the brand folder) calls this.
-// Makes a Twitch clip of the last 30 seconds as the channel owner and posts the link in chat.
+// Makes a Twitch clip of the last 30 seconds as the channel owner, posts the link in chat as a WaxyClip and
+// pops a "Clipped" card on the alerts overlay.
 // Needs the X-Clip-Key header to match the key WaxyBot made and showed the channel owner when they connected.
 import { timingSafeEqual } from "node:crypto";
 import { redis } from "../../lib/shared.js";
 import { createClip, say, logEvent } from "../../lib/bot.js";
+import { pushAlert } from "../../lib/alerts.js";
 
 const keyOk = async (given) => {
   const want = (await redis("GET", "bot:clipkey")) || "";
@@ -18,7 +20,8 @@ export default async function handler(req, res) {
   if (!(await redis("SET", "bot:clipcooldown", "1", "NX", "EX", 10))) return res.json({ skipped: "cooldown" });
   try {
     const url = await createClip();
-    await say(`🎬 Clip: ${url}`);
+    await pushAlert({ type: "clip" });
+    await say(`🎬 WaxyClip: ${url}`);
     await logEvent({ user: "obs", text: "clip key", reply: url });
     return res.json({ url });
   } catch (e) {

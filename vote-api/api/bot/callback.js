@@ -4,6 +4,7 @@
 import { randomBytes } from "node:crypto";
 import { redis, loadVote } from "../../lib/shared.js";
 import { subscribeChat, ids } from "../../lib/bot.js";
+import { subscribeAlerts } from "../../lib/alerts.js";
 
 const page = (res, title, msg, ok) => res.status(ok ? 200 : 400).setHeader("Content-Type", "text/html; charset=utf-8").send(
   `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>WaxyBot</title>
@@ -50,11 +51,14 @@ export default async function handler(req, res) {
   const both = await ids();
   if (!both.bot || !both.broadcaster)
     return page(res, `${who.login} connected ✓`, `Now approve the ${both.bot ? "channel owner" : "bot account"} step.${clipNote}`, true);
+  let alertNote = "";
   try {
     await subscribeChat(`https://${req.headers.host}/api/bot/eventsub`);
+    const failed = (await subscribeAlerts(`https://${req.headers.host}/api/bot/eventsub`)).filter((r) => !r.ok);
+    alertNote = failed.length ? `<br><br>Alerts not set up for: ${failed.map((f) => f.type.replace("channel.", "")).join(", ")}. Reconnect both accounts to retry.` : "<br><br>On-stream alerts are on.";
   } catch (e) {
     console.error(e);
     return page(res, "Almost", `Both accounts approved, but Twitch refused the chat subscription: ${String(e.message).slice(0, 300)}`, false);
   }
-  return page(res, "WaxyBot is live ✓", `${both.bot.login} will answer commands in ${both.broadcaster.login}'s chat. Type !commands to try it.${clipNote}`, true);
+  return page(res, "WaxyBot is live ✓", `${both.bot.login} will answer commands in ${both.broadcaster.login}'s chat. Type !commands to try it.${alertNote}${clipNote}`, true);
 }

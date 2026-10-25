@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Alerts · Waxys Phantoms</title>
+<link rel="stylesheet" href="brand.css?v=crest1">
+<style>
+  /* OBS browser source 1920x1080, transparent, on top of every scene. WaxyBot's alerts: follows, subs, gifts,
+     raids, cheers and the captain's clip key. Params: ?sound=0 mutes the chime, &volume=0.5, &test=1 cycles
+     sample alerts (mods can also type !testalert follow|sub|resub|gift|raid|cheer|clip in chat). */
+  body { width: 1920px; height: 1080px; overflow: hidden; }
+  .stage { position: absolute; left: 0; right: 0; top: 46px; display: flex; justify-content: center; pointer-events: none; }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 22px; min-width: 560px; max-width: 980px;
+          padding: 18px 34px 18px 20px; opacity: 0; transform: translateY(-40px) scale(.96); transition: opacity .45s ease, transform .55s cubic-bezier(.2, .9, .25, 1.15); }
+  .card.show { opacity: 1; transform: none; }
+  .card.big { border-color: rgba(217, 166, 59, .7); box-shadow: 0 0 60px rgba(217, 166, 59, .25), inset 0 1px 0 rgba(255, 255, 255, .06); }
+  .card .crest { width: 92px; height: 92px; object-fit: contain; filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .5)); }
+  .card.show .crest { animation: stamp .7s .1s both cubic-bezier(.2, .9, .25, 1.3); }
+  @keyframes stamp { from { transform: scale(.4) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .eyebrow { font-size: 20px; }
+  .card.big .eyebrow { color: var(--gold); }
+  .name { font-family: var(--display); font-weight: 800; font-size: 64px; line-height: 1; text-transform: uppercase; color: var(--cream);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+  .line { font-size: 24px; color: var(--muted); margin-top: 6px; }
+  .line b { color: var(--gold); font-weight: 700; }
+  .msg { font-size: 22px; color: var(--text); margin-top: 8px; font-style: italic; max-width: 760px; }
+  .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--shield)); transform-origin: left; transform: scaleX(0); }
+  .card.show .bar { animation: fill var(--dur, 6s) linear forwards; }
+  @keyframes fill { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+  /* the clip pop-up: small, quick, top right of the card spot */
+  .clip { position: absolute; top: 46px; right: 60px; display: flex; align-items: center; gap: 12px; padding: 12px 20px; font-family: var(--display);
+          font-weight: 800; font-size: 30px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); opacity: 0; transform: translateX(40px); transition: opacity .3s, transform .4s; }
+  .clip.show { opacity: 1; transform: none; }
+  .clip .rec { width: 14px; height: 14px; border-radius: 50%; background: var(--shield); box-shadow: 0 0 0 4px rgba(157, 58, 43, .3); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="card plate" id="card">
+    <img class="crest" src="../brand/logo.png" alt="">
+    <div>
+      <div class="eyebrow" id="eyebrow"></div>
+      <div class="name" id="name"></div>
+      <div class="line" id="line"></div>
+      <div class="msg" id="msg" hidden></div>
+    </div>
+    <div class="bar"></div>
+  </div>
+</div>
+<div class="clip plate" id="clip"><span class="rec"></span>WaxyClip saved</div>
+
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  const API = q.get("api") || "https://waxydor-vote-api.vercel.app";
+  const SOUND = q.get("sound") !== "0";
+  const VOLUME = Math.min(1, Math.max(0, +(q.get("volume") || 0.35)));
+  const $ = (id) => document.getElementById(id);
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  const tier = (t) => (t > 1 ? ` · Tier ${t}` : "");
+
+  // What each alert says and how long it stays up (seconds). big = gold treatment and the bigger chime.
+  function describe(a) {
+    switch (a.type) {
+      case "follow": return { eyebrow: "New follower", line: "joined the club", secs: 5 };
+      case "sub": return { eyebrow: "New sub" + tier(a.tier), line: "signed for <b>Waxys Phantoms</b>", secs: 7, big: true };
+      case "resub": return { eyebrow: "Resub" + tier(a.tier), line: `<b>${plural(a.months, "month")}</b> at the club`, msg: a.message, secs: 8, big: true };
+      case "gift": return { eyebrow: "Gift subs", line: `gifted <b>${plural(a.count, "sub")}</b> to the squad`, secs: 8, big: true };
+      case "raid": return { eyebrow: "Raid", line: `is raiding with <b>${plural(a.viewers, "viewer")}</b>`, secs: 9, big: true };
+      case "cheer": return { eyebrow: "Cheer", line: `cheered <b>${plural(a.bits, "bit")}</b>`, msg: a.message, secs: 7, big: a.bits >= 500 };
+      default: return null;
+    }
+  }
+
+  // A short brass chime, synthesised so there's no sound file to host. Three notes for the big ones.
+  let ctx;
+  function chime(big) {
+    if (!SOUND) return;
+    try {
+      ctx = ctx || new AudioContext();
+      const notes = big ? [523.25, 659.25, 783.99] : [659.25, 880];
+      notes.forEach((f, i) => {
+        const t = ctx.currentTime + i * 0.13, o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "triangle"; o.frequency.value = f;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(VOLUME, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+        o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + 1);
+      });
+    } catch (e) { /* no audio, no problem */ }
+  }
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const queue = [];
+  let busy = false;
+
+  async function show(a) {
+    if (a.type === "clip") {
+      chime(false);
+      $("clip").classList.add("show"); await wait(3500); $("clip").classList.remove("show"); await wait(400);
+      return;
+    }
+    const d = describe(a);
+    if (!d) return;
+    const card = $("card");
+    $("eyebrow").textContent = d.eyebrow;
+    $("name").textContent = a.name || "Someone";
+    $("line").innerHTML = d.line;
+    $("msg").hidden = !d.msg; $("msg").textContent = d.msg ? `“${d.msg}”` : "";
+    card.classList.toggle("big", !!d.big);
+    card.style.setProperty("--dur", d.secs + "s");
+    chime(d.big);
+    card.classList.add("show"); await wait(d.secs * 1000); card.classList.remove("show"); await wait(700);
+  }
+
+  async function drain() {
+    if (busy) return;
+    busy = true;
+    while (queue.length) await show(queue.shift());
+    busy = false;
+  }
+  const add = (a) => { queue.push(a); drain(); };
+
+  if (q.get("test") === "1") {
+    const samples = [
+      { type: "follow", name: "George-Truly" }, { type: "sub", name: "Melo2Mellow", tier: 1 },
+      { type: "resub", name: "PhantomFan", tier: 1, months: 6, message: "Up the Phantoms" }, { type: "clip" },
+      { type: "gift", name: "Anonymous", tier: 1, count: 5 }, { type: "raid", name: "SomeStreamer", viewers: 42 },
+      { type: "cheer", name: "BitsGuy", bits: 500, message: "What a strike" },
+    ];
+    let i = 0;
+    const next = () => { add(samples[i++ % samples.length]); setTimeout(next, 10000); };
+    next();
+    return;
+  }
+
+  // Ask WaxyBot for anything newer than the last alert seen. The first answer just sets the starting point.
+  let after = null;
+  async function poll() {
+    try {
+      const r = await fetch(`${API}/api/alerts${after == null ? "" : "?after=" + after}`, { cache: "no-store" });
+      if (r.ok) {
+        const j = await r.json();
+        j.alerts.forEach(add);
+        after = j.last;
+      }
+    } catch (e) { /* offline for a moment: try again next round */ }
+    setTimeout(poll, 3000);
+  }
+  poll();
+})();
+</script>
+</body>
+</html>

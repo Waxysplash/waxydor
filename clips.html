@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waxyclips</title>
+<meta name="description" content="Waxyclips: every Twitch clip from Waxys Phantoms streams, newest first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=paper1">
+<style>
+  .c-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .c-sort { display: flex; gap: 6px; }
+  .c-sort button { font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+  .c-sort button.on { border-color: var(--accent); color: var(--accent); }
+  .c-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
+  .c-card { display: block; text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .c-card:hover { border-color: var(--accent); }
+  .c-thumb { position: relative; aspect-ratio: 16 / 9; background: #000; }
+  .c-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .c-thumb .len { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.75); color: #fff; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
+  .c-body { padding: 10px 12px 12px; }
+  .c-body b { display: block; font-size: 15px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .c-body span { color: var(--muted); font-size: 13px; }
+  .c-empty { color: var(--muted); padding: 24px 0; }
+  .c-modal { position: fixed; inset: 0; background: rgba(0,0,0,.82); display: grid; place-items: center; padding: 16px; z-index: 10; }
+  .c-modal[hidden] { display: none; }
+  .c-player { width: min(1100px, 100%); }
+  .c-player .v { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; }
+  .c-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .c-player .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 10px; color: #eee; flex-wrap: wrap; }
+  .c-player .row a { color: var(--accent-2); font-weight: 700; }
+  .c-player button { font: inherit; font-weight: 700; cursor: pointer; background: transparent; color: #eee; border: 1px solid rgba(255,255,255,.4); border-radius: 8px; padding: 6px 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
+      <div>
+        <h1>Waxyclips</h1>
+        <div class="sub"><a href="./">Waxy d'Or table</a> · <a href="queue.html">Play with us</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="c-tools">
+      <div><b id="total">Loading clips…</b> <span class="note" style="display:inline">from the last 90 days. Clip a moment on stream and it lands here.</span></div>
+      <div class="c-sort">
+        <button data-sort="new" class="on">Newest</button>
+        <button data-sort="views">Most watched</button>
+      </div>
+    </div>
+    <div class="c-grid" id="grid"></div>
+  </div>
+</div>
+
+<div class="c-modal" id="modal" hidden>
+  <div class="c-player">
+    <div class="v" id="player"></div>
+    <div class="row"><span id="ptitle"></span><span><a id="plink" target="_blank" rel="noopener">Open on Twitch</a> &nbsp; <button id="close">Close</button></span></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const API = "https://waxydor-vote-api.vercel.app";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const when = (iso) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  let clips = [], sort = "new";
+
+  function render() {
+    const list = sort === "views" ? clips.slice().sort((a, b) => b.views - a.views) : clips;
+    $("total").textContent = `${clips.length} clip${clips.length === 1 ? "" : "s"}`;
+    $("grid").innerHTML = list.length ? list.map((c) => `
+      <button class="c-card" data-id="${esc(c.id)}">
+        <div class="c-thumb"><img src="${esc(c.thumb)}" alt="" loading="lazy"><span class="len">${Math.round(c.seconds)}s</span></div>
+        <div class="c-body"><b>${esc(c.title)}</b><span>${esc(c.by)} · ${when(c.at)} · ${c.views} view${c.views === 1 ? "" : "s"}</span></div>
+      </button>`).join("") : '<div class="c-empty">No clips yet. Press the clip key on stream and the first one shows up here.</div>';
+  }
+
+  function open(id) {
+    const c = clips.find((x) => x.id === id);
+    if (!c) return;
+    $("player").innerHTML = `<iframe src="https://clips.twitch.tv/embed?clip=${encodeURIComponent(c.id)}&parent=${location.hostname}&autoplay=true" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    $("ptitle").textContent = c.title;
+    $("plink").href = c.url;
+    $("modal").hidden = false;
+  }
+  function close() { $("modal").hidden = true; $("player").innerHTML = ""; }
+
+  $("grid").addEventListener("click", (e) => { const b = e.target.closest(".c-card"); if (b) open(b.dataset.id); });
+  $("close").addEventListener("click", close);
+  $("modal").addEventListener("click", (e) => { if (e.target.id === "modal") close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  document.querySelectorAll(".c-sort button").forEach((b) => b.addEventListener("click", () => {
+    sort = b.dataset.sort;
+    document.querySelectorAll(".c-sort button").forEach((x) => x.classList.toggle("on", x === b));
+    render();
+  }));
+
+  fetch(API + "/api/clips").then((r) => r.json()).then((j) => { clips = j.clips || []; render(); })
+    .catch(() => { $("total").textContent = "Clips couldn't load. Try again in a minute."; });
+})();
+</script>
+</body>
+</html>

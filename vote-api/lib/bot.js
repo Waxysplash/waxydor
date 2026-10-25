@@ -4,6 +4,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { redis } from "./shared.js";
 import * as queue from "./queue.js";
+import { testAlert } from "./alerts.js";
 
 const RAW = process.env.DATA_URL || "https://raw.githubusercontent.com/Waxysplash/waxydor/main/";
 const CLIENT_ID = () => process.env.BOT_CLIENT_ID;
@@ -371,6 +372,9 @@ export async function handleCommand(text, chatter) {
       await redis("LSET", "bot:quotes", i, "__deleted__"); await redis("LREM", "bot:quotes", 1, "__deleted__");
       return `Quote #${i + 1} deleted.`;
     }
+    case "!testalert":
+      if (!chatter.mod) return null;
+      return testAlert((rest[0] || "").toLowerCase(), chatter.name);
     case "!addcom": case "!editcom": {
       // Nightbot-style: !addcom !name reply text. {user} = who typed it, {touser} = who they named, {count} = times used.
       if (!chatter.mod) return null;

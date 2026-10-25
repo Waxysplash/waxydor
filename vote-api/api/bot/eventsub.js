@@ -1,6 +1,7 @@
-// POST /api/bot/eventsub — Twitch EventSub webhook for channel.chat.message.
-// Verifies Twitch's signature, answers "!" commands, ignores everything else.
+// POST /api/bot/eventsub — Twitch EventSub webhook. Verifies Twitch's signature, answers "!" commands from
+// channel.chat.message, and turns follows, subs, gifts, raids and cheers into on-stream alerts.
 import { redis } from "../../lib/shared.js";
+import { alertFromEvent, pushAlert } from "../../lib/alerts.js";
 import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent, runTimers, loadConfig } from "../../lib/bot.js";
 
 export const config = { api: { bodyParser: false } };
@@ -25,6 +26,12 @@ export default async function handler(req, res) {
   if (!fresh) return res.status(204).end();
 
   const e = body.event || {};
+  const subType = body.subscription?.type;
+  if (subType !== "channel.chat.message") {
+    const alert = alertFromEvent(subType, e);
+    if (alert) await pushAlert(alert);
+    return res.status(204).end();
+  }
   const text = e.message?.text || "";
   const { bot } = await ids();
   if (e.chatter_user_id === bot?.id) return res.status(204).end();
