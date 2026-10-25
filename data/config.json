@@ -191,6 +191,27 @@
       "date": "2026-10-24",
       "count": 3,
       "note": "Game not given; logged on the last game of the night"
+    },
+    {
+      "matchId": "137718730720048",
+      "player": "George-Truly",
+      "opponent": "Shark City",
+      "date": "2026-10-25",
+      "count": 1
+    },
+    {
+      "matchId": "137718730720048",
+      "player": "P_J_Gill",
+      "opponent": "Shark City",
+      "date": "2026-10-25",
+      "count": 1
+    },
+    {
+      "matchId": "137718730720048",
+      "player": "AuzzyBoz",
+      "opponent": "Shark City",
+      "date": "2026-10-25",
+      "count": 1
     }
   ],
   "fanVote": {
