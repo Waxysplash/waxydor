@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-25T03:09:34.350Z",
+  "fetchedAt": "2026-10-25T07:36:16.905Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -758,42 +758,6 @@
       "favoritePosition": "midfielder"
     },
     {
-      "name": "yxttuno",
-      "gamesPlayed": "7",
-      "winRate": "57",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "72",
-      "passSuccessRate": "83",
-      "ratingAve": "7.2",
-      "tacklesMade": "6",
-      "tackleSuccessRate": "46",
-      "proName": "J. Barker",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "175",
-      "proNationality": "14",
-      "proOverall": "83",
-      "proOverallStr": "83",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
-    },
-    {
       "name": "firas2good",
       "gamesPlayed": "1",
       "winRate": "100",
@@ -903,7 +867,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 7,
+    "midfielder": 6,
     "goalkeeper": 1,
     "forward": 10,
     "defender": 5
