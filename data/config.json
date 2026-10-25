@@ -337,10 +337,5 @@
       "When you're called, accept the Waxys Phantoms invite within 2 minutes or you drop back 3 places.",
       "Waxys Phantoms squad regulars don't queue. The queue fills the spots that are left."
     ]
-  },
-  "divisionOverride": {
-    "division": "5",
-    "whileEADivisionIs": "4",
-    "note": "Kamal, 24 Oct 2026: Season 2 reset the club to Division 5 while EA's API still reported 4. Applies only while EA says 4."
   }
 }
