@@ -116,8 +116,8 @@
       "id": "s2",
       "name": "Season 2",
       "start": "2026-10-22T00:00:00-05:00",
-      "playoffsStart": "2026-11-12T00:00:00-06:00",
-      "end": "2026-11-20T23:59:59-06:00",
+      "playoffsStart": "2026-11-26T00:00:00-06:00",
+      "end": "2026-12-04T23:59:59-06:00",
       "positionRelative": true,
       "passVolume": {
         "forward": 12,
