@@ -7,5 +7,7 @@
     { "id": "motm", "name": "Mr. Reliable", "description": "Most man-of-the-match awards.", "auto": "mom" },
     { "id": "ironman", "name": "Iron Man", "description": "Most appearances.", "auto": "gp" }
   ],
-  "winners": {}
+  "winners": {
+    "s1": { "waxydor": "George-Truly", "fans": "George-Truly", "boot": "George-Truly", "playmaker": "George-Truly", "motm": "George-Truly", "ironman": "Melo2Mellow" }
+  }
 }
