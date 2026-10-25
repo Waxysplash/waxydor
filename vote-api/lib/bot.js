@@ -4,7 +4,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { redis } from "./shared.js";
 import * as queue from "./queue.js";
-import { testAlert } from "./alerts.js";
+import { testAlert, pushAlert } from "./alerts.js";
 
 const RAW = process.env.DATA_URL || "https://raw.githubusercontent.com/Waxysplash/waxydor/main/";
 const CLIENT_ID = () => process.env.BOT_CLIENT_ID;
@@ -372,6 +372,19 @@ export async function handleCommand(text, chatter) {
       await redis("LSET", "bot:quotes", i, "__deleted__"); await redis("LREM", "bot:quotes", 1, "__deleted__");
       return `Quote #${i + 1} deleted.`;
     }
+    case "!clip": {
+      // Anyone can clip; one clip per 30 seconds for the whole chat so it can't be spammed.
+      if (!(await redis("SET", "bot:chatclipcd", "1", "NX", "EX", 30))) return null;
+      try {
+        const url = await createClip();
+        await pushAlert({ type: "clip", name: chatter.name });
+        return `🎬 WaxyClip by ${chatter.name}: ${url}`;
+      } catch (e) {
+        await redis("DEL", "bot:chatclipcd");
+        console.error("clip", e);
+        return / 404|not live|offline/i.test(e.message) ? "Clips only work while the stream is live." : "Couldn't make that clip. Try again in a moment.";
+      }
+    }
     case "!testalert":
       if (!chatter.mod) return null;
       return testAlert((rest[0] || "").toLowerCase(), chatter.name);
@@ -401,7 +414,7 @@ export async function handleCommand(text, chatter) {
       for (let k = 0; k < flat.length; k += 2) fromChat[flat[k]] = JSON.parse(flat[k + 1]);
       const all = { ...(config.bot?.commands || {}), ...fromChat };
       const text = Object.entries(all).filter(([, v]) => !(v && (v.mods || v.off))).map(([k]) => k).join(" ");
-      return `Commands: !join !leave !queue !uptime !quote !table !race !me !player <name> !last !record !vote !followage !waxydor ${text}`.slice(0, 500);
+      return `Commands: !join !leave !queue !clip !uptime !quote !table !race !me !player <name> !last !record !vote !followage !waxydor ${text}`.slice(0, 500);
     }
     default: {
       // Text commands: from chat (!addcom) or config.bot.commands. A string, or { text, cooldown, mods }.
