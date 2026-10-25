@@ -1,11 +1,11 @@
 // GET /api/bot/connect?as=bot | broadcaster
 // One-time setup: sends the bot account (or the channel owner) to Twitch to approve WaxyBot.
 // The bot account grants "chat as a bot" (and, as a channel mod, "read followers" for !followage);
-// the channel owner grants "let a bot chat in my channel".
+// the channel owner grants "let a bot chat in my channel" and "create clips" (for the OBS clip key).
 import { randomBytes } from "node:crypto";
 import { redis } from "../../lib/shared.js";
 
-const SCOPES = { bot: "user:bot user:read:chat user:write:chat moderator:read:followers", broadcaster: "channel:bot" };
+const SCOPES = { bot: "user:bot user:read:chat user:write:chat moderator:read:followers", broadcaster: "channel:bot clips:edit" };
 
 export default async function handler(req, res) {
   const as = req.query.as;

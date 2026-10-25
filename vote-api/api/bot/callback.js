@@ -1,6 +1,7 @@
-// GET /api/bot/callback — Twitch sends the approver back here. Chat runs on an app token; the only user
-// token kept is the bot account's refresh token, for !followage (Twitch shows followers only to mods). Once both the bot account and
-// the channel owner have approved, the chat subscription is created automatically.
+// GET /api/bot/callback — Twitch sends the approver back here. Chat runs on an app token; the user tokens
+// kept are the bot account's refresh token, for !followage (Twitch shows followers only to mods), and the
+// channel owner's, for clips. Once both accounts have approved, the chat subscription is created automatically.
+import { randomBytes } from "node:crypto";
 import { redis, loadVote } from "../../lib/shared.js";
 import { subscribeChat, ids } from "../../lib/bot.js";
 
@@ -37,15 +38,23 @@ export default async function handler(req, res) {
     return page(res, "Wrong account", `You approved as ${who.login}, the channel owner. Log in to Twitch as the bot account and open this link again.`, false);
   await redis("SET", "bot:" + as, JSON.stringify(who));
   if (as === "bot" && t.refresh_token) { await redis("SET", "bot:refresh", t.refresh_token); await redis("DEL", "bot:usertoken"); }
+  if (as === "broadcaster" && t.refresh_token) { await redis("SET", "bot:bcrefresh", t.refresh_token); await redis("DEL", "bot:bctoken"); }
+  // The OBS clip key: made once, shown only to the channel owner right after they approve.
+  let clipKey = "";
+  if (as === "broadcaster") {
+    clipKey = (await redis("GET", "bot:clipkey")) || randomBytes(24).toString("base64url");
+    await redis("SET", "bot:clipkey", clipKey);
+  }
+  const clipNote = clipKey ? `<br><br>OBS clip key (paste into OBS → Tools → Scripts → instant-replay.lua):<br><code style="user-select:all;color:#d9a63b">${clipKey}</code>` : "";
 
   const both = await ids();
   if (!both.bot || !both.broadcaster)
-    return page(res, `${who.login} connected ✓`, `Now approve the ${both.bot ? "channel owner" : "bot account"} step.`, true);
+    return page(res, `${who.login} connected ✓`, `Now approve the ${both.bot ? "channel owner" : "bot account"} step.${clipNote}`, true);
   try {
     await subscribeChat(`https://${req.headers.host}/api/bot/eventsub`);
   } catch (e) {
     console.error(e);
     return page(res, "Almost", `Both accounts approved, but Twitch refused the chat subscription: ${String(e.message).slice(0, 300)}`, false);
   }
-  return page(res, "WaxyBot is live ✓", `${both.bot.login} will answer commands in ${both.broadcaster.login}'s chat. Type !commands to try it.`, true);
+  return page(res, "WaxyBot is live ✓", `${both.bot.login} will answer commands in ${both.broadcaster.login}'s chat. Type !commands to try it.${clipNote}`, true);
 }

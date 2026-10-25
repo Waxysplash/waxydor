@@ -43,21 +43,38 @@ export async function logEvent(entry) {
   } catch (e) { console.error("log failed", e); }
 }
 
-// The bot account's own token, refreshed as needed. Only used for things an app token can't do (!followage).
-async function botUserToken() {
-  const cached = await redis("GET", "bot:usertoken");
+// User tokens, refreshed as needed, for things an app token can't do: the bot account's (!followage)
+// and the channel owner's (clips, so they are credited to the channel).
+const USER_KEYS = { bot: ["bot:refresh", "bot:usertoken"], broadcaster: ["bot:bcrefresh", "bot:bctoken"] };
+async function userToken(who) {
+  const [refreshKey, tokenKey] = USER_KEYS[who];
+  const cached = await redis("GET", tokenKey);
   if (cached) return cached;
-  const refresh = await redis("GET", "bot:refresh");
+  const refresh = await redis("GET", refreshKey);
   if (!refresh) return null;
   const r = await fetch("https://id.twitch.tv/oauth2/token", {
     method: "POST",
     body: new URLSearchParams({ client_id: CLIENT_ID(), client_secret: CLIENT_SECRET(), grant_type: "refresh_token", refresh_token: refresh }),
   });
   const j = await r.json();
-  if (!j.access_token) { console.error("bot token refresh failed", j); return null; }
-  await redis("SET", "bot:refresh", j.refresh_token);
-  await redis("SET", "bot:usertoken", j.access_token, "EX", Math.max(60, (j.expires_in || 3600) - 300));
+  if (!j.access_token) { console.error(who + " token refresh failed", j); return null; }
+  await redis("SET", refreshKey, j.refresh_token);
+  await redis("SET", tokenKey, j.access_token, "EX", Math.max(60, (j.expires_in || 3600) - 300));
   return j.access_token;
+}
+const botUserToken = () => userToken("bot");
+
+// Clips the last 30 seconds of the live stream as the channel owner. Returns the clip's public link.
+export async function createClip() {
+  const { broadcaster } = await ids();
+  const token = await userToken("broadcaster");
+  if (!token) throw new Error("clips need the channel owner to reconnect WaxyBot (?as=broadcaster)");
+  const r = await fetch(`https://api.twitch.tv/helix/clips?broadcaster_id=${broadcaster.id}`, {
+    method: "POST", headers: { Authorization: `Bearer ${token}`, "Client-Id": CLIENT_ID() },
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`clip ${r.status}: ${text.slice(0, 200)}`);
+  return "https://clips.twitch.tv/" + JSON.parse(text).data[0].id;
 }
 
 function since(date, now = new Date()) {
