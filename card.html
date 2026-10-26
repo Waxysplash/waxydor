@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phantoms Player Cards</title>
+<meta name="description" content="Waxys Phantoms player cards: every player's Waxy index, season stats and squad status.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=paper1">
+<style>
+  /* The card uses the stream fonts from brand/fonts (same origin, so a saved image keeps them). Everything is in em,
+     so one card is drawn at any size: .pc.big for the featured card, plain .pc in the squad grid. */
+  @font-face { font-family: "PC Display"; src: url("brand/fonts/BarlowCondensed-ExtraBold.ttf") format("truetype"); font-weight: 800; }
+  @font-face { font-family: "PC Body"; src: url("brand/fonts/Barlow-Bold.ttf") format("truetype"); font-weight: 700; }
+  .pc { --edge: #b9985a; --num: #e9dcbb; font-size: 8.5px; width: 22em; aspect-ratio: 22 / 31; position: relative; display: block; color: #e9dcbb;
+        font-family: "PC Body", system-ui, sans-serif; font-weight: 700; text-decoration: none;
+        clip-path: polygon(14% 0, 86% 0, 100% 6%, 100% 92%, 50% 100%, 0 92%, 0 6%); background: var(--edge); }
+  .pc.big { font-size: 15px; }
+  .pc.gold { --edge: #d9a63b; --num: #d9a63b; }
+  .pc.gaffer { --edge: #9d3a2b; }
+  .pc .in { position: absolute; inset: .35em; clip-path: inherit; background: radial-gradient(120% 70% at 30% 0%, #3a3826 0%, #2a2a1e 55%, #1f1e15 100%); }
+  /* khaki inner line, like the crest: a khaki shield with the card's own fill laid just inside it */
+  .pc .in::before, .pc .in::after { content: ""; position: absolute; clip-path: polygon(14% 0, 86% 0, 100% 6%, 100% 92%, 50% 100%, 0 92%, 0 6%); z-index: 0; }
+  .pc .in::before { inset: .7em; background: rgba(155, 154, 106, .75); }
+  .pc .in::after { inset: .84em; background: radial-gradient(120% 70% at 30% 0%, #3a3826 0%, #2a2a1e 55%, #1f1e15 100%); }
+  .pc .in > * { z-index: 1; }
+  .pc .wm { position: absolute; right: -2em; top: 5em; width: 17em; opacity: .045; }
+  .pc .top { position: absolute; left: 2.4em; top: 2.6em; text-align: center; }
+  .pc .num { font-family: "PC Display", sans-serif; font-weight: 800; font-size: 5.6em; line-height: .85; color: var(--num); }
+  .pc .num.trial { font-size: 2.6em; line-height: 1.2; letter-spacing: .04em; }
+  .pc .lbl { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; color: #a8a07e; margin-top: .3em; }
+  .pc .pos { font-family: "PC Display", sans-serif; font-size: 2.1em; letter-spacing: .06em; margin-top: .25em; }
+  .pc .crest { position: absolute; right: 2.4em; top: 2.4em; width: 4.6em; filter: drop-shadow(0 .3em .6em rgba(0, 0, 0, .45)); }
+  .pc .arm { position: absolute; right: 7.8em; top: 3.4em; width: 2.2em; height: 2.2em; border-radius: 50%; background: #9d3a2b; color: #e9dcbb;
+             display: grid; place-items: center; font-family: "PC Display", sans-serif; font-size: 1.3em; box-shadow: 0 0 0 .12em #d9a63b; }
+  .pc .name { position: absolute; left: 1.6em; right: 1.6em; top: 14.2em; text-align: center; }
+  .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2.5em; line-height: 1; text-transform: uppercase;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; }
+  .pc .rule { position: absolute; left: 3em; right: 3em; top: 18.7em; height: .12em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
+  .pc .stats { position: absolute; left: 2.6em; right: 2.6em; top: 19.3em; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: .5em; text-align: center; }
+  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.9em; line-height: 1; }
+  .pc .stats span { font-size: .7em; letter-spacing: .14em; color: #a8a07e; }
+  .pc .foot { position: absolute; left: 0; right: 0; top: 25.7em; text-align: center; }
+  .pc .foot .tag { display: inline-block; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
+  .pc .foot .club { font-size: .66em; letter-spacing: .2em; text-transform: uppercase; color: #a8a07e; margin-top: .55em; }
+
+  .feature { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+  .feature .side h2 { font-family: var(--display); margin: 0 0 6px; font-size: 28px; }
+  .feature .side p { color: var(--muted); margin: 0 0 14px; font-size: 14px; line-height: 1.5; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--cream); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px 12px; justify-items: center; }
+  .grid .pc { transition: transform .15s ease; }
+  .grid .pc:hover { transform: translateY(-3px); }
+  @media (max-width: 640px) {
+    .feature { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .feature .btns { justify-content: center; }
+    .pc.big { font-size: 13px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .grid .pc { font-size: 7.4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
+      <div>
+        <h1>Phantoms player cards</h1>
+        <div class="sub"><a href="./">Waxy d'Or table</a> · <a href="queue.html">Play with us</a> · <a href="clips.html">Waxyclips</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card" id="featured" hidden></div>
+
+  <div class="card">
+    <h3 id="squadTitle">The squad</h3>
+    <p class="note">The big number is the Waxy index, a season rating out of 100. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. Tap a card to open it.</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script src="ranking.js"></script>
+<script>
+(async function () {
+  const $ = (s) => document.querySelector(s);
+  const bust = "?t=" + Math.floor(Date.now() / 60000);
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const load = (f) => fetch(DATA + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
+  const [config, members, matchStore, awards] = await Promise.all([load("config.json"), load("members.json"), load("matches.json"), load("awards.json")]);
+  const now = new Date();
+  const season = config.seasons.find((s) => new Date(s.start) <= now && now <= new Date(s.end)) || config.seasons.at(-1);
+  let snapshot = { members: [] };
+  try { snapshot = await load("snapshots/" + season.id + "-start.json"); } catch (e) {}
+  const R = WaxyRanking.rank({ config, members, matches: matchStore.matches, snapshot, season });
+  const C = config.index;
+  const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows];
+
+  // Same name matching as WaxyBot's !me: the queue links here by Twitch login, chat by EA name.
+  const norm = (s) => String(s || "").toLowerCase().replace(/^ttv[\s_-]*/, "").replace(/[^a-z0-9]/g, "");
+  function find(q) {
+    const map = config.bot?.twitchToPlayer || {};
+    const n = norm(map[String(q).toLowerCase()] || q);
+    if (!n) return null;
+    return all.find((r) => norm(r.name) === n) || all.find((r) => norm(r.name).startsWith(n)) || null;
+  }
+
+  const POS = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "GK" };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // Past honours from awards.json, newest first: "S1 Waxy d'Or".
+  const names = Object.fromEntries(awards.awards.map((a) => [a.id, a.name]));
+  const honours = (name) => Object.entries(awards.winners || {}).reverse()
+    .flatMap(([s, w]) => Object.entries(w).filter(([, who]) => who === name).map(([id]) => `${s.toUpperCase()} ${names[id] || id}`));
+
+  function cardHtml(r, opts = {}) {
+    const rank = r.gaffer ? -1 : R.ranked.indexOf(r);
+    const gold = rank >= 0 && rank < 5;
+    const trial = !r.gaffer && r.index == null;
+    const top = trial
+      ? `<div class="num trial">TRIAL</div><div class="lbl">${r.gp}/${C.compareMinGames} apps</div>`
+      : r.gaffer && r.index == null ? `<div class="num">${Math.round(r.rating * 10)}</div><div class="lbl">match rtg</div>`
+      : `<div class="num">${r.index}</div><div class="lbl">${r.qualified ? "Waxy index" : "provisional"}</div>`;
+    const h = honours(r.name)[0];
+    const tag = r.gaffer ? "Captain · the gaffer"
+      : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
+      : trial ? `On trial · ${C.compareMinGames - r.gp} app${C.compareMinGames - r.gp === 1 ? "" : "s"} to a rating`
+      : `${C.minGames - r.gp} app${C.minGames - r.gp === 1 ? "" : "s"} from the race`;
+    const stats = r.pos === "goalkeeper"
+      ? [["APP", r.gp], ["SV%", r.savePct ?? "–"], ["MOTM", r.mom], ["PAS%", r.passPct], ["WIN%", r.winPct], ["RAT", r.rating.toFixed(1)]]
+      : [["APP", r.gp], ["GLS", r.g], ["AST", r.a], ["MOTM", r.mom], ["PAS%", r.passPct], ["RAT", r.rating.toFixed(1)]];
+    const tagName = opts.link ? "a" : "div";
+    return `<${tagName} class="pc${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
+      <div class="in">
+        <img class="wm" src="brand/logo.png" alt="">
+        <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
+        <img class="crest" src="brand/logo.png" alt="">
+        ${r.gaffer ? `<div class="arm">C</div>` : ""}
+        <div class="name"><b>${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
+        <div class="rule"></div>
+        <div class="stats">${stats.map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
+        <div class="foot"><span class="tag">${tag}</span><div class="club">Waxys Phantoms · ${esc(season.name)}</div></div>
+      </div>
+    </${tagName}>`;
+  }
+
+  // A brand-new signing with no match on record yet still gets a card.
+  const blank = (name) => ({ name, pro: "New signing", pos: null, gp: 0, g: 0, a: 0, mom: 0, passPct: 0, winPct: 0, rating: 0, savePct: null, index: null, gaffer: false });
+
+  $("#squadTitle").textContent = `The squad · ${season.name}`;
+  $("#grid").innerHTML = all.map((r) => cardHtml(r, { link: true })).join("");
+
+  const p = new URLSearchParams(location.search).get("p");
+  if (p) {
+    const r = find(p) || blank(p.slice(0, 24));
+    const known = r.gp > 0;
+    document.title = `${r.name} · Phantoms Player Cards`;
+    const f = $("#featured");
+    f.hidden = false;
+    f.innerHTML = `<div class="feature">${cardHtml(r, { big: true })}
+      <div class="side">
+        <h2>${esc(r.name)}</h2>
+        <p>${known
+          ? `${r.gp} appearance${r.gp === 1 ? "" : "s"} for Waxys Phantoms in ${esc(season.name)}. The card updates itself after every match.`
+          : `Welcome to Waxys Phantoms. Your stats show up here after your first match. If your EA name is different from your Twitch name, ask the captain to link them.`}</p>
+        <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button></div>
+      </div></div>`;
+    $("#copy").onclick = async (e) => {
+      try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "Copy failed"; }
+    };
+    // The image library only loads when someone saves a card.
+    $("#save").onclick = async (e) => {
+      const b = e.target; b.textContent = "Saving…"; b.disabled = true;
+      try {
+        if (!window.htmlToImage) await new Promise((ok, no) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"; s.onload = ok; s.onerror = no;
+          document.head.appendChild(s);
+        });
+        await document.fonts.ready;
+        const url = await htmlToImage.toPng(f.querySelector(".pc"), { pixelRatio: 3, skipFonts: false });
+        const a = document.createElement("a");
+        a.href = url; a.download = `phantoms-card-${r.name.replace(/[^a-z0-9_-]/gi, "")}.png`; a.click();
+        b.textContent = "Save image";
+      } catch (err) { b.textContent = "Couldn't save, try a screenshot"; }
+      b.disabled = false;
+    };
+  }
+})();
+</script>
+</body>
+</html>

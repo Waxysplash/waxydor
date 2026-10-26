@@ -286,7 +286,7 @@ export async function handleCommand(text, chatter) {
   const c = cmd.toLowerCase();
   const arg = rest.join(" ");
   const config = await loadConfig();
-  if (queue.QUEUE_COMMANDS.includes(c)) return queue.command(c, rest, chatter, config.queue || {}, isFollower);
+  if (queue.QUEUE_COMMANDS.includes(c)) return queue.command(c, rest, chatter, { ...config.queue, siteUrl: config.siteUrl }, isFollower);
   const custom = await customCommand(c, config);
   const cooldown = custom?.cooldown ?? 5;
   if (cooldown > 0 && !chatter.mod && !(await redis("SET", "bot:cd:" + c, "1", "NX", "EX", cooldown))) return null;
@@ -295,6 +295,7 @@ export async function handleCommand(text, chatter) {
   const site = config.siteUrl;
   const top = (n) => d.R.ranked.slice(0, n).map((r, i) => `${i + 1}. ${r.name} ${r.index}`).join(" | ");
   const target = (rest[0] || "").replace(/^@/, "");
+  const card = (r) => `${(site || "").replace(/\/?$/, "/")}card.html?p=${encodeURIComponent(r.name)}`;
 
   switch (c) {
     case "!table":
@@ -308,12 +309,12 @@ export async function handleCommand(text, chatter) {
     case "!me": {
       const map = d.config.bot?.twitchToPlayer || {};
       const r = findPlayer(d, map[chatter.login] || chatter.login) || findPlayer(d, chatter.name);
-      return r ? playerLine(d, r) : `@${chatter.name} I can't match your Twitch name to an EA player yet. Try !player <your EA name>, and the captain can link you.`;
+      return r ? playerLine(d, r) + ` · card ${card(r)}` : `@${chatter.name} I can't match your Twitch name to an EA player yet. Try !player <your EA name>, and the captain can link you.`;
     }
     case "!player": case "!stats": {
       if (!arg) return "Usage: !player <name>, e.g. !player George";
       const r = findPlayer(d, arg);
-      return r ? playerLine(d, r) : `No player matching "${arg.slice(0, 30)}". Full squad: ${site}`;
+      return r ? playerLine(d, r) + ` · card ${card(r)}` : `No player matching "${arg.slice(0, 30)}". Full squad: ${site}`;
     }
     case "!last": {
       const m = d.matches[0];

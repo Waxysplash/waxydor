@@ -72,7 +72,7 @@ export async function subscribeAlerts(callback) {
   return out;
 }
 
-// !testalert [follow|sub|resub|gift|raid|cheer|clip] for mods, so the overlay can be checked in OBS any time.
+// !testalert [follow|sub|resub|gift|raid|cheer|clip|signing] for mods, so the overlay can be checked in OBS any time.
 const SAMPLES = {
   follow: { type: "follow" },
   sub: { type: "sub", tier: 1 },
@@ -81,6 +81,7 @@ const SAMPLES = {
   raid: { type: "raid", viewers: 42 },
   cheer: { type: "cheer", bits: 500, message: "What a strike" },
   clip: { type: "clip" },
+  signing: { type: "signing", pos: "ST", no: 7 },
 };
 export async function testAlert(kind, name) {
   const k = SAMPLES[kind] ? kind : "follow";

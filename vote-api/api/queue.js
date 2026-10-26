@@ -10,7 +10,7 @@ let cfg = { at: 0, rules: {}, channel: "" };
 async function config() {
   if (Date.now() - cfg.at > 60_000) {
     const r = await fetch("https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/config.json?t=" + Math.floor(Date.now() / 60_000));
-    if (r.ok) { const c = await r.json(); cfg = { at: Date.now(), rules: c.queue || {}, channel: String(c.fanVote?.channel || "").toLowerCase() }; }
+    if (r.ok) { const c = await r.json(); cfg = { at: Date.now(), rules: { ...c.queue, siteUrl: c.siteUrl }, channel: String(c.fanVote?.channel || "").toLowerCase() }; }
   }
   return cfg;
 }

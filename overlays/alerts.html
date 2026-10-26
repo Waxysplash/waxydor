@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="brand.css?v=crest1">
 <style>
   /* OBS browser source 1920x1080, transparent, on top of every scene. WaxyBot's alerts: follows, subs, gifts,
-     raids, cheers and the captain's clip key. Params: ?sound=0 mutes the chime, &volume=0.5, &test=1 cycles
-     sample alerts (mods can also type !testalert follow|sub|resub|gift|raid|cheer|clip in chat). */
+     raids, cheers, queue signings (HERE WE GO) and the captain's clip key. Params: ?sound=0 mutes the chime, &volume=0.5, &test=1 cycles
+     sample alerts (mods can also type !testalert follow|sub|resub|gift|raid|cheer|clip|signing in chat). */
   body { width: 1920px; height: 1080px; overflow: hidden; }
   .stage { position: absolute; left: 0; right: 0; top: 46px; display: flex; justify-content: center; pointer-events: none; }
   .card { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 22px; min-width: 560px; max-width: 980px;
@@ -68,6 +68,8 @@
       case "resub": return { eyebrow: "Resub" + tier(a.tier), line: `<b>${plural(a.months, "month")}</b> at the club`, msg: a.message, secs: 8, big: true };
       case "gift": return { eyebrow: "Gift subs", line: `gifted <b>${plural(a.count, "sub")}</b> to the squad`, secs: 8, big: true };
       case "raid": return { eyebrow: "Raid", line: `is raiding with <b>${plural(a.viewers, "viewer")}</b>`, secs: 9, big: true };
+      // A viewer's first call-up from the queue, Fabrizio style.
+      case "signing": return { eyebrow: "Here we go", line: `signs for <b>Waxys Phantoms</b>${a.pos && a.pos !== "ANY" ? ` · ${a.pos}` : ""}${a.no ? ` · signing <b>#${a.no}</b>` : ""}`, secs: 9, big: true };
       case "cheer": return { eyebrow: "Cheer", line: `cheered <b>${plural(a.bits, "bit")}</b>`, msg: a.message, secs: 7, big: a.bits >= 500 };
       default: return null;
     }
@@ -125,7 +127,7 @@
       { type: "follow", name: "George-Truly" }, { type: "sub", name: "Melo2Mellow", tier: 1 },
       { type: "resub", name: "PhantomFan", tier: 1, months: 6, message: "Up the Phantoms" }, { type: "clip" },
       { type: "gift", name: "Anonymous", tier: 1, count: 5 }, { type: "raid", name: "SomeStreamer", viewers: 42 },
-      { type: "cheer", name: "BitsGuy", bits: 500, message: "What a strike" },
+      { type: "cheer", name: "BitsGuy", bits: 500, message: "What a strike" }, { type: "signing", name: "NewTrialist", pos: "CM", no: 7 },
     ];
     let i = 0;
     const next = () => { add(samples[i++ % samples.length]); setTimeout(next, 10000); };

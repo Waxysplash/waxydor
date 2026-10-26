@@ -2,6 +2,7 @@
 // The whole queue is one small JSON document in Redis, changed under a short lock so two
 // commands arriving together can't overwrite each other. Rules live in config.queue.
 import { redis } from "./shared.js";
+import { pushAlert } from "./alerts.js";
 
 const KEY = "queue:state";
 const POSITIONS = ["GK", "CB", "LB", "RB", "LWB", "RWB", "CDM", "CM", "CAM", "LM", "RM", "LW", "RW", "CF", "ST", "ANY"];
@@ -53,6 +54,22 @@ const turns = (rules, sub) => (sub ? rules.subMatchesPerTurn : rules.matchesPerT
 const where = (s, rules, login) => s.waiting.findIndex((e) => e.login === login) + 1;
 const tag = (e) => `@${e.name}`;
 
+// A viewer's first ever call-up from the queue is a signing: a HERE WE GO alert on stream and a line in chat with
+// their player card. queue:signed remembers everyone signed, so it happens once per player, not once per night.
+async function sign(called, rules) {
+  const fresh = [];
+  for (const e of called) {
+    if (!(await redis("SADD", "queue:signed", e.login))) continue;
+    const no = await redis("INCR", "queue:signings");
+    await pushAlert({ type: "signing", name: e.name, pos: e.pos, no });
+    fresh.push(e);
+  }
+  if (!fresh.length) return "";
+  const card = (e) => `${(rules.siteUrl || "").replace(/\/?$/, "/")}card.html?p=${encodeURIComponent(e.login)}`;
+  return ` 🖊️ HERE WE GO! ${fresh.map(tag).join(", ")} sign${fresh.length === 1 ? "s" : ""} for Waxys Phantoms.` +
+    (fresh.length === 1 && rules.siteUrl ? ` Player card: ${card(fresh[0])}` : "");
+}
+
 export async function command(c, args, chatter, rules, isFollower) {
   const me = chatter.login.toLowerCase();
   const target = (args[0] || "").replace(/^@/, "").toLowerCase();
@@ -101,7 +118,7 @@ export async function command(c, args, chatter, rules, isFollower) {
       // so they get first pick) · !pick @name = that person · !random = a random waiting player (Streamlabs-style).
       const count = /^\d+$/.test(args[0] || "") ? Math.min(+args[0], 11) : 1;
       const want = posOf(args[0]);
-      return withLock((s) => {
+      return withLock(async (s) => {
         const called = [];
         for (let i = 0; i < count; i++) {
           const list = ordered(s, rules);
@@ -114,7 +131,8 @@ export async function command(c, args, chatter, rules, isFollower) {
           called.push(pick);
         }
         if (!called.length) return c === "!pick" ? `${target || "That player"} isn't waiting in the queue.` : want ? `Nobody in the queue for ${want}.` : "Nobody waiting in the queue.";
-        return `${called.map(tag).join(", ")} you're up! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes.${called.length === 1 ? ` ${turns(rules, called[0].sub)} match${turns(rules, called[0].sub) === 1 ? "" : "es"}${called[0].note ? ` · ${called[0].note}` : ""}.` : ""}`;
+        return `${called.map(tag).join(", ")} you're up! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes.${called.length === 1 ? ` ${turns(rules, called[0].sub)} match${turns(rules, called[0].sub) === 1 ? "" : "es"}${called[0].note ? ` · ${called[0].note}` : ""}.` : ""}` +
+          await sign(called, rules).catch((e) => { console.error("signing", e.message); return ""; });
       });
     }
     case "!remove":
