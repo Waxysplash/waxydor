@@ -31,6 +31,9 @@ header.top { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; jus
 nav.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--line); margin-bottom: 16px; overflow-x: auto; }
 nav.tabs button { background: none; border: 0; color: var(--muted); font: inherit; font-weight: 600; padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
 nav.tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+nav.tabs a.tab-link { color: var(--muted); font-weight: 600; padding: 10px 14px; border-bottom: 2px solid transparent; white-space: nowrap; }
+nav.tabs a.tab-link::after { content: " ↗"; font-size: 11px; }
+nav.tabs a.tab-link:hover { color: var(--text); }
 section[hidden] { display: none; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
 .card h3 { margin: 0 0 10px; font-size: 16px; }
@@ -98,11 +101,11 @@ tr.bd td { text-align: left; white-space: normal; background: var(--panel-2); fo
 .bd-st { color: var(--accent-2); font-size: 12px; margin-top: 6px; }
 tbody tr.sep td { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding-top: 14px; }
 .idx.prov { background: rgba(168,160,126,.12); color: var(--muted); }
-.player .bars { margin-top: 10px; display: grid; gap: 4px; }
-.player .bar { display: grid; grid-template-columns: 112px 1fr 48px; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
-.player .bar i { height: 6px; border-radius: 3px; background: rgba(42,42,30,.12); overflow: hidden; }
-.player .bar s { display: block; height: 100%; background: var(--accent); }
-.player .bar b { text-align: right; color: var(--text); font-weight: 600; }
+.player .bars, .breakdown .bars { margin-top: 10px; display: grid; gap: 4px; }
+.player .bar, .breakdown .bar { display: grid; grid-template-columns: 112px 1fr 48px; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+.player .bar i, .breakdown .bar i { height: 6px; border-radius: 3px; background: rgba(42,42,30,.12); overflow: hidden; }
+.player .bar s, .breakdown .bar s { display: block; height: 100%; background: var(--accent); }
+.player .bar b, .breakdown .bar b { text-align: right; color: var(--text); font-weight: 600; }
 .lead { margin: 0 0 10px; line-height: 1.55; }
 ul.rules { margin: 8px 0 0; padding-left: 18px; line-height: 1.55; font-size: 14px; }
 ul.rules li { margin-bottom: 6px; }

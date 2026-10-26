@@ -81,6 +81,9 @@
   const openTab = (t) => { const btn = t && document.querySelector(`#tabs [data-tab="${t}"]`); if (btn) btn.click(); return !!btn; };
   let saved = null;
   try { saved = localStorage.getItem("waxy.tab"); } catch (e) {}
+  // The old Players and Queue tabs are pages of their own now.
+  const moved = { players: "card.html", queue: "queue.html" }[location.hash.slice(1)];
+  if (moved) location.replace(moved);
   openTab(location.hash.slice(1)) || openTab(saved);
   addEventListener("hashchange", () => openTab(location.hash.slice(1) || "table"));
 
@@ -231,32 +234,16 @@
     $("#hall").innerHTML = past.map(([sid, w]) => { const s = config.seasons.find((x) => x.id === sid); return `<div class="note"><b style="color:var(--text)">${s ? s.name : sid}</b> · ${awardsData.awards.filter((a) => w[a.id]).map((a) => `${a.name}: ${w[a.id]}`).join(" · ")}</div>`; }).join("");
   }
 
-  // ---------- players ----------
-  $("#players").innerHTML = [...(gaffer ? [gaffer] : []), ...rows].map((r) => `
-    <div class="player ${r.gaffer ? "gaffer" : ""}"><div class="n">${r.name}${r.gaffer ? ` <span class="tag">The Gaffer</span>` : ""}</div><div class="p">${r.pro || ""} · ${r.pos} · ${r.ovr || "–"} OVR${r.index != null ? ` · index ${r.index}${r.qualified || r.gaffer ? "" : " (provisional)"}` : ""}</div>
-      <div class="grid"><div><b>${r.gp}</b><span>apps</span></div><div><b>${r.g}</b><span>goals</span></div><div><b>${r.a}</b><span>assists</span></div>
-      <div><b>${r.rating.toFixed(1)}</b><span>rating</span></div><div><b>${r.passPct}%</b><span>pass</span></div><div><b>${r.winPct}%</b><span>win</span></div></div>
-      <div class="bars">${WaxyRanking.FACTORS.map(([k, label]) => `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / C.weights[k]}%"></s></i><b>${fmt1(r.parts[k])}/${C.weights[k]}</b></div>`).join("")}</div></div>`).join("");
-
-  // ---------- live Pro Clubs queue ----------
+  // ---------- live Pro Clubs queue: the banner and the LIVE tag (the queue itself is queue.html) ----------
   const QAPI = ((config.fanVote && config.fanVote.apiUrl) || "").replace(/\/$/, "");
-  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const qRow = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}"><div class="rk">${playing ? "▶" : i + 1}</div>
-    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.note ? `<small style="display:block;color:var(--muted);font-weight:400;font-size:12px">${esc(e.note)}</small>` : ""}</div><div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div>
-    <div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div></div>`;
   async function refreshQueue() {
     if (!QAPI) return;
     try {
       const q = await fetch(QAPI + "/api/queue").then((r) => r.json());
-      const live = q.open || q.playing.length > 0;
       $("#queueLive").hidden = !q.open;
       $("#queueBanner").hidden = !q.open;
-      $("#queueBanner").textContent = `Pro Clubs queue is open · ${q.waiting.length} waiting · ${q.playing.length} on the pitch · tap to see it`;
-      $("#queueTitle").textContent = q.open ? "Pro Clubs queue · OPEN" : "Pro Clubs queue · closed";
-      $("#queuePlaying").innerHTML = q.playing.length ? q.playing.map((e, i) => qRow(e, i, true)).join("") : `<div class="note">Nobody from the queue on the pitch.</div>`;
-      $("#queueWaiting").innerHTML = q.waiting.length ? q.waiting.map((e, i) => qRow(e, i, false)).join("") : `<div class="note">${live ? "Nobody waiting." : "The queue opens on Pro Clubs streams."}</div>`;
-      $("#queueUpdated").textContent = q.updatedAt ? "Updated " + new Date(q.updatedAt).toLocaleTimeString() : "";
-    } catch (e) { $("#queueUpdated").textContent = "Couldn't reach the queue, retrying…"; }
+      $("#queueBanner").textContent = `Pro Clubs queue is open · ${q.waiting.length} waiting · ${q.playing.length} on the pitch · tap to join`;
+    } catch (e) { /* try again next round */ }
   }
   refreshQueue(); setInterval(refreshQueue, 10000);
 

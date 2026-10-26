@@ -7,7 +7,7 @@
 <meta name="description" content="Waxys Phantoms player cards: every player's overall rating, season stats and Waxy d'Or standing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=nav1">
+<link rel="stylesheet" href="styles.css?v=nav2">
 <style>
   /* The card uses the stream fonts from brand/fonts (same origin, so a saved image keeps them). Everything is in em,
      so one card is drawn at any size: .pc.big for the featured card, plain .pc in the squad grid. */
@@ -49,6 +49,8 @@
   .feature { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
   .feature .side h2 { font-family: var(--display); margin: 0 0 6px; font-size: 28px; }
   .feature .side p { color: var(--muted); margin: 0 0 14px; font-size: 14px; line-height: 1.5; }
+  .breakdown { margin-top: 18px; max-width: 420px; }
+  .breakdown h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; }
   .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--cream); }
   .btn.ghost { background: transparent; color: var(--ink); }
@@ -98,7 +100,7 @@
   let snapshot = { members: [] };
   try { snapshot = await load("snapshots/" + season.id + "-start.json"); } catch (e) {}
   const R = WaxyRanking.rank({ config, members, matches: matchStore.matches, snapshot, season });
-  const C = config.index;
+  const C = config.index, W = season.weights || C.weights;
   const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows];
 
   // Same name matching as WaxyBot's !me: the queue links here by Twitch login, chat by EA name.
@@ -168,6 +170,8 @@
           ? `${r.gp} appearance${r.gp === 1 ? "" : "s"} for Waxys Phantoms in ${esc(season.name)}. The card updates itself after every match.`
           : `Welcome to Waxys Phantoms. Your stats show up here after your first match. If your EA name is different from your Twitch name, ask the captain to link them.`}</p>
         <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button></div>
+        ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.FACTORS.map(([k, label]) =>
+          `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / W[k]}%"></s></i><b>${r.parts[k]}/${W[k]}</b></div>`).join("")}</div></div>` : ""}
       </div></div>`;
     $("#copy").onclick = async (e) => {
       try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "Copy failed"; }

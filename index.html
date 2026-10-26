@@ -30,15 +30,15 @@
     <div class="countdown" id="countdown"></div>
   </div>
 
-  <a class="queue-banner" id="queueBanner" href="#" data-goto="queue" hidden></a>
+  <a class="queue-banner" id="queueBanner" href="queue.html" hidden></a>
   <div class="card season-record" id="seasonRecord"></div>
 
   <nav class="tabs" id="tabs">
     <button data-tab="table" class="active">Table</button>
     <button data-tab="matches">Matches</button>
     <button data-tab="awards">Awards</button>
-    <button data-tab="players">Players</button>
-    <button data-tab="queue">Queue <span class="tab-live" id="queueLive" hidden>LIVE</span></button>
+    <a class="tab-link" href="card.html">Player cards</a>
+    <a class="tab-link" href="queue.html">Queue <span class="tab-live" id="queueLive" hidden>LIVE</span></a>
     <button data-tab="rules">How it works</button>
   </nav>
 
@@ -67,24 +67,6 @@
     <div class="card" id="hallCard" hidden>
       <h3>Hall of fame</h3>
       <div id="hall"></div>
-    </div>
-  </section>
-
-  <section id="tab-players" hidden>
-    <div class="card">
-      <h3>Squad</h3>
-      <div class="players" id="players"></div>
-    </div>
-  </section>
-
-  <section id="tab-queue" hidden>
-    <div class="card">
-      <div class="q-head"><h3 id="queueTitle">Pro Clubs queue</h3><span class="note" id="queueUpdated"></span></div>
-      <div class="note">Viewers join from Twitch chat by typing <code>!join</code> (anything after it shows as their note). Subs ⭐ get priority, 3 matches per turn and first pick of position. <a href="queue.html">Full rules</a></div>
-      <h4 class="q-sub">On the pitch</h4>
-      <div class="q-list" id="queuePlaying"></div>
-      <h4 class="q-sub">In the queue</h4>
-      <div class="q-list" id="queueWaiting"></div>
     </div>
   </section>
 
