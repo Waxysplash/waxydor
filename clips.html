@@ -7,7 +7,7 @@
 <meta name="description" content="Waxyclips: every Twitch clip from Waxys Phantoms streams, newest first.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=paper1">
+<link rel="stylesheet" href="styles.css?v=nav1">
 <style>
   .c-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
   .c-sort { display: flex; gap: 6px; }
@@ -40,7 +40,7 @@
       <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
       <div>
         <h1>Waxyclips</h1>
-        <div class="sub"><a href="./">Waxy d'Or table</a> · <a href="queue.html">Play with us</a> · <a href="card.html">Player cards</a> · <a href="https://twitch.tv/waxysplash">twitch.tv/waxysplash</a></div>
+        <div class="sub">Every clip from the stream, newest first</div>
       </div>
     </div>
   </header>
@@ -106,5 +106,6 @@
     .catch(() => { $("total").textContent = "Clips couldn't load. Try again in a minute."; });
 })();
 </script>
+<script src="nav.js?v=nav1"></script>
 </body>
 </html>

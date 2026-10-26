@@ -74,8 +74,15 @@
     document.querySelectorAll("#tabs button").forEach((x) => x.classList.toggle("active", x === b));
     document.querySelectorAll("section[id^=tab-]").forEach((s) => (s.hidden = s.id !== "tab-" + b.dataset.tab));
     try { localStorage.setItem("waxy.tab", b.dataset.tab); } catch (e) {}
+    // Each tab has its own address (./#awards), so a tab can be shared or bookmarked.
+    history.replaceState(null, "", b.dataset.tab === "table" ? location.pathname : "#" + b.dataset.tab);
   });
-  try { const t = localStorage.getItem("waxy.tab"); const btn = t && document.querySelector(`#tabs [data-tab="${t}"]`); if (btn) btn.click(); } catch (e) {}
+  // A tab in the address wins; otherwise the tab you were last on.
+  const openTab = (t) => { const btn = t && document.querySelector(`#tabs [data-tab="${t}"]`); if (btn) btn.click(); return !!btn; };
+  let saved = null;
+  try { saved = localStorage.getItem("waxy.tab"); } catch (e) {}
+  openTab(location.hash.slice(1)) || openTab(saved);
+  addEventListener("hashchange", () => openTab(location.hash.slice(1) || "table"));
 
   // ---------- table ----------
   const cols = [
