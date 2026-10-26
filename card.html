@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Phantoms Player Cards</title>
-<meta name="description" content="Waxys Phantoms player cards: every player's Waxy index, season stats and squad status.">
+<meta name="description" content="Waxys Phantoms player cards: every player's overall rating, season stats and Waxy d'Or standing.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=paper1">
@@ -80,7 +80,7 @@
 
   <div class="card">
     <h3 id="squadTitle">The squad</h3>
-    <p class="note">The big number is the Waxy index, a season rating out of 100. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. Tap a card to open it.</p>
+    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. Tap a card to open it.</p>
     <div class="grid" id="grid"></div>
   </div>
 </div>
@@ -121,10 +121,10 @@
     const rank = r.gaffer ? -1 : R.ranked.indexOf(r);
     const gold = rank >= 0 && rank < 5;
     const trial = !r.gaffer && r.index == null;
-    const top = trial
-      ? `<div class="num trial">TRIAL</div><div class="lbl">${r.gp}/${C.compareMinGames} apps</div>`
-      : r.gaffer && r.index == null ? `<div class="num">${Math.round(r.rating * 10)}</div><div class="lbl">match rtg</div>`
-      : `<div class="num">${r.index}</div><div class="lbl">${r.qualified ? "Waxy index" : "provisional"}</div>`;
+    // The big number is the player's Pro overall from EA, like a real FC card. A brand-new signing has none yet.
+    const top = r.ovr > 0
+      ? `<div class="num">${r.ovr}</div><div class="lbl">OVR</div>`
+      : `<div class="num trial">NEW</div><div class="lbl">${trial ? "on trial" : "OVR"}</div>`;
     const h = honours(r.name)[0];
     const tag = r.gaffer ? "Captain · the gaffer"
       : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
