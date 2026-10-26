@@ -1,7 +1,9 @@
 // POST /api/bot/eventsub — Twitch EventSub webhook. Verifies Twitch's signature, answers "!" commands from
-// channel.chat.message, and turns follows, subs, gifts, raids and cheers into on-stream alerts.
+// channel.chat.message, turns follows, subs, gifts, raids and cheers into on-stream alerts, and closes the
+// queue when the stream ends.
 import { redis } from "../../lib/shared.js";
-import { alertFromEvent, pushAlert } from "../../lib/alerts.js";
+import { alertFromEvent, pushAlert, ensureStreamEvents } from "../../lib/alerts.js";
+import { streamOffline, streamOnline } from "../../lib/queue.js";
 import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent, runTimers, loadConfig } from "../../lib/bot.js";
 
 export const config = { api: { bodyParser: false } };
@@ -27,11 +29,21 @@ export default async function handler(req, res) {
 
   const e = body.event || {};
   const subType = body.subscription?.type;
+  if (subType === "stream.offline" || subType === "stream.online") {
+    try {
+      const msg = await (subType === "stream.offline" ? streamOffline() : streamOnline());
+      if (msg) await say(msg).catch((err) => console.error("queue say", err.message));
+      await logEvent({ stream: subType, queue: msg ? msg.slice(0, 120) : "no change" });
+    } catch (err) { console.error(subType, err); }
+    return res.status(204).end();
+  }
   if (subType !== "channel.chat.message") {
     const alert = alertFromEvent(subType, e);
     if (alert) await pushAlert(alert);
     return res.status(204).end();
   }
+  // Make sure Twitch will tell us when the stream ends (checked every few hours, off the back of chat).
+  try { await ensureStreamEvents(`https://${req.headers.host}/api/bot/eventsub`); } catch (err) { console.error("stream events", err.message); }
   const text = e.message?.text || "";
   const { bot } = await ids();
   if (e.chatter_user_id === bot?.id) return res.status(204).end();

@@ -192,4 +192,22 @@ export async function command(c, args, chatter, rules, isFollower) {
   return null;
 }
 
+// Twitch tells WaxyBot when the stream goes offline or online (stream.offline / stream.online). Going offline closes
+// the queue like !qclose. A dropped stream that comes back within REOPEN_MINUTES gets its queue reopened, so a
+// connection blip mid-match doesn't shut everyone out.
+const REOPEN_MINUTES = 15;
+export async function streamOffline() {
+  return withLock(async (s) => {
+    if (!s.open) return null;
+    s.open = false;
+    await redis("SET", "queue:autoclosed", "1", "EX", REOPEN_MINUTES * 60);
+    return `Full time: the stream's over, so the queue is closed. ${s.waiting.length ? `${s.waiting.length} still waiting keep your place for next matchday.` : "See you next matchday."}`;
+  });
+}
+export async function streamOnline() {
+  if (!(await redis("GET", "queue:autoclosed"))) return null;
+  await redis("DEL", "queue:autoclosed");
+  return withLock((s) => { if (s.open) return null; s.open = true; return "We're back! The queue is open again, everyone kept their place. !join to get in."; });
+}
+
 export const QUEUE_COMMANDS = ["!join", "!leave", "!queue", "!q", "!position", "!qopen", "!qclose", "!qclear", "!next", "!pick", "!random", "!remove", "!back", "!ft", "!fulltime", "!noshow", "!kick"];

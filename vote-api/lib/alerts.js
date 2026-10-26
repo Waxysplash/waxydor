@@ -50,7 +50,26 @@ function wanted(bot, b) {
     { type: "channel.subscription.gift", version: "1", condition: { broadcaster_user_id: b.id } },
     { type: "channel.raid", version: "1", condition: { to_broadcaster_user_id: b.id } },
     { type: "channel.cheer", version: "1", condition: { broadcaster_user_id: b.id } },
+    ...STREAM_EVENTS.map((type) => ({ type, version: "1", condition: { broadcaster_user_id: b.id } })),
   ];
+}
+
+// Stream start and end, for closing (and after a drop, reopening) the queue. They need no approval, so WaxyBot sets
+// them up by itself (ensureStreamEvents) instead of waiting for the next ?as=broadcaster reconnect.
+const STREAM_EVENTS = ["stream.offline", "stream.online"];
+export async function ensureStreamEvents(callback) {
+  if (!(await redis("SET", "bot:streamevents:check", "1", "NX", "EX", 6 * 3600))) return;
+  const { broadcaster } = await ids();
+  const existing = (await helix("GET", "eventsub/subscriptions")).data || [];
+  for (const type of STREAM_EVENTS) {
+    const mine = existing.filter((s) => s.type === type);
+    if (mine.some((s) => s.status === "enabled")) continue;
+    for (const s of mine) await helix("DELETE", `eventsub/subscriptions?id=${s.id}`);
+    await helix("POST", "eventsub/subscriptions", {
+      type, version: "1", condition: { broadcaster_user_id: broadcaster.id },
+      transport: { method: "webhook", callback, secret: await webhookSecret() },
+    });
+  }
 }
 
 // (Re)creates every alert subscription. One failing (say, a missing approval) doesn't stop the rest.
