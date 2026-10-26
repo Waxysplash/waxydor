@@ -226,3 +226,16 @@ header.top .brand > a { display: flex; }
   .site-nav { mask-image: linear-gradient(90deg, #000 85%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); }
   .site-nav a { padding: 8px 11px; }
 }
+
+/* Hall of Fame: one card per legend, drawn like the badge (red shield, cream lettering, gold star) */
+.legends { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px 14px; padding-top: 14px; }
+.legend { position: relative; background: var(--red); color: var(--cream); border: 3px solid var(--ink); box-shadow: inset 0 0 0 3px var(--red), inset 0 0 0 6px var(--khaki); border-radius: 18px 18px 50% 50% / 18px 18px 22% 22%; padding: 34px 22px 44px; text-align: center; }
+.legend-star { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 32px; color: var(--gold); -webkit-text-stroke: 2px var(--ink); line-height: 1; }
+.legend h4 { margin: 0; font-family: var(--display); font-size: 26px; letter-spacing: .01em; color: var(--cream); }
+.legend-title { display: inline-block; margin: 10px 0 4px; background: var(--cream); color: var(--ink); border: 2px solid var(--ink); border-radius: 6px; padding: 3px 12px; font-family: var(--display); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; }
+.legend p { margin: 10px 0 0; line-height: 1.5; font-size: 14px; color: #f3e6c6; }
+.legend-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+.legend-stats div { background: rgba(0,0,0,.18); border-radius: 8px; padding: 6px 2px; }
+.legend-stats b { display: block; font-family: var(--display); font-size: 20px; }
+.legend-stats span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #ead9b0; }
+.legend-date { margin-top: 14px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #ead9b0; }

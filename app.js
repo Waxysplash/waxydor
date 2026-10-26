@@ -247,5 +247,20 @@
   }
   refreshQueue(); setInterval(refreshQueue, 10000);
 
+  // ---------- hall of fame ----------
+  // Legends are inducted by hand (data/legends.json). Career numbers come from EA's running totals.
+  let legendsData = { legends: [] };
+  try { legendsData = await load("legends.json"); } catch (e) {}
+  const career = new Map(members.members.map((m) => [m.name.toLowerCase(), m]));
+  const hofEsc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  $("#legends").innerHTML = (legendsData.legends || []).length ? legendsData.legends.map((l) => {
+    const m = career.get(String(l.name).toLowerCase());
+    const stats = m ? `<div class="legend-stats"><div><b>${m.gamesPlayed}</b><span>apps</span></div><div><b>${m.goals}</b><span>goals</span></div><div><b>${m.assists}</b><span>assists</span></div><div><b>${m.manOfTheMatch}</b><span>MOTM</span></div></div>` : "";
+    return `<article class="legend"><div class="legend-star">★</div>
+      <h4>${hofEsc(l.name)}</h4>${l.title ? `<div class="legend-title">${hofEsc(l.title)}</div>` : ""}
+      ${l.citation ? `<p>${hofEsc(l.citation)}</p>` : ""}${stats}
+      <div class="legend-date">Inducted ${l.inducted ? new Date(l.inducted + "T12:00:00").toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : ""}${m ? " · career with the Phantoms" : ""}</div></article>`;
+  }).join("") : `<div class="card"><div class="note">No legends yet. The captain inducts the first one.</div></div>`;
+
   $("#footer").textContent = `Stats from EA Sports FC Pro Clubs, refreshed every 20 minutes. ${S.matches.length} matches on record. Season windows and awards are set by the captain.`;
 })();

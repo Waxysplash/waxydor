@@ -39,6 +39,7 @@
     <button data-tab="awards">Awards</button>
     <a class="tab-link" href="card.html">Player cards</a>
     <a class="tab-link" href="queue.html">Queue <span class="tab-live" id="queueLive" hidden>LIVE</span></a>
+    <button data-tab="hof">Hall of Fame</button>
     <button data-tab="rules">How it works</button>
   </nav>
 
@@ -65,9 +66,17 @@
       <div class="awards" id="awards"></div>
     </div>
     <div class="card" id="hallCard" hidden>
-      <h3>Hall of fame</h3>
+      <h3>Past winners</h3>
       <div id="hall"></div>
     </div>
+  </section>
+
+  <section id="tab-hof" hidden>
+    <div class="card hof-intro">
+      <h3>Hall of Fame</h3>
+      <div class="note">The Waxys Phantoms legends, inducted by the captain. Not a season award: once you're in, you're in for good.</div>
+    </div>
+    <div class="legends" id="legends"></div>
   </section>
 
   <section id="tab-rules" hidden>
