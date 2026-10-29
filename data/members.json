@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-29T15:14:28.439Z",
+  "fetchedAt": "2026-10-29T20:19:10.279Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -144,42 +144,6 @@
       "prevGoals9": "0",
       "prevGoals10": "0",
       "favoritePosition": "forward"
-    },
-    {
-      "name": "Jaaneezeek",
-      "gamesPlayed": "4",
-      "winRate": "75",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "52",
-      "passSuccessRate": "85",
-      "ratingAve": "8.0",
-      "tacklesMade": "8",
-      "tackleSuccessRate": "34",
-      "proName": "E. Moore",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "178",
-      "proNationality": "44",
-      "proOverall": "74",
-      "proOverallStr": "74",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
     },
     {
       "name": "CHIN0_LOKZ650",
@@ -903,7 +867,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 5,
+    "midfielder": 4,
     "goalkeeper": 1,
     "forward": 11,
     "defender": 5
