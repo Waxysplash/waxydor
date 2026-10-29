@@ -66,7 +66,18 @@ async function userToken(who) {
 const botUserToken = () => userToken("bot");
 
 // Clips the last 30 seconds of the live stream as the channel owner. Returns the clip's public link.
-export async function createClip() {
+// Every clip is also kept in bot:clips (newest first) so the clip agent on the stream PC can save the
+// full-res vertical copy and cut it into a TikTok draft. source: chat | auto | obs | voice.
+export async function createClip(source = "chat", by = "") {
+  const url = await twitchClip();
+  try {
+    await redis("LPUSH", "bot:clips", JSON.stringify({ url, at: new Date().toISOString(), source, by }));
+    await redis("LTRIM", "bot:clips", 0, 49);
+  } catch (e) { console.error("clip record failed", e); }
+  return url;
+}
+
+async function twitchClip() {
   const { broadcaster } = await ids();
   const token = await userToken("broadcaster");
   if (!token) throw new Error("clips need the channel owner to reconnect WaxyBot (?as=broadcaster)");
@@ -279,6 +290,43 @@ export async function runTimers(config) {
   }
 }
 
+// Auto clip: when chat pops off (a burst of lines from several people, or a few people typing "clip it"),
+// WaxyBot clips the last 30 seconds by itself. Settings in config.bot.autoclip. Offline chat never clips.
+export async function hypeCheck(e, config) {
+  const a = config.bot?.autoclip;
+  if (!a?.on) return;
+  const text = (e.message?.text || "").toLowerCase();
+  const now = Date.now(), since = now - (a.seconds || 12) * 1000;
+  const keyword = (a.keywords || []).some((k) => text.includes(k));
+  const member = `${e.chatter_user_id}:${e.message_id}`;
+  await redis("ZADD", "bot:hype", now, member);
+  if (keyword) await redis("ZADD", "bot:hypekw", now, member);
+  for (const k of ["bot:hype", "bot:hypekw"]) { await redis("ZREMRANGEBYSCORE", k, 0, since); await redis("EXPIRE", k, 120); }
+  const people = async (k) => {
+    const m = (await redis("ZRANGE", k, 0, -1)) || [];
+    return { lines: m.length, chatters: new Set(m.map((x) => x.split(":")[0])).size };
+  };
+  const all = await people("bot:hype"), kw = await people("bot:hypekw");
+  const burst = all.lines >= (a.messages || 6) && all.chatters >= (a.chatters || 3);
+  const asked = kw.chatters >= (a.keywordChatters || 2);
+  if (!burst && !asked) return;
+  // A chat !clip in the last 30 s counts, so a "!clip" plus the hype around it make one clip, not two.
+  if (await redis("EXISTS", "bot:chatclipcd")) return;
+  if (!(await redis("SET", "bot:autoclipcd", "1", "NX", "EX", a.cooldown || 120))) return;
+  await redis("SET", "bot:chatclipcd", "1", "EX", 30);
+  try {
+    if (!(await isLive())) return;
+    const url = await createClip("auto", asked ? "chat asked" : "chat hype");
+    await redis("DEL", "bot:hype", "bot:hypekw");
+    await pushAlert({ type: "clip", name: "WaxyBot" });
+    await say(`🎬 Chat went off, so WaxyBot clipped it: ${url}`);
+    await logEvent({ user: "autoclip", text: asked ? "keyword" : `${all.lines} lines / ${all.chatters} chatters`, reply: url });
+  } catch (err) {
+    await redis("DEL", "bot:autoclipcd");
+    await logEvent({ user: "autoclip", text: "failed", error: String(err.message || err).slice(0, 200) });
+  }
+}
+
 const STATS = ["!table", "!race", "!me", "!player", "!stats", "!last", "!record"];
 
 export async function handleCommand(text, chatter) {
@@ -377,7 +425,7 @@ export async function handleCommand(text, chatter) {
       // Anyone can clip; one clip per 30 seconds for the whole chat so it can't be spammed.
       if (!(await redis("SET", "bot:chatclipcd", "1", "NX", "EX", 30))) return null;
       try {
-        const url = await createClip();
+        const url = await createClip("chat", chatter.name);
         await pushAlert({ type: "clip", name: chatter.name });
         return `🎬 WaxyClip by ${chatter.name}: ${url}`;
       } catch (e) {

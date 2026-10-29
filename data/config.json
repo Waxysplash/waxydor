@@ -286,6 +286,16 @@
   "bot": {
     "note": "WaxyBot text commands and Twitch-name links. {user} = the chatter, {site} = the site link.",
     "twitchToPlayer": {},
+    "autoclip": {
+      "note": "WaxyBot clips on its own when chat pops off: `messages` lines from `chatters` different people inside `seconds`, or `keywordChatters` people typing a keyword. At most one auto clip per `cooldown` seconds.",
+      "on": true,
+      "seconds": 12,
+      "messages": 6,
+      "chatters": 3,
+      "keywords": ["clip it", "clip that", "clipit", "clip this"],
+      "keywordChatters": 2,
+      "cooldown": 120
+    },
     "commands": {
       "!socials": "Twitch twitch.tv/waxysplash · TikTok @Waxysplash · X @WaxySplash · Instagram @TTVWaxysplash",
       "!x5": {
