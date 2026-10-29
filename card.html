@@ -39,9 +39,12 @@
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; }
   .pc .rule { position: absolute; left: 3em; right: 3em; top: 18.7em; height: .12em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
-  .pc .stats { position: absolute; left: 2.6em; right: 2.6em; top: 19.3em; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: .5em; text-align: center; }
-  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.9em; line-height: 1; }
-  .pc .stats span { font-size: .7em; letter-spacing: .14em; color: #a8a07e; }
+  /* Stats are a small table: a header row, this season's numbers, then all-time numbers in brass. */
+  .pc .stats { position: absolute; left: 2.2em; right: 2.4em; top: 19.4em; display: grid; grid-template-columns: 2.4em repeat(6, 1fr); row-gap: .45em; align-items: baseline; text-align: center; }
+  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.6em; line-height: 1; }
+  .pc .stats b.all { color: #b9985a; }
+  .pc .stats span, .pc .stats i { font-size: .62em; letter-spacing: .1em; color: #a8a07e; font-style: normal; }
+  .pc .stats i { text-align: left; letter-spacing: .14em; }
   .pc .foot { position: absolute; left: 0; right: 0; top: 25.7em; text-align: center; }
   .pc .foot .tag { display: inline-block; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
   .pc .foot .club { font-size: .66em; letter-spacing: .2em; text-transform: uppercase; color: #a8a07e; margin-top: .55em; }
@@ -82,7 +85,7 @@
 
   <div class="card">
     <h3 id="squadTitle">The squad</h3>
-    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. Tap a card to open it.</p>
+    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. On each card the first line of stats is this season and the brass ALL line is all-time. Tap a card to open it.</p>
     <div class="grid" id="grid"></div>
   </div>
 </div>
@@ -101,7 +104,24 @@
   try { snapshot = await load("snapshots/" + season.id + "-start.json"); } catch (e) {}
   const R = WaxyRanking.rank({ config, members, matches: matchStore.matches, snapshot, season });
   const C = config.index, W = season.weights || C.weights;
-  const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows];
+  // A brand-new signing with no match on record yet still gets a card.
+  const blank = (name) => ({ name, pro: "New signing", pos: null, gp: 0, g: 0, a: 0, mom: 0, passPct: 0, winPct: 0, rating: 0, savePct: null, index: null, gaffer: false });
+  // Players with apps in earlier seasons but none yet this season still get a card, with their all-time line.
+  const inSeason = new Set([R.gaffer, ...R.rows].filter(Boolean).map((r) => r.name));
+  const resting = members.members.filter((m) => +m.gamesPlayed > 0 && !inSeason.has(m.name))
+    .map((m) => ({ ...blank(m.name), pro: m.proName, pos: m.favoritePosition, ovr: +m.proOverall || 0, resting: true }));
+  const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows, ...resting];
+
+  // All-time numbers are EA's lifetime totals for the club, which began in Season 1. Save % isn't in EA's totals,
+  // so it comes from every saved match.
+  const byName = new Map(members.members.map((m) => [m.name, m]));
+  function career(name) {
+    const m = byName.get(name) || {};
+    let sv = 0, gc = 0;
+    for (const x of matchStore.matches) for (const p of x.players) if (p.name === name && p.pos === "goalkeeper") { sv += +p.saves || 0; gc += +p.goalsConceded || 0; }
+    return { gp: +m.gamesPlayed || 0, g: +m.goals || 0, a: +m.assists || 0, mom: +m.manOfTheMatch || 0, passPct: +m.passSuccessRate || 0,
+      winPct: +m.winRate || 0, rating: +m.ratingAve || 0, savePct: sv + gc ? Math.round(100 * sv / (sv + gc)) : null };
+  }
 
   // Same name matching as WaxyBot's !me: the queue links here by Twitch login, chat by EA name.
   const norm = (s) => String(s || "").toLowerCase().replace(/^ttv[\s_-]*/, "").replace(/[^a-z0-9]/g, "");
@@ -130,11 +150,17 @@
     const h = honours(r.name)[0];
     const tag = r.gaffer ? "Captain · the gaffer"
       : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
+      : r.resting ? `No apps yet in ${season.name}`
       : trial ? `On trial · ${C.compareMinGames - r.gp} app${C.compareMinGames - r.gp === 1 ? "" : "s"} to a rating`
       : `${C.minGames - r.gp} app${C.minGames - r.gp === 1 ? "" : "s"} from the race`;
-    const stats = r.pos === "goalkeeper"
-      ? [["APP", r.gp], ["SV%", r.savePct ?? "–"], ["MOTM", r.mom], ["PAS%", r.passPct], ["WIN%", r.winPct], ["RAT", r.rating.toFixed(1)]]
-      : [["APP", r.gp], ["GLS", r.g], ["AST", r.a], ["MOTM", r.mom], ["PAS%", r.passPct], ["RAT", r.rating.toFixed(1)]];
+    const cols = (s) => r.pos === "goalkeeper"
+      ? [["APP", s.gp], ["SV%", s.savePct ?? "–"], ["MOTM", s.mom], ["PAS%", s.passPct], ["WIN%", s.winPct], ["RAT", s.rating.toFixed(1)]]
+      : [["APP", s.gp], ["GLS", s.g], ["AST", s.a], ["MOTM", s.mom], ["PAS%", s.passPct], ["RAT", s.rating.toFixed(1)]];
+    // No apps this season: dashes instead of 0% and a 0.0 rating.
+    const now = cols(r).map(([k, v], i) => [k, r.gp || !i ? v : "–"]), ever = cols(career(r.name));
+    const stats = `<span></span>${now.map(([k]) => `<span>${k}</span>`).join("")}
+      <i>${esc(season.id.toUpperCase())}</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}
+      <i>ALL</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}`;
     const tagName = opts.link ? "a" : "div";
     return `<${tagName} class="pc${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
       <div class="in">
@@ -144,14 +170,11 @@
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
         <div class="name"><b>${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
-        <div class="stats">${stats.map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join("")}</div>
+        <div class="stats">${stats}</div>
         <div class="foot"><span class="tag">${tag}</span><div class="club">Waxys Phantoms · ${esc(season.name)}</div></div>
       </div>
     </${tagName}>`;
   }
-
-  // A brand-new signing with no match on record yet still gets a card.
-  const blank = (name) => ({ name, pro: "New signing", pos: null, gp: 0, g: 0, a: 0, mom: 0, passPct: 0, winPct: 0, rating: 0, savePct: null, index: null, gaffer: false });
 
   $("#squadTitle").textContent = `The squad · ${season.name}`;
   $("#grid").innerHTML = all.map((r) => cardHtml(r, { link: true })).join("");
@@ -168,6 +191,7 @@
         <h2>${esc(r.name)}</h2>
         <p>${known
           ? `${r.gp} appearance${r.gp === 1 ? "" : "s"} for Waxys Phantoms in ${esc(season.name)}. The card updates itself after every match.`
+          : r.resting ? `No appearances yet in ${esc(season.name)}. The ALL line is every game for Waxys Phantoms since Season 1.`
           : `Welcome to Waxys Phantoms. Your stats show up here after your first match. If your EA name is different from your Twitch name, ask the captain to link them.`}</p>
         <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button></div>
         ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.FACTORS.map(([k, label]) =>
