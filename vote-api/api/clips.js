@@ -1,4 +1,4 @@
-// GET /api/clips — the channel's Twitch clips from the last 90 days, newest first, for the Waxyclips page
+// GET /api/clips — every Twitch clip on the channel, newest first, for the Waxyclips page
 // and the clips replay scene. Comes straight from Twitch, so viewers' clips show up too. Also carries the
 // Clip of the Week vote: this week's nominees with their votes, and last week's winner.
 // POST /api/clips { token, clip? } — Clip of the Week ballot. Without clip: who is logged in and their vote.

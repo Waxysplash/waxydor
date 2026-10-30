@@ -71,19 +71,27 @@ export async function vote(user, clipId, clips) {
 
 export const myVote = (user) => redis("HGET", "cotw:" + week().id, user.id);
 
-// The channel's Twitch clips from the last 90 days, newest first (the Waxyclips page and the vote both use this).
+// Every Twitch clip on the channel, newest first (the Waxyclips page and the vote both use this).
+// Twitch lists all-time clips by views, so the last 8 days are asked for separately to never miss this week's.
+// (Asking with started_at alone only covers one week after it: Twitch defaults ended_at to started_at + 7 days.)
 export async function channelClips() {
   const { broadcaster } = await ids();
-  const since = new Date(Date.now() - 90 * 864e5).toISOString();
-  const clips = [];
-  let cursor = "";
-  for (let page = 0; page < 3; page++) {
-    const j = await helix("GET", `clips?broadcaster_id=${broadcaster.id}&started_at=${since}&first=100${cursor ? "&after=" + cursor : ""}`);
-    clips.push(...(j.data || []));
-    cursor = j.pagination?.cursor;
-    if (!cursor) break;
-  }
-  return clips
+  const byId = new Map();
+  const fetchAll = async (query, pages) => {
+    let cursor = "";
+    for (let page = 0; page < pages; page++) {
+      const j = await helix("GET", `clips?broadcaster_id=${broadcaster.id}${query}&first=100${cursor ? "&after=" + cursor : ""}`);
+      for (const c of j.data || []) byId.set(c.id, c);
+      cursor = j.pagination?.cursor;
+      if (!cursor) break;
+    }
+  };
+  const now = new Date();
+  await Promise.all([
+    fetchAll("", 5),
+    fetchAll(`&started_at=${new Date(now - 8 * 864e5).toISOString()}&ended_at=${now.toISOString()}`, 3),
+  ]);
+  return [...byId.values()]
     .map((c) => ({ id: c.id, url: c.url, title: c.title, by: c.creator_name, views: c.view_count, seconds: c.duration, at: c.created_at, thumb: c.thumbnail_url }))
     .sort((a, b) => b.at.localeCompare(a.at));
 }
