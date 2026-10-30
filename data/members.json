@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-30T04:42:34.424Z",
+  "fetchedAt": "2026-10-30T11:04:53.884Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -396,42 +396,6 @@
       "prevGoals9": "0",
       "prevGoals10": "0",
       "favoritePosition": "midfielder"
-    },
-    {
-      "name": "kemykem10",
-      "gamesPlayed": "1",
-      "winRate": "100",
-      "goals": "1",
-      "assists": "1",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "25",
-      "passesMade": "8",
-      "passSuccessRate": "88",
-      "ratingAve": "7.4",
-      "tacklesMade": "0",
-      "tackleSuccessRate": "0",
-      "proName": "J. Ortega",
-      "proPos": "25",
-      "proStyle": "0",
-      "proHeight": "165",
-      "proNationality": "95",
-      "proOverall": "85",
-      "proOverallStr": "85",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "1",
-      "prevGoals1": "1",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "forward"
     },
     {
       "name": "oKingJJo",
@@ -977,7 +941,7 @@
   "positionCount": {
     "midfielder": 8,
     "goalkeeper": 1,
-    "forward": 10,
+    "forward": 9,
     "defender": 5
   }
 }
