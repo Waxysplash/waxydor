@@ -11,6 +11,8 @@
              &div=7 &rating=80 &coins=12k &record=3W 1L   (small stat tiles on the bar; any you leave out are hidden)
              &hook=Can Morocco reach Div 1?  &hookfor=4  (headline over the game for N seconds; 0 = stays)
              &crest=0 (no crest)  &bar=0 (no bar, crest + twitch only)  &side=left|right (crest side)
+             &mode=rtg|proclubs (fix the bar). Without mode or series it follows the Twitch channel every minute:
+             a title with "Road to Glory" or "RTG" shows the series bar, an EA FC category shows Waxys Phantoms · Pro Clubs.
      Palette is taken from the crest: cream, olive, brass, red. Safe zones: right 170px and bottom 440px left clear. */
   :root { --cream: #e9dcbb; --cream-2: #cdbd94; --olive: #2a2a1e; --olive-2: #3b3a2a; --brass: #b9985a; --brass-2: #7f6a3c; --red: #9d3a2b; --gold: #d9a63b;
           --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif; --body: "Barlow", system-ui, sans-serif; }
@@ -68,10 +70,27 @@
   bar.style.top = seam + "px"; crest.style.top = seam + "px";
   crest.className = "crest " + side; bar.className = "bar side-" + side + (p("crest", "1") === "0" ? "" : " has-crest");
   if (p("crest", "1") === "0") crest.hidden = true;
-  const s = p("series", ""); if (s) document.getElementById("seriesName").textContent = s;
-  const ep = p("ep", ""); document.getElementById("ep").innerHTML = (ep ? `Episode <b>${ep}</b> · ` : "") + `twitch.tv/<i>Waxysplash</i>`;
+  const ep = p("ep", "");
   const stats = [["div", "Division"], ["rating", "Rating"], ["coins", "Coins"], ["record", "Record"]].filter(([k]) => p(k, "")).map(([k, l]) => `<div class="stat"><b>${p(k, "")}</b><span>${l}</span></div>`).join("");
-  document.getElementById("stats").innerHTML = stats;
+  const twitch = `twitch.tv/<i>Waxysplash</i>`;
+  function show(mode) {
+    const [name, line, st] = mode === "proclubs" ? ["Waxys Phantoms", `Pro Clubs · ${twitch}`, ""]
+      : mode === "rtg" ? [p("series", "") || "Morocco Road to Glory", (ep ? `Episode <b>${ep}</b> · ` : "") + twitch, stats]
+      : ["Waxy Splash", twitch, ""];
+    document.getElementById("seriesName").textContent = name;
+    document.getElementById("ep").innerHTML = line;
+    document.getElementById("stats").innerHTML = st;
+  }
+  const fixed = p("mode", "") || (q.has("series") ? "rtg" : "");
+  show(fixed || "rtg");
+  // Follow the Twitch channel (Kamal, 30 Oct 2026): both shows stream under EA FC, so the title tells Road to Glory apart.
+  async function follow() {
+    try {
+      const c = await fetch(p("api", "https://waxydor-vote-api.vercel.app") + "/api/bot/status?channel=1").then((r) => r.json());
+      show(/road to glory|\brtg\b/i.test(c.title) ? "rtg" : /\bFC\b|FIFA/i.test(c.category) ? "proclubs" : "other");
+    } catch (e) {}
+  }
+  if (!fixed) { follow(); setInterval(follow, 60000); }
   if (p("bar", "1") === "0") { document.getElementById("scene").classList.add("nobar"); bar.hidden = true; const t = document.getElementById("twitch"); t.hidden = false; t.style.top = (seam + 24) + "px"; crest.style.top = (seam - 330) + "px"; }
   const hook = p("hook", ""); if (hook) { const h = document.getElementById("hook"); h.hidden = false; h.innerHTML = hook.replace(/\|/g, "<br>").replace(/\*(.+?)\*/g, "<em>$1</em>"); h.style.top = (seam + 150) + "px"; const secs = +p("hookfor", "4"); if (secs > 0) setTimeout(() => h.classList.add("out"), secs * 1000); }
 })();
