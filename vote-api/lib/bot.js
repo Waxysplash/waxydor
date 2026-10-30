@@ -5,6 +5,7 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { redis } from "./shared.js";
 import * as queue from "./queue.js";
 import { testAlert, pushAlert } from "./alerts.js";
+import { channelClips, state as cotwState } from "./cotw.js";
 
 const RAW = process.env.DATA_URL || "https://raw.githubusercontent.com/Waxysplash/waxydor/main/";
 const CLIENT_ID = () => process.env.BOT_CLIENT_ID;
@@ -434,6 +435,17 @@ export async function handleCommand(text, chatter) {
         return / 404|not live|offline/i.test(e.message) ? "Clips only work while the stream is live." : "Couldn't make that clip. Try again in a moment.";
       }
     }
+    case "!cotw": {
+      // Clip of the Week: this week's leader and last week's winner, with the link to vote.
+      const s = await cotwState(await channelClips());
+      const url = (site || "").replace(/\/?$/, "/") + "clips.html";
+      const top = s.nominees.filter((c) => c.votes).sort((a, b) => b.votes - a.votes || b.views - a.views)[0];
+      const now = s.nominees.length
+        ? `${s.nominees.length} clip${s.nominees.length === 1 ? "" : "s"} up for Clip of the Week${top ? `, leading: "${top.title}" by ${top.by} (${top.votes} vote${top.votes === 1 ? "" : "s"})` : ", no votes yet"}`
+        : "No clips this week yet. Type !clip when something happens";
+      const last = s.winner ? ` · Last week's winner: "${s.winner.title}" by ${s.winner.by}` : "";
+      return `🏆 ${now}. Vote: ${url}${last}`;
+    }
     case "!testalert":
       if (!chatter.mod) return null;
       return testAlert((rest[0] || "").toLowerCase(), chatter.name);
@@ -463,7 +475,7 @@ export async function handleCommand(text, chatter) {
       for (let k = 0; k < flat.length; k += 2) fromChat[flat[k]] = JSON.parse(flat[k + 1]);
       const all = { ...(config.bot?.commands || {}), ...fromChat };
       const text = Object.entries(all).filter(([, v]) => !(v && (v.mods || v.off))).map(([k]) => k).join(" ");
-      return `Commands: !join !leave !queue !clip !uptime !quote !table !race !me !player <name> !last !record !vote !followage !waxydor ${text}`.slice(0, 500);
+      return `Commands: !join !leave !queue !clip !cotw !uptime !quote !table !race !me !player <name> !last !record !vote !followage !waxydor ${text}`.slice(0, 500);
     }
     default: {
       // Text commands: from chat (!addcom) or config.bot.commands. A string, or { text, cooldown, mods }.

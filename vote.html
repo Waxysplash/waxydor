@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <script>
-  // The queue page's captain login comes back through here (the address registered with Twitch); send it on.
+  // The queue page's captain login and the Clip of the Week login come back through here (the address registered
+  // with Twitch); send them on.
   if (/[#&]state=queue-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "queue.html#"));
+  if (/[#&]state=clips-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "clips.html#"));
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Waxy d'Or Fan Vote</title>

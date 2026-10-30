@@ -31,6 +31,24 @@
   .c-player .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-top: 10px; color: #eee; flex-wrap: wrap; }
   .c-player .row a { color: var(--accent-2); font-weight: 700; }
   .c-player button { font: inherit; font-weight: 700; cursor: pointer; background: transparent; color: #eee; border: 1px solid rgba(255,255,255,.4); border-radius: 8px; padding: 6px 12px; }
+  .w-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .w-head h3 { margin: 0; }
+  .w-win { display: grid; grid-template-columns: minmax(0, 320px) 1fr; gap: 16px; align-items: center; margin: 14px 0 6px; padding: 12px; border: 1px solid var(--accent); border-radius: 12px; }
+  .w-win .c-card { border-color: var(--accent); }
+  .w-win .tag { color: var(--accent); font-weight: 800; letter-spacing: .04em; text-transform: uppercase; font-size: 13px; }
+  .w-win b { display: block; font-size: 18px; margin: 4px 0; }
+  .w-bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 8px; }
+  .w-bar i { display: block; height: 100%; background: var(--accent); }
+  .w-vote { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 12px 12px; }
+  .w-vote button { font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; background: transparent; color: inherit; border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; }
+  .w-vote button:hover { border-color: var(--accent); }
+  .w-vote button.on { background: var(--accent); border-color: var(--accent); color: var(--cream); }
+  .w-vote span { color: var(--muted); font-size: 13px; }
+  .w-pick { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel-2); }
+  .w-pick.mine { border-color: var(--accent); }
+  .w-pick .c-card { border: 0; border-radius: 0; width: 100%; }
+  #wStatus { margin-top: 8px; }
+  @media (max-width: 600px) { .w-win { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -44,6 +62,16 @@
       </div>
     </div>
   </header>
+
+  <div class="card" id="cotw" hidden>
+    <div class="w-head">
+      <h3>🏆 Clip of the Week</h3>
+      <span class="note" id="wEnds" style="display:inline"></span>
+    </div>
+    <div id="wWinner"></div>
+    <div class="note" id="wStatus"></div>
+    <div class="c-grid" id="wGrid"></div>
+  </div>
 
   <div class="card">
     <div class="c-tools">
@@ -82,8 +110,80 @@
       </button>`).join("") : '<div class="c-empty">No clips yet. Press the clip key on stream and the first one shows up here.</div>';
   }
 
+  // ---------- Clip of the Week ----------
+  // Login goes through vote.html (the address registered with Twitch), which sends "clips-" logins back here.
+  const store = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} } };
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("access_token")) {
+    if (h.get("state") === store.get("waxy.cstate")) store.set("waxy.ctoken", h.get("access_token"));
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  let token = store.get("waxy.ctoken"), me = null, cotw = null, cfg = null, busy = false;
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const post = (body) => fetch(API + "/api/clips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, ...body }) })
+    .then(async (r) => { const j = await r.json(); if (!r.ok) throw j; return j; });
+  function loginUrl() {
+    const state = "clips-" + crypto.getRandomValues(new Uint32Array(4)).join("-");
+    store.set("waxy.cstate", state);
+    const u = new URL("https://id.twitch.tv/oauth2/authorize");
+    u.search = new URLSearchParams({ client_id: cfg.fanVote.twitchClientId, redirect_uri: new URL("vote.html", location.href).href, response_type: "token", scope: "user:read:follows", state }).toString();
+    return u;
+  }
+  const card = (c) => `
+      <button class="c-card" data-id="${esc(c.id)}">
+        <div class="c-thumb"><img src="${esc(c.thumb)}" alt="" loading="lazy"><span class="len">${Math.round(c.seconds)}s</span></div>
+        <div class="c-body"><b>${esc(c.title)}</b><span>${esc(c.by)} · ${when(c.at)} · ${c.views} view${c.views === 1 ? "" : "s"}</span></div>
+      </button>`;
+
+  function renderWeek() {
+    if (!cotw) return;
+    $("cotw").hidden = false;
+    const w = cotw.winner;
+    $("wWinner").innerHTML = w ? `<div class="w-win">${card(w)}<div><span class="tag">Last week's winner</span><b>${esc(w.title)}</b>
+      <span class="note" style="display:inline">Clipped by ${esc(w.by)} · ${w.votes} vote${w.votes === 1 ? "" : "s"}</span></div></div>` : "";
+    const ends = new Date(cotw.ends);
+    $("wEnds").textContent = `Voting closes ${ends.toLocaleString(undefined, { weekday: "long", hour: "numeric", minute: "2-digit" })}`;
+    const list = cotw.nominees.slice().sort((a, b) => b.votes - a.votes || b.at.localeCompare(a.at));
+    const most = Math.max(1, ...list.map((c) => c.votes));
+    const login = cfg ? `<a href="${loginUrl()}">Log in with Twitch</a> to vote.` : "";
+    $("wStatus").innerHTML = !list.length
+      ? "No clips this week yet. Type <b>!clip</b> in chat when something happens on stream and it's in the running."
+      : !token ? `Every clip made this week is in the running. One vote per Twitch account, followers only. ${login}`
+      : me && !me.follower ? `Logged in as ${esc(me.login)}. Follow <a href="https://twitch.tv/${esc(cfg.fanVote.channel)}">twitch.tv/${esc(cfg.fanVote.channel)}</a> to vote.`
+      : me ? `Logged in as ${esc(me.login)}. ${me.vote ? "Your vote is in. Tap another clip to move it." : "Pick your favourite."}` : "Checking your login…";
+    const canVote = token && me && me.follower;
+    $("wGrid").innerHTML = list.map((c) => `<div class="w-pick${me && me.vote === c.id ? " mine" : ""}">${card(c)}
+      <div class="w-bar"><i style="width:${(c.votes / most) * 100}%"></i></div>
+      <div class="w-vote"><span>${c.votes} vote${c.votes === 1 ? "" : "s"}</span>${canVote
+        ? `<button data-vote="${esc(c.id)}" class="${me.vote === c.id ? "on" : ""}">${me.vote === c.id ? "Your pick ✓" : "Vote"}</button>` : ""}</div></div>`).join("");
+  }
+
+  async function castVote(id) {
+    if (busy || me.vote === id) return;
+    busy = true;
+    const was = me.vote;
+    try {
+      const r = await post({ clip: id });
+      for (const c of cotw.nominees) c.votes += (c.id === r.vote) - (c.id === was);
+      me.vote = r.vote;
+    } catch (e) {
+      if (e.error === "login") { token = null; store.set("waxy.ctoken", null); me = null; }
+      $("wStatus").textContent = e.message || "Couldn't save your vote. Try again.";
+      busy = false; return;
+    }
+    busy = false;
+    renderWeek();
+  }
+  $("wGrid").addEventListener("click", (e) => {
+    const v = e.target.closest("[data-vote]");
+    if (v) return castVote(v.dataset.vote);
+    const b = e.target.closest(".c-card"); if (b) open(b.dataset.id);
+  });
+  $("wWinner").addEventListener("click", (e) => { const b = e.target.closest(".c-card"); if (b) open(b.dataset.id); });
+
   function open(id) {
-    const c = clips.find((x) => x.id === id);
+    const c = clips.find((x) => x.id === id) || (cotw && cotw.winner && cotw.winner.id === id ? cotw.winner : null);
     if (!c) return;
     $("player").innerHTML = `<iframe src="https://clips.twitch.tv/embed?clip=${encodeURIComponent(c.id)}&parent=${location.hostname}&autoplay=true" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     $("ptitle").textContent = c.title;
@@ -102,8 +202,11 @@
     render();
   }));
 
-  fetch(API + "/api/clips").then((r) => r.json()).then((j) => { clips = j.clips || []; render(); })
+  fetch(API + "/api/clips").then((r) => r.json()).then((j) => { clips = j.clips || []; cotw = j.cotw || null; render(); renderWeek(); })
     .catch(() => { $("total").textContent = "Clips couldn't load. Try again in a minute."; });
+  fetch(DATA + "config.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json()).then((c) => { cfg = c; renderWeek(); }).catch(() => {});
+  if (token) post({}).then((j) => { me = j; renderWeek(); })
+    .catch(() => { token = null; store.set("waxy.ctoken", null); renderWeek(); });
 })();
 </script>
 <script src="nav.js?v=nav1"></script>
