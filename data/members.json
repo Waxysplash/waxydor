@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-31T00:59:43.928Z",
+  "fetchedAt": "2026-10-31T06:43:15.422Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -830,42 +830,6 @@
       "favoritePosition": "midfielder"
     },
     {
-      "name": "yxttuno",
-      "gamesPlayed": "11",
-      "winRate": "63",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "2",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "106",
-      "passSuccessRate": "82",
-      "ratingAve": "7.3",
-      "tacklesMade": "16",
-      "tackleSuccessRate": "45",
-      "proName": "J. Barker",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "173",
-      "proNationality": "14",
-      "proOverall": "80",
-      "proOverallStr": "80",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
-    },
-    {
       "name": "SeoulChris",
       "gamesPlayed": "0",
       "favoritePosition": "",
@@ -939,7 +903,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 8,
+    "midfielder": 7,
     "goalkeeper": 1,
     "forward": 9,
     "defender": 5
