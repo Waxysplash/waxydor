@@ -266,6 +266,18 @@
       "player": "Joshthomas213",
       "opponent": "Beef3Way",
       "date": "2026-10-29"
+    },
+    {
+      "matchId": "158986320340067",
+      "player": "George-Truly",
+      "opponent": "Wootaads",
+      "date": "2026-11-01"
+    },
+    {
+      "matchId": "158986320340067",
+      "player": "AuzzyBoz",
+      "opponent": "Wootaads",
+      "date": "2026-11-01"
     }
   ],
   "fanVote": {
@@ -298,7 +310,12 @@
       "seconds": 12,
       "messages": 6,
       "chatters": 3,
-      "keywords": ["clip it", "clip that", "clipit", "clip this"],
+      "keywords": [
+        "clip it",
+        "clip that",
+        "clipit",
+        "clip this"
+      ],
       "keywordChatters": 2,
       "cooldown": 120
     },
