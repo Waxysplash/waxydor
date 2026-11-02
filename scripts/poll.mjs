@@ -116,6 +116,7 @@ const R = rank({ config, members, matches, snapshot: { members: base }, season }
 const gaffer = R.gaffer;
 const top = R.ranked.slice(0, 3).map((r, i) => `${i + 1}. ${r.name} ${r.index} (${r.g}G ${r.a}A, ${r.gp} apps)`).join(" | ");
 const gtxt = gaffer ? ` | Gaffer: ${gaffer.g}G ${gaffer.a}A (${gaffer.gp} apps)` : "";
-writeFileSync(join(DATA, "table.txt"), `${season.name} Waxy index top 3: ${top}${gtxt} — full table: ${config.siteUrl}\n`);
+const ltxt = (R.legends || []).length ? ` | Legends (not in the race): ${R.legends.map((r) => `${r.name} ${r.g}G ${r.a}A`).join(", ")}` : "";
+writeFileSync(join(DATA, "table.txt"), `${season.name} Waxy index top 3: ${top}${ltxt}${gtxt} — full table: ${config.siteUrl}\n`);
 
 console.log(`members=${members.members.length} matches=${matches.length} (+${added}) season=${season.id}`);

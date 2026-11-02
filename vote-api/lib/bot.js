@@ -349,7 +349,7 @@ export async function handleCommand(text, chatter) {
 
   switch (c) {
     case "!table":
-      return `${d.season.name} Waxy index: ${top(3)} · full table ${site}`;
+      return `${d.season.name} Waxy index: ${top(3)}${(d.R.legends || []).length ? ` · Legends (not in the race): ${d.R.legends.map((r) => `${r.name} ${r.g}G ${r.a}A`).join(", ")}` : ""} · full table ${site}`;
     case "!race": {
       const r = d.R.ranked, C = d.config.index;
       const cut = r[4] && r[5] ? ` · 5th v 6th: ${r[4].name} ${r[4].index} v ${r[5].name} ${r[5].index}` : "";
