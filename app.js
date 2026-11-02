@@ -20,6 +20,7 @@
   const seasonMatches = R.seasonMatches;
   const rows = R.rows;
   const gaffer = R.gaffer;
+  const legends = R.legends || [];
   S.rows = rows;
   const C = config.index;
   const posShort = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "GK" };
@@ -95,20 +96,20 @@
   ];
   let sortKey = "index", sortDir = -1;
   const idxCell = (r) => r.index == null ? `<span class="idx" style="opacity:.5">–</span>`
-    : `<span class="idx${r.qualified || r.gaffer ? "" : " prov"}" title="${r.qualified || r.gaffer ? "" : "Provisional: needs " + C.minGames + " apps"}">${r.index}</span>`;
+    : `<span class="idx${r.qualified || r.gaffer || r.legend ? "" : " prov"}" title="${r.qualified || r.gaffer || r.legend ? "" : "Provisional: needs " + C.minGames + " apps"}">${r.index}</span>`;
   const breakdownHtml = (r) => {
     const parts = WaxyRanking.FACTORS.map(([k, label]) => `<span><b>${fmt1(r.parts[k])}</b>/${C.weights[k]} ${label}</span>`).join("");
     const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", bigMisses: "big misses", hatTricks: "hat-tricks", conceded: "goals conceded", bigGames: "big-game bonus" };
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
-    const status = r.gaffer ? "The gaffer · not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
+    const status = r.gaffer ? "The gaffer · not in the race" : r.legend ? "Club legend · Hall of Fame, not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
     const v = r.vsPos;
     const vs = v ? `<div class="bd-pts">Against an average player in the same position: <b>${v.points.toFixed(2)}×</b> the contribution points, <b>${v.motm.toFixed(2)}×</b> the MOTMs, match rating <b>${v.rating >= 0 ? "+" : "−"}${Math.abs(v.rating).toFixed(2)}</b></div>` : "";
     return `<div class="bd-parts">${parts}${r.penalty ? `<span class="neg"><b>−${r.penalty}</b> red cards</span>` : ""}</div>
       <div class="bd-pts"><b>${fmt1(r.points)} contribution points</b> in ${r.gp} apps (${fmt1(r.ppg)} per game, main position ${r.pos}): ${pts || "none yet"}</div>${vs}
       <div class="bd-st">${status}${r.index != null ? ` · index ${r.index}` : ` · index shown from ${C.compareMinGames} apps`}</div>`;
   };
-  const rowHtml = (r, i) => `<tr class="${r.qualified || r.gaffer ? "" : "unq"} rank-${i} prow">
+  const rowHtml = (r, i) => `<tr class="${r.qualified || r.gaffer || r.legend ? "" : "unq"} rank-${i} prow">
         <td>${i}</td><td class="name">${r.name}<small>${r.pro || ""} · ${r.ovr || ""} OVR</small></td><td>${posShort[r.pos] || ""}</td>
         <td>${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td>${r.rating.toFixed(1)}</td><td>${r.mom}</td>
         <td>${r.winPct}%</td><td>${r.passPct}%</td><td>${r.passes}</td><td>${r.shotPct}%</td><td>${r.tacklePct}%</td><td>${r.tackles}</td>
@@ -125,6 +126,7 @@
     const firstProv = byIndex ? sorted.findIndex((r) => !r.qualified) : -1;
     $("#table").innerHTML = `<thead><tr>${cols.map(([h, k]) => `<th data-k="${k || ""}" class="${k === sortKey ? "sorted" : ""}${h === "Player" ? " name" : ""}">${h}${k === sortKey ? (sortDir < 0 ? " ↓" : " ↑") : ""}</th>`).join("")}</tr></thead>` +
       `<tbody>${sorted.map((r, i) => (i === firstProv ? `<tr class="sep"><td colspan="${cols.length}">Not qualified yet · fewer than ${C.minGames} apps</td></tr>` : "") + rowHtml(r, i + 1)).join("")}</tbody>` +
+      (legends.length ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">Club legends · Hall of Famers, stats kept but not in the Waxy d'Or race</td></tr>${legends.map((r) => rowHtml(r, "★")).join("")}</tbody>` : "") +
       (gaffer ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">The Gaffer's stats · not in the Waxy d'Or race</td></tr>${rowHtml(gaffer, "–")}</tbody>` : "");
   }
   $("#table").addEventListener("click", (e) => {
@@ -151,7 +153,7 @@
     <div class="card"><h3>How the Waxy d'Or works</h3>
       <p class="lead">The Waxy d'Or is the Waxys Phantoms player of the season. The table ranks the squad by the <b>Waxy index</b>, a score out of 100 built from every stat EA records, so the best all-round player rises to the top, not just the top scorer. ${rest} of the 100 points have nothing to do with goals.</p>
       <ul class="rules">
-        <li><b>Who's in the race:</b> every Waxys Phantoms player in an EA league or playoff match this season. The gaffer (${config.gaffer}) is shown with full stats but isn't ranked and can't win awards.</li>
+        <li><b>Who's in the race:</b> every Waxys Phantoms player in an EA league or playoff match this season. The gaffer (${config.gaffer}) is shown with full stats but isn't ranked and can't win awards.${legends.length ? ` Club legends in the Hall of Fame (${legends.map((r) => r.name).join(", ")}) are the same: stats shown, never in the race.` : ""}</li>
         <li><b>To qualify:</b> ${C.minGames} appearances. Players on ${C.compareMinGames} to ${C.minGames - 1} apps get a provisional index, shown in grey below the qualified players. Under ${C.compareMinGames} apps there's too little to go on, so no index is shown.</li>
         <li><b>Where the stats come from:</b> straight from EA Pro Clubs. Nobody types anything in and nobody can edit a stat. The site checks EA every 20 minutes and saves every match.</li>
         <li><b>Season:</b> ${season.name}. Playoffs from ${fmt(new Date(season.playoffsStart))}, final whistle ${fmt(new Date(season.end))}.</li>

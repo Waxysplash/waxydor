@@ -22,6 +22,10 @@
     // A season can keep its own point values (season.points), so a finished season isn't rescored when the rules change.
     const C = config.index, P = season.points || C.points;
     const gname = (config.gaffer || "").toLowerCase();
+    // Club legends (config.legends) keep their stats but are out of the race, from config.legendsFrom onwards,
+    // so a finished season isn't rescored.
+    const ids = (config.seasons || []).map((s) => s.id), from = ids.indexOf(config.legendsFrom);
+    const legendNames = new Set(from < 0 || ids.indexOf(season.id) >= from ? (config.legends || []).map((x) => x.toLowerCase()) : []);
     const seasonMatches = (matches || []).filter(inSeason(season));
     const baseBy = new Map(((snapshot && snapshot.members) || []).map((m) => [m.name, m]));
     const pts = (pos) => P[pos] || P.forward;
@@ -160,11 +164,13 @@
         shots: totalShots, rating, shotPct, passPct, tacklePct, winPct, form, breakdown: br, savePct: L.sv + L.gc ? Math.round(100 * L.sv / (L.sv + L.gc)) : null,
         points: Math.round(contribution * 10) / 10, ppg: gp ? contribution / gp : 0, cmp, vsPos,
         gaffer: m.name.toLowerCase() === gname,
+        legend: m.name.toLowerCase() !== gname && legendNames.has(m.name.toLowerCase()),
       };
     }).filter((r) => r.gp > 0);
 
-    const rows = all.filter((r) => !r.gaffer);
+    const rows = all.filter((r) => !r.gaffer && !r.legend);
     const gaffer = all.find((r) => r.gaffer) || null;
+    const legends = all.filter((r) => r.legend);
     // Each factor is measured against the best regular (compareMinGames+ apps), so a one-game cameo can't set the bar.
     const q = rows.filter((r) => r.gp >= C.compareMinGames);
     const pool = q.length ? q : rows;
@@ -202,7 +208,7 @@
     const order = (x, y) => ((y.index ?? -1) - (x.index ?? -1)) || (y.gp - x.gp) || (y.points - x.points);
     const ranked = rows.filter((r) => r.qualified).sort(order);
     const provisional = rows.filter((r) => !r.qualified).sort(order);
-    return { rows: [...ranked, ...provisional], ranked, provisional, gaffer, seasonMatches, positionBase: base };
+    return { rows: [...ranked, ...provisional], ranked, provisional, gaffer, legends, seasonMatches, positionBase: base };
   }
 
   const api = { rank, FACTORS, BREAKDOWN, POSITIONS, inSeason };

@@ -246,13 +246,14 @@ const pos = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "G
 const LABEL = { contribution: "contribution", appearances: "appearances", rating: "rating", passAccuracy: "pass accuracy", winRate: "win rate", motm: "MOTM", accuracy: "accuracy" };
 
 function findPlayer(d, query) {
-  const all = [...d.R.rows, ...(d.R.gaffer ? [d.R.gaffer] : [])];
+  const all = [...d.R.rows, ...(d.R.legends || []), ...(d.R.gaffer ? [d.R.gaffer] : [])];
   const q = norm(query);
   if (!q) return null;
   return all.find((r) => norm(r.name) === q) || all.find((r) => norm(r.name).startsWith(q)) || all.find((r) => norm(r.name).includes(q)) || null;
 }
 
 function playerLine(d, r) {
+  if (r.legend) return `${r.name} (club legend, not in the race): ${r.gp} apps · ${r.g}G ${r.a}A · rating ${r.rating.toFixed(1)}`;
   if (r.gaffer) return `${r.name} (the gaffer, not in the race): ${r.gp} apps · ${r.g}G ${r.a}A · rating ${r.rating.toFixed(1)}`;
   const C = d.config.index;
   const rank = d.R.ranked.indexOf(r);

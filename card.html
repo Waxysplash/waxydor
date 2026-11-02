@@ -107,10 +107,10 @@
   // A brand-new signing with no match on record yet still gets a card.
   const blank = (name) => ({ name, pro: "New signing", pos: null, gp: 0, g: 0, a: 0, mom: 0, passPct: 0, winPct: 0, rating: 0, savePct: null, index: null, gaffer: false });
   // Players with apps in earlier seasons but none yet this season still get a card, with their all-time line.
-  const inSeason = new Set([R.gaffer, ...R.rows].filter(Boolean).map((r) => r.name));
+  const inSeason = new Set([R.gaffer, ...R.rows, ...(R.legends || [])].filter(Boolean).map((r) => r.name));
   const resting = members.members.filter((m) => +m.gamesPlayed > 0 && !inSeason.has(m.name))
     .map((m) => ({ ...blank(m.name), pro: m.proName, pos: m.favoritePosition, ovr: +m.proOverall || 0, resting: true }));
-  const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows, ...resting];
+  const all = [...(R.gaffer ? [R.gaffer] : []), ...R.rows, ...(R.legends || []), ...resting];
 
   // All-time numbers are EA's lifetime totals for the club, which began in Season 1. Save % isn't in EA's totals,
   // so it comes from every saved match.
@@ -149,6 +149,7 @@
       : `<div class="num trial">NEW</div><div class="lbl">${trial ? "on trial" : "OVR"}</div>`;
     const h = honours(r.name)[0];
     const tag = r.gaffer ? "Captain · the gaffer"
+      : r.legend ? "Club legend · Hall of Fame"
       : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
       : r.resting ? `No apps yet in ${season.name}`
       : trial ? `On trial · ${C.compareMinGames - r.gp} app${C.compareMinGames - r.gp === 1 ? "" : "s"} to a rating`

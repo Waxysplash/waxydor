@@ -1,4 +1,23 @@
 {
   "note": "Waxys Phantoms Hall of Fame: legends inducted by the captain. Separate from the Waxy d'Or and season awards. Each entry: name (EA name), title (short honour line), citation (why), inducted (YYYY-MM-DD).",
-  "legends": []
+  "legends": [
+    {
+      "name": "Poke_1101",
+      "title": "Club legend",
+      "citation": "",
+      "inducted": "2026-11-01"
+    },
+    {
+      "name": "Portugal__23",
+      "title": "Club legend",
+      "citation": "",
+      "inducted": "2026-11-01"
+    },
+    {
+      "name": "DYL_597",
+      "title": "Club legend",
+      "citation": "",
+      "inducted": "2026-11-01"
+    }
+  ]
 }
