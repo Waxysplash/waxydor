@@ -102,7 +102,7 @@
     const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", bigMisses: "big misses", hatTricks: "hat-tricks", conceded: "goals conceded", bigGames: "big-game bonus" };
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
-    const status = r.gaffer ? "The gaffer · not in the race" : r.legend ? "Club legend · Hall of Fame, not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
+    const status = r.gaffer ? "The gaffer · not in the race" : r.legend ? "Club legend · not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
     const v = r.vsPos;
     const vs = v ? `<div class="bd-pts">Against an average player in the same position: <b>${v.points.toFixed(2)}×</b> the contribution points, <b>${v.motm.toFixed(2)}×</b> the MOTMs, match rating <b>${v.rating >= 0 ? "+" : "−"}${Math.abs(v.rating).toFixed(2)}</b></div>` : "";
     return `<div class="bd-parts">${parts}${r.penalty ? `<span class="neg"><b>−${r.penalty}</b> red cards</span>` : ""}</div>
@@ -126,7 +126,7 @@
     const firstProv = byIndex ? sorted.findIndex((r) => !r.qualified) : -1;
     $("#table").innerHTML = `<thead><tr>${cols.map(([h, k]) => `<th data-k="${k || ""}" class="${k === sortKey ? "sorted" : ""}${h === "Player" ? " name" : ""}">${h}${k === sortKey ? (sortDir < 0 ? " ↓" : " ↑") : ""}</th>`).join("")}</tr></thead>` +
       `<tbody>${sorted.map((r, i) => (i === firstProv ? `<tr class="sep"><td colspan="${cols.length}">Not qualified yet · fewer than ${C.minGames} apps</td></tr>` : "") + rowHtml(r, i + 1)).join("")}</tbody>` +
-      (legends.length ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">Club legends · Hall of Famers, stats kept but not in the Waxy d'Or race</td></tr>${legends.map((r) => rowHtml(r, "★")).join("")}</tbody>` : "") +
+      (legends.length ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">Club legends · stats kept, not in the Waxy d'Or race</td></tr>${legends.map((r) => rowHtml(r, "★")).join("")}</tbody>` : "") +
       (gaffer ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">The Gaffer's stats · not in the Waxy d'Or race</td></tr>${rowHtml(gaffer, "–")}</tbody>` : "");
   }
   $("#table").addEventListener("click", (e) => {
@@ -153,7 +153,7 @@
     <div class="card"><h3>How the Waxy d'Or works</h3>
       <p class="lead">The Waxy d'Or is the Waxys Phantoms player of the season. The table ranks the squad by the <b>Waxy index</b>, a score out of 100 built from every stat EA records, so the best all-round player rises to the top, not just the top scorer. ${rest} of the 100 points have nothing to do with goals.</p>
       <ul class="rules">
-        <li><b>Who's in the race:</b> every Waxys Phantoms player in an EA league or playoff match this season. The gaffer (${config.gaffer}) is shown with full stats but isn't ranked and can't win awards.${legends.length ? ` Club legends in the Hall of Fame (${legends.map((r) => r.name).join(", ")}) are the same: stats shown, never in the race.` : ""}</li>
+        <li><b>Who's in the race:</b> every Waxys Phantoms player in an EA league or playoff match this season. The gaffer (${config.gaffer}) is shown with full stats but isn't ranked and can't win awards.${legends.length ? ` Club legends (${legends.map((r) => r.name).join(", ")}) are the same: stats shown, never in the race.` : ""}</li>
         <li><b>To qualify:</b> ${C.minGames} appearances. Players on ${C.compareMinGames} to ${C.minGames - 1} apps get a provisional index, shown in grey below the qualified players. Under ${C.compareMinGames} apps there's too little to go on, so no index is shown.</li>
         <li><b>Where the stats come from:</b> straight from EA Pro Clubs. Nobody types anything in and nobody can edit a stat. The site checks EA every 20 minutes and saves every match.</li>
         <li><b>Season:</b> ${season.name}. Playoffs from ${fmt(new Date(season.playoffsStart))}, final whistle ${fmt(new Date(season.end))}.</li>

@@ -149,7 +149,7 @@
       : `<div class="num trial">NEW</div><div class="lbl">${trial ? "on trial" : "OVR"}</div>`;
     const h = honours(r.name)[0];
     const tag = r.gaffer ? "Captain · the gaffer"
-      : r.legend ? "Club legend · Hall of Fame"
+      : r.legend ? "Club legend · not in the race"
       : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
       : r.resting ? `No apps yet in ${season.name}`
       : trial ? `On trial · ${C.compareMinGames - r.gp} app${C.compareMinGames - r.gp === 1 ? "" : "s"} to a rating`
