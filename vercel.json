@@ -3,6 +3,5 @@
   "installCommand": "",
   "buildCommand": "sed -i \"s/__BUILD__/$(echo ${VERCEL_GIT_COMMIT_SHA:-local} | cut -c1-7)/g\" index.html",
   "outputDirectory": ".",
-  "cleanUrls": false,
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':(exclude)data'"
+  "cleanUrls": false
 }
