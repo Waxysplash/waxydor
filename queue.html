@@ -38,6 +38,8 @@
   @media (max-width: 520px) { .q-row.has-acts { grid-template-columns: 40px 1fr auto auto; } .q-row .acts { grid-column: 2 / -1; } }
   .q-row .acts button { font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; background: transparent; color: var(--ink, inherit); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
   .q-row .acts button:hover { border-color: var(--accent); }
+  .q-clear { font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: var(--red, #9d3a2b); border: 1px solid currentColor; border-radius: 8px; padding: 6px 12px; margin-left: 8px; }
+  .q-clear:hover { background: var(--red, #9d3a2b); color: var(--cream, #e9dcbb); }
 </style>
 </head>
 <body>
@@ -150,8 +152,15 @@
   }
   $("#waiting").addEventListener("click", (ev) => { const r = ev.target.closest(".q-row.pick"); if (r) act(r, "pick", r.dataset.login); });
   $("#playing").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-act]"); if (b) act(b.closest(".q-row"), b.dataset.act, b.dataset.login); });
+  // Captain: Clear queue empties the queue and the pitch (same as !qclear). The button stays so it can be used again.
+  $("#captain").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("#qclear"); if (!b || !confirm("Clear the whole queue, including who's on the pitch?")) return;
+    b.disabled = true;
+    try { const j = await post({ action: "clear" }); render(j.queue); b.textContent = j.message || "Queue cleared."; setTimeout(() => { b.textContent = "Clear queue"; b.disabled = false; }, 3000); }
+    catch (e) { b.disabled = false; if (e.status === 401 || e.status === 403) loggedOut(e); else b.textContent = e.message; }
+  });
   if (token) {
-    try { await post({}); captain = true; $("#captain").textContent = "Captain: click a name in the queue to put them on the pitch. Back to queue or Remove on the pitch."; }
+    try { await post({}); captain = true; $("#captain").innerHTML = `Captain: click a name in the queue to put them on the pitch. Back to queue or Remove on the pitch. <button class="q-clear" id="qclear">Clear queue</button>`; }
     catch (e) { loggedOut(e.status === 401 ? null : e); }
   } else loginLink();
   refresh(); setInterval(refresh, 10000);
