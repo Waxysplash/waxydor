@@ -400,7 +400,7 @@ export async function handleCommand(text, chatter) {
       const u = (await helix("GET", `users?login=${encodeURIComponent(target.toLowerCase())}`)).data?.[0];
       if (!u) return `Can't find ${target} on Twitch.`;
       const ch = (await helix("GET", `channels?broadcaster_id=${u.id}`)).data?.[0];
-      return `Go check out ${u.display_name} at twitch.tv/${u.login}${ch?.game_name ? `, last seen playing ${ch.game_name}` : ""}! Drop them a follow 💜`;
+      return `Go check out ${u.display_name} at twitch.tv/${u.login}${ch?.game_name ? `, last seen playing ${ch.game_name}` : ""}! Drop them a follow ⭐`;
     }
     case "!quote": {
       const n = await redis("LLEN", "bot:quotes");

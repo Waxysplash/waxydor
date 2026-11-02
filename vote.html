@@ -9,17 +9,28 @@
   if (/[#&]state=clips-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "clips.html#"));
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Waxy d'Or Fan Vote</title>
+<title>Fan vote · Waxy Splash</title>
 <meta name="description" content="Vote for the Waxys Phantoms player of the season. One ballot per Twitch account.">
+<link rel="canonical" href="https://waxysplash.com/vote.html">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Waxy Splash">
+<meta property="og:title" content="Fan vote · Waxy Splash">
+<meta property="og:description" content="Vote for the Waxys Phantoms player of the season. One ballot per Twitch account.">
+<meta property="og:url" content="https://waxysplash.com/vote.html">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=nav2">
+<link rel="stylesheet" href="styles.css?v=nav3">
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
+      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
       <div>
         <h1>Waxy d'Or · Fan vote</h1>
         <div class="sub">One ballot per Twitch account, followers only</div>
@@ -103,9 +114,12 @@
   }
 
   if (phase === "closed") {
-    $("#status").innerHTML = `Voting closed ${fmt(V.closes)}.`;
+    // Say which season these results belong to, so they don't read as this season's vote.
+    const sName = (cfg.seasons || []).find((s) => s.id === V.season)?.name || "Last season";
+    $("#status").innerHTML = `The ${sName} vote closed ${fmt(V.closes)}. The next one opens when this season ends.`;
     const r = await api("/api/results");
     $("#resultsCard").hidden = false;
+    $("#resultsCard h3").textContent = `${sName} fan vote results`;
     // Finishing order only. The points stay in the captain's view.
     $("#results").innerHTML = `<div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Player</th></tr></thead><tbody>
       ${r.results.map((x, i) => `<tr class="rank-${i + 1}"><td>${i + 1}</td><td class="name">${x.name}</td></tr>`).join("")}</tbody></table></div>`;
@@ -151,6 +165,6 @@
   render();
 })();
 </script>
-<script src="nav.js?v=nav1"></script>
+<script src="nav.js?v=nav3"></script>
 </body>
 </html>

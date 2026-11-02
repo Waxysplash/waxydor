@@ -3,11 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phantoms Player Cards</title>
+<title>Player cards · Waxy Splash</title>
 <meta name="description" content="Waxys Phantoms player cards: every player's overall rating, season stats and Waxy d'Or standing.">
+<link rel="canonical" href="https://waxysplash.com/card.html">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Waxy Splash">
+<meta property="og:title" content="Player cards · Waxy Splash">
+<meta property="og:description" content="Waxys Phantoms player cards: every player's overall rating, season stats and Waxy d'Or standing.">
+<meta property="og:url" content="https://waxysplash.com/card.html">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=nav2">
+<link rel="stylesheet" href="styles.css?v=nav3">
 <style>
   /* The card uses the stream fonts from brand/fonts (same origin, so a saved image keeps them). Everything is in em,
      so one card is drawn at any size: .pc.big for the featured card, plain .pc in the squad grid. */
@@ -73,7 +84,7 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
+      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
       <div>
         <h1>Phantoms player cards</h1>
         <div class="sub">Every player's card, updated after each match</div>
@@ -165,9 +176,9 @@
     const tagName = opts.link ? "a" : "div";
     return `<${tagName} class="pc${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
       <div class="in">
-        <img class="wm" src="brand/logo.png" alt="">
+        <img class="wm" src="brand/crest.png" alt="">
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
-        <img class="crest" src="brand/logo.png" alt="">
+        <img class="crest" src="brand/crest.png" alt="">
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
         <div class="name"><b>${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
@@ -221,6 +232,6 @@
   }
 })();
 </script>
-<script src="nav.js?v=nav1"></script>
+<script src="nav.js?v=nav3"></script>
 </body>
 </html>

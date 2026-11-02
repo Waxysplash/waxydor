@@ -18,6 +18,17 @@
     `<a href="${href}"${files.includes(here) ? ' aria-current="page"' : ""}${href === "queue.html" ? ' id="navQueue"' : ""}>${label}</a>`).join("") +
     `<a class="twitch" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a>`;
   header.after(nav);
+  // Socials at the foot of the page, Discord first (it's where viewers stick around between streams).
+  const socials = document.createElement("div");
+  socials.className = "socials";
+  socials.innerHTML = [
+    ["https://discord.gg/5Uu3nVP", "Discord"],
+    ["https://twitch.tv/waxysplash", "Twitch"],
+    ["https://www.tiktok.com/@waxysplash", "TikTok"],
+    ["https://www.instagram.com/TTVWaxysplash", "Instagram"],
+    ["https://x.com/WaxySplash", "X"],
+  ].map(([href, label]) => `<a href="${href}" target="_blank" rel="noopener">${label}</a>`).join("");
+  (document.querySelector(".wrap") || document.body).appendChild(socials);
   // The crest and club name take you home from anywhere.
   const crest = header.querySelector(".crest");
   if (crest && here !== "" && here !== "index.html") {

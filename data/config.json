@@ -2,7 +2,7 @@
   "clubName": "Waxys Phantoms",
   "clubId": 392152,
   "platform": "common-gen5",
-  "siteUrl": "https://waxysplash.github.io/waxydor/",
+  "siteUrl": "https://waxysplash.com/",
   "index": {
     "minGames": 10,
     "compareMinGames": 5,
@@ -419,20 +419,20 @@
     "timers": [
       {
         "name": "queue",
-        "text": "⚽ The Pro Clubs queue is OPEN. Type !join to get a game with Waxys Phantoms. Subs ⭐ get priority. Live queue: https://waxysplash.github.io/waxydor/queue.html",
+        "text": "⚽ The Pro Clubs queue is OPEN. Type !join to get a game with Waxys Phantoms. Subs ⭐ get priority. Live queue: https://waxysplash.com/queue.html",
         "minutes": 10,
         "minLines": 5,
         "whenQueueOpen": true
       },
       {
         "name": "waxydor",
-        "text": "🏆 Who's winning the Waxy d'Or? Type !race for the shortlist, !me for your own score. Full table: https://waxysplash.github.io/waxydor/",
+        "text": "🏆 Who's winning the Waxy d'Or? Type !race for the shortlist, !me for your own score. Full table: https://waxysplash.com/",
         "minutes": 25,
         "minLines": 10
       },
       {
         "name": "socials",
-        "text": "Enjoying the stream? Hit follow 💜 · Discord: https://discord.gg/5Uu3nVP · TikTok @Waxysplash · !commands for everything WaxyBot can do",
+        "text": "Enjoying the stream? Hit follow ⚽ · Discord: https://discord.gg/5Uu3nVP · TikTok @Waxysplash · !commands for everything WaxyBot can do",
         "minutes": 30,
         "minLines": 10
       }

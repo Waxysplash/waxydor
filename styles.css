@@ -128,7 +128,7 @@ code { background: rgba(42,42,30,.08); padding: 1px 6px; border-radius: 6px; }
 /* Fan vote */
 .vbtn { display: inline-block; margin-top: 12px; background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 11px 18px; font: inherit; font-weight: 700; cursor: pointer; }
 .vbtn:disabled { opacity: .45; cursor: default; }
-.vbtn.twitch { background: #9146ff; }
+.vbtn.twitch { background: var(--red); }
 .vote-picks { display: grid; gap: 12px; max-width: 640px; }
 .vote-picks label { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; }
 .vote-picks small { display: block; color: var(--muted); font-weight: 400; }
@@ -199,7 +199,7 @@ tbody.gaffer td.name, tr.gaffer-line td.name, .tag, .bd-st, .match .meta .big { 
 .player .bar s { background: linear-gradient(90deg, var(--red), var(--gold)); }
 .vbtn { background: var(--red); color: var(--cream); border: 2px solid var(--ink); }
 .vbtn:hover { background: var(--red-2); }
-.vbtn.twitch { background: #9146ff; color: #fff; }
+.vbtn.twitch { background: var(--red); color: var(--cream); }
 .queue-banner { background: var(--win); color: var(--cream); border: 2px solid var(--ink); }
 .queue-banner::before { background: var(--cream); box-shadow: 0 0 0 4px rgba(233,220,187,.3); }
 .tab-live { background: var(--win); color: var(--cream); }
@@ -218,14 +218,22 @@ footer { color: var(--muted); }
 .site-nav a { flex: none; color: var(--ink); font-weight: 600; font-size: 14px; padding: 8px 14px; border-radius: 9px; white-space: nowrap; }
 .site-nav a:hover { background: var(--panel-2); }
 .site-nav a[aria-current="page"] { background: var(--ink); color: var(--cream); }
-.site-nav a.twitch { margin-left: auto; color: var(--red); }
+.site-nav a.twitch { margin-left: auto; background: var(--red); color: var(--cream); }
+.site-nav a.twitch:hover { background: var(--ink); }
 .site-nav .live { display: inline-block; margin-left: 4px; font-size: 9px; font-weight: 800; letter-spacing: .08em; color: var(--cream); background: var(--win); border-radius: 999px; padding: 2px 6px; vertical-align: middle; }
 header.top .brand > a { display: flex; }
 @media (max-width: 720px) {
   /* on a phone the bar scrolls sideways; the fade on the right says there's more */
   .site-nav { mask-image: linear-gradient(90deg, #000 85%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); }
   .site-nav a { padding: 8px 11px; }
+  /* the Twitch button goes first, so it's on screen without swiping */
+  .site-nav a.twitch { order: -1; margin-left: 0; }
 }
+
+/* Socials row (nav.js) at the foot of every page: plain ink links, Discord first. */
+.socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin: 28px 0 8px; font-size: 14px; font-weight: 600; }
+.socials a { color: var(--ink); }
+.socials a:hover { color: var(--red); }
 
 /* Hall of Fame: one card per legend, drawn like the badge (red shield, cream lettering, gold star) */
 .legends { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px 14px; padding-top: 14px; }

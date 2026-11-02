@@ -3,11 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pro Clubs Queue</title>
+<title>Play with us · Waxy Splash</title>
 <meta name="description" content="Join Waxys Phantoms on stream: the live Pro Clubs queue, the rules and sub perks.">
+<link rel="canonical" href="https://waxysplash.com/queue.html">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Waxy Splash">
+<meta property="og:title" content="Play with us · Waxy Splash">
+<meta property="og:description" content="Join Waxys Phantoms on stream: the live Pro Clubs queue, the rules and sub perks.">
+<meta property="og:url" content="https://waxysplash.com/queue.html">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=nav2">
+<link rel="stylesheet" href="styles.css?v=nav3">
 <style>
   .q-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .q-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--loss); box-shadow: 0 0 0 4px rgba(201,88,63,.15); }
@@ -46,7 +57,7 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <img class="crest" src="brand/logo.png" alt="Waxys Phantoms crest">
+      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
       <div>
         <h1>Play with Waxys Phantoms</h1>
         <div class="sub">The live queue, the rules and the sub perks</div>
@@ -134,8 +145,14 @@
   function render(s) {
       $("#status").className = "q-status" + (s.open ? " open" : "");
       $("#status").innerHTML = `<span class="q-dot"></span><b>${s.open ? "Queue is OPEN" : "Queue is closed"}</b><span class="note" style="margin:0">${s.open ? "Type !join in chat" : "It opens on Pro Clubs streams"}</span>`;
-      $("#playing").innerHTML = s.playing.length ? s.playing.map((e, i) => row(e, i, true)).join("") : `<div class="note">Nobody from the queue right now.</div>`;
-      $("#waiting").innerHTML = s.waiting.length ? s.waiting.map((e, i) => row(e, i, false)).join("") : `<div class="note">${s.open ? "Empty. Be first: !join" : "Empty."}</div>`;
+      // While the queue is closed, fans don't see the last stream's names (they stay until the captain clears them).
+      if (!s.open && !captain) {
+        $("#playing").innerHTML = `<div class="note">Nobody until the next stream.</div>`;
+        $("#waiting").innerHTML = `<div class="note">Empty until the queue opens.</div>`;
+      } else {
+        $("#playing").innerHTML = s.playing.length ? s.playing.map((e, i) => row(e, i, true)).join("") : `<div class="note">Nobody from the queue right now.</div>`;
+        $("#waiting").innerHTML = s.waiting.length ? s.waiting.map((e, i) => row(e, i, false)).join("") : `<div class="note">${s.open ? "Empty. Be first: !join" : "Empty."}</div>`;
+      }
       $("#updated").textContent = s.updatedAt ? "Updated " + new Date(s.updatedAt).toLocaleTimeString() : "";
   }
   async function refresh() {
@@ -166,6 +183,6 @@
   refresh(); setInterval(refresh, 10000);
 })();
 </script>
-<script src="nav.js?v=nav1"></script>
+<script src="nav.js?v=nav3"></script>
 </body>
 </html>
