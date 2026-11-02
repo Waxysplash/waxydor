@@ -247,3 +247,20 @@ header.top .brand > a { display: flex; }
 .legend-stats b { display: block; font-family: var(--display); font-size: 20px; }
 .legend-stats span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #ead9b0; }
 .legend-date { margin-top: 14px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #ead9b0; }
+
+/* Best bits (app.js): three hand-picked clips on the homepage, thumbnail until tapped. Side-scrolls on a phone. */
+.featured .sr-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.featured .sr-head a { font-size: 13px; font-weight: 600; }
+.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+.feat { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.feat-media { position: relative; display: block; aspect-ratio: 16 / 9; border: 2px solid var(--ink); border-radius: 10px; overflow: hidden; background: var(--ink); }
+.feat-media img, .feat-media iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; }
+.feat-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%; background: var(--red); color: var(--cream);
+             border: 2px solid var(--cream); display: grid; place-items: center; font-size: 16px; padding-left: 3px; box-sizing: border-box; }
+.feat:hover .feat-play, .feat:focus-visible .feat-play { background: var(--ink); }
+.feat:focus-visible .feat-media { outline: 3px solid var(--gold); outline-offset: 2px; }
+.feat-t { font-weight: 600; font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .feat-grid { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .feat { scroll-snap-align: start; }
+}

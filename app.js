@@ -55,6 +55,24 @@
     </div>
     ${last10 ? `<div class="sr-form"><span>Last ${Math.min(10, R.seasonMatches.length)}</span><span class="form">${last10}</span></div>` : ""}`;
 
+  // ---------- best bits: the captain's hand-picked clips (config.brand.featuredClips) ----------
+  // Thumbnails only until tapped, so the page stays light; a tap swaps in the Twitch player.
+  const feat = (config.brand && config.brand.featuredClips) || [];
+  if (feat.length) {
+    const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+    $("#featured").innerHTML = `<div class="sr-head"><h3>Best bits</h3><a href="clips.html">All clips →</a></div>
+      <div class="feat-grid">${feat.map((c) => `<button class="feat" data-id="${esc(c.id)}" aria-label="Play: ${esc(c.title)}">
+        <span class="feat-media"><img src="${esc(c.thumb)}" alt="" loading="lazy"><span class="feat-play" aria-hidden="true">▶</span></span>
+        <span class="feat-t">${esc(c.title)}</span></button>`).join("")}</div>`;
+    $("#featured").hidden = false;
+    $("#featured").addEventListener("click", (e) => {
+      const b = e.target.closest("button.feat");
+      if (!b || b.classList.contains("playing")) return;
+      b.classList.add("playing");
+      b.querySelector(".feat-media").innerHTML = `<iframe src="https://clips.twitch.tv/embed?clip=${encodeURIComponent(b.dataset.id)}&parent=${location.hostname}&autoplay=true" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    });
+  }
+
   $("#seasonName").textContent = season.name;
   const po = new Date(season.playoffsStart), end = new Date(season.end);
   const fmt = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });

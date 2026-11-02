@@ -143,7 +143,24 @@
       "tiktok": "@Waxysplash",
       "discord": "discord.gg/5Uu3nVP"
     },
-    "logo": "brand/logo.png"
+    "logo": "brand/logo.png",
+    "featuredClips": [
+      {
+        "id": "CloudyEntertainingPlumageSaltBae-Dl8GnCIFacUmDiUM",
+        "title": "IF WE ADVANCE",
+        "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/4d1c3843-3850-4791-a1e4-226f47f17677/landscape/thumb/thumb-0000000000-480x272.jpg"
+      },
+      {
+        "id": "WealthyHorribleMarjoramNotATK-RgNEv5fzbp5_9zyT",
+        "title": "FILTHY FREE KICK",
+        "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/1811d15d-5fc3-4cc8-a672-7f99eab8a25e/landscape/thumb/thumb-0000000000-480x272.jpg"
+      },
+      {
+        "id": "ShinyAmorphousAxeOSfrog-oMkBi1QvwvBj9lxY",
+        "title": "Side Convo Goes Crazy",
+        "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/3b5add46-d148-4061-b37f-3f8e8bd58a57/landscape/thumb/thumb-0000000000-480x272.jpg"
+      }
+    ]
   },
   "bigGames": [
     {
