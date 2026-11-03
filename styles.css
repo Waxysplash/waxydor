@@ -266,3 +266,12 @@ header.top .brand > a { display: flex; }
 }
 /* crest and club name link home (nav.js); keep the heading's own look */
 header.top .home-link { color: inherit; text-decoration: none; }
+/* socials in the red header (nav.js): small cream links on the right, under the pills */
+header.top .head-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.head-socials { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 14px; font-size: 13px; font-weight: 600; }
+.head-socials a { color: var(--cream); opacity: .85; text-decoration: none; }
+.head-socials a:hover { color: var(--gold); opacity: 1; }
+@media (max-width: 640px) {
+  header.top .head-right { align-items: flex-start; width: 100%; }
+  .head-socials { justify-content: flex-start; }
+}

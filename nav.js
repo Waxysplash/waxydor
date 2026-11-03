@@ -18,17 +18,28 @@
     `<a href="${href}"${files.includes(here) ? ' aria-current="page"' : ""}${href === "queue.html" ? ' id="navQueue"' : ""}>${label}</a>`).join("") +
     `<a class="twitch" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a>`;
   header.after(nav);
-  // Socials at the foot of the page, Discord first (it's where viewers stick around between streams).
-  const socials = document.createElement("div");
-  socials.className = "socials";
-  socials.innerHTML = [
+  // Socials in the red header and again at the foot of the page, Discord first (it's where viewers stick around between streams).
+  const links = [
     ["https://discord.gg/5Uu3nVP", "Discord"],
     ["https://twitch.tv/waxysplash", "Twitch"],
     ["https://www.tiktok.com/@waxysplash", "TikTok"],
     ["https://www.instagram.com/TTVWaxysplash", "Instagram"],
     ["https://x.com/WaxySplash", "X"],
   ].map(([href, label]) => `<a href="${href}" target="_blank" rel="noopener">${label}</a>`).join("");
+  const socials = document.createElement("div");
+  socials.className = "socials";
+  socials.innerHTML = links;
   (document.querySelector(".wrap") || document.body).appendChild(socials);
+  // In the header they sit on the right, under the Division/Skill pills where a page has them.
+  const head = document.createElement("div");
+  head.className = "head-socials";
+  head.innerHTML = links;
+  const record = header.querySelector(".record");
+  const right = document.createElement("div");
+  right.className = "head-right";
+  if (record) record.replaceWith(right), right.appendChild(record);
+  else header.appendChild(right);
+  right.appendChild(head);
   // The crest and club name take you home from anywhere, the homepage included.
   for (const el of [header.querySelector(".crest"), header.querySelector(".brand h1")]) {
     if (!el || el.closest("a")) continue;
