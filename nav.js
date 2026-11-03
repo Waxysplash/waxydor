@@ -29,12 +29,12 @@
     ["https://x.com/WaxySplash", "X"],
   ].map(([href, label]) => `<a href="${href}" target="_blank" rel="noopener">${label}</a>`).join("");
   (document.querySelector(".wrap") || document.body).appendChild(socials);
-  // The crest and club name take you home from anywhere.
-  const crest = header.querySelector(".crest");
-  if (crest && here !== "" && here !== "index.html") {
+  // The crest and club name take you home from anywhere, the homepage included.
+  for (const el of [header.querySelector(".crest"), header.querySelector(".brand h1")]) {
+    if (!el || el.closest("a")) continue;
     const a = document.createElement("a");
-    a.href = "./"; a.setAttribute("aria-label", "Waxy d'Or home");
-    crest.replaceWith(a); a.appendChild(crest);
+    a.href = "./"; a.className = "home-link"; a.setAttribute("aria-label", "Waxy Splash home");
+    el.replaceWith(a); a.appendChild(el);
   }
   // A small live dot on "Play with us" while the queue is open.
   fetch("https://waxydor-vote-api.vercel.app/api/queue", { cache: "no-store" })

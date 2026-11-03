@@ -264,3 +264,5 @@ header.top .brand > a { display: flex; }
   .feat-grid { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .feat { scroll-snap-align: start; }
 }
+/* crest and club name link home (nav.js); keep the heading's own look */
+header.top .home-link { color: inherit; text-decoration: none; }
