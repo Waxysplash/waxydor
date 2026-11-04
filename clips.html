@@ -139,7 +139,7 @@
     const state = "clips-" + crypto.getRandomValues(new Uint32Array(4)).join("-");
     store.set("waxy.cstate", state);
     const u = new URL("https://id.twitch.tv/oauth2/authorize");
-    u.search = new URLSearchParams({ client_id: cfg.fanVote.twitchClientId, redirect_uri: new URL("vote.html", location.href).href, response_type: "token", scope: "user:read:follows", state }).toString();
+    u.search = new URLSearchParams({ client_id: cfg.fanVote.twitchClientId, redirect_uri: "https://waxysplash.github.io/waxydor/vote.html" /* registered with Twitch; forwards to waxysplash.com */, response_type: "token", scope: "user:read:follows", state }).toString();
     return u;
   }
   const card = (c) => `

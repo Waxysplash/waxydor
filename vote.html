@@ -103,7 +103,7 @@
     const state = crypto.getRandomValues(new Uint32Array(4)).join("-");
     sessionStorage.setItem("waxy.state", state);
     const u = new URL("https://id.twitch.tv/oauth2/authorize");
-    u.search = new URLSearchParams({ client_id: V.twitchClientId, redirect_uri: location.origin + location.pathname, response_type: "token", scope: "user:read:follows", state }).toString();
+    u.search = new URLSearchParams({ client_id: V.twitchClientId, redirect_uri: "https://waxysplash.github.io/waxydor/vote.html" /* registered with Twitch; forwards to waxysplash.com */, response_type: "token", scope: "user:read:follows", state }).toString();
     return u;
   }
   function showCaptain(c) {
