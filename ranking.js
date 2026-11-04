@@ -12,7 +12,7 @@
     ["motm", "Man of the match per game", "Being the best player on the pitch"],
     ["accuracy", "Shot and tackle accuracy", "Finishing chances and winning tackles cleanly"],
   ];
-  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "hatTricks", "conceded", "bigGames"];
+  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "penSaves", "hatTricks", "conceded", "bigGames"];
 
   function inSeason(season) {
     return (m) => new Date(m.date) >= new Date(season.start) && new Date(m.date) <= new Date(season.end);
@@ -34,6 +34,9 @@
     // Big misses are logged by the captain after the stream (config.bigMisses), one entry per miss.
     const misses = new Map();
     for (const b of config.bigMisses || []) { const k = b.matchId + "|" + b.player; misses.set(k, (misses.get(k) || 0) + (b.count || 1)); }
+    // Penalty saves are logged the same way (config.penSaves), one entry per save; EA doesn't record them either.
+    const penSaves = new Map();
+    for (const b of config.penSaves || []) { const k = b.matchId + "|" + b.player; penSaves.set(k, (penSaves.get(k) || 0) + (b.count || 1)); }
     const posOf = (p) => POSITIONS.includes(p.pos) ? p.pos : "forward";
     // One match line, scored by the position played. bigExtra is what a big game adds on top.
     function scoreLine(p, x) {
@@ -49,6 +52,7 @@
         passes: n(p.passesMade) / P.passesPerPoint,
         missedShots: Math.max(0, n(p.shots) - n(p.goals)) * P.missedShot,
         bigMisses: (misses.get(x.matchId + "|" + p.name) || 0) * n(P.bigMiss),
+        penSaves: (penSaves.get(x.matchId + "|" + p.name) || 0) * n(P.penSave),
         hatTricks: n(p.goals) >= 3 ? n(P.hatTrick) : 0,
         conceded: Math.max(0, n(p.goalsConceded) - P.concededAllowance) * R.conceded,
       };

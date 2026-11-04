@@ -57,7 +57,8 @@
       "missedShot": -0.25,
       "bigMiss": -2,
       "hatTrick": 2,
-      "concededAllowance": 3
+      "concededAllowance": 3,
+      "penSave": 5
     }
   },
   "seasons": [
@@ -309,6 +310,13 @@
       "player": "AuzzyBoz",
       "opponent": "Di Unkverse",
       "date": "2026-11-01"
+    },
+    {
+      "matchId": "166362792550275",
+      "player": "Joshthomas213",
+      "opponent": "Valspar XI",
+      "date": "2026-11-04",
+      "count": 2
     }
   ],
   "fanVote": {
@@ -471,5 +479,13 @@
       "When you're called, accept the Waxys Phantoms invite within 2 minutes or you drop back 3 places.",
       "Waxys Phantoms squad regulars don't queue. The queue fills the spots that are left."
     ]
-  }
+  },
+  "penSaves": [
+    {
+      "matchId": "166362792550275",
+      "player": "Probud07",
+      "opponent": "Valspar XI",
+      "date": "2026-11-04"
+    }
+  ]
 }
