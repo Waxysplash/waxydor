@@ -2,9 +2,9 @@
 
 Season tracker and awards for **Waxys Phantoms** (EA Sports FC Pro Clubs, club 392152), run by [twitch.tv/waxysplash](https://twitch.tv/waxysplash).
 
-- Live site: https://waxysplash.github.io/waxydor/
-- Every link in one place: https://waxysplash.github.io/waxydor/links.html (also `LINKS.md`)
-- Stream overlay (OBS browser source, 500×560 for the full squad): https://waxysplash.github.io/waxydor/overlay.html — add `?n=5` for a top five, `&compact=1` to hide the header, `&short=1` to drop the G+A and MOTM columns, or `?mode=top5` for a compact top five (360×200).
+- Live site: https://waxysplash.com/
+- Every link in one place: https://waxysplash.com/links.html (also `LINKS.md`)
+- Stream overlay (OBS browser source, 500×560 for the full squad): https://waxysplash.com/overlay.html — add `?n=5` for a top five, `&compact=1` to hide the header, `&short=1` to drop the G+A and MOTM columns, or `?mode=top5` for a compact top five (360×200).
 
 ## Stream scenes (OBS browser sources, 1920×1080)
 All under `overlays/`, all pull live data from the tracker and share one look (`overlays/brand.css`).
@@ -20,7 +20,7 @@ All under `overlays/`, all pull live data from the tracker and share one look (`
 | Vertical 1080×1920, Pro Clubs | `overlays/vertical.html` | `?title=Could your captain do *this*?` (`|` = line break, `*word*` = gold) · `&md=12` · `&handle=@name` · `&table=0` · `&bg=1` · `&pos=bottom` |
 | Leaderboard widget | `overlay.html` | see above |
 
-Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline and the default "next matchday" text come from `brand` in `data/config.json`; empty values are hidden.
+Full URLs start with `https://waxysplash.com/`. Socials, tagline and the default "next matchday" text come from `brand` in `data/config.json`; empty values are hidden.
 
 ## Twitch panel kit
 `brand/panels.html` shows the seven panel headers with their descriptions ready to paste. The PNGs live in `brand/panels/` (320×100 at 2x) and are regenerated with `npm install && node scripts/panels.mjs`.
@@ -43,7 +43,7 @@ Full URLs start with `https://waxysplash.github.io/waxydor/`. Socials, tagline a
 
 - **StreamElements:** `!table` → `$(urlfetch https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/table.txt)`
 - **Nightbot:** `!table` → `$(urlfetch https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/table.txt)`
-- `!waxydor` → `The Waxy d'Or race, every stat, every match: https://waxysplash.github.io/waxydor/`
+- `!waxydor` → `The Waxy d'Or race, every stat, every match: https://waxysplash.com/`
 
 ## Fan vote
 

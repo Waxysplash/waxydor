@@ -161,11 +161,15 @@ export async function ids() {
   return { bot: bot && JSON.parse(bot), broadcaster: broadcaster && JSON.parse(broadcaster) };
 }
 
+// The site moved to waxysplash.com (Nov 2026). Anything still carrying the old GitHub Pages address
+// (commands added from chat with !addcom, old quotes) goes out with the new one.
+const newDomain = (m) => String(m).replace(/https?:\/\/waxysplash\.github\.io\/waxydor\/?/gi, "https://waxysplash.com/");
+
 export async function say(message, replyTo) {
   const { bot, broadcaster } = await ids();
   if (!bot || !broadcaster) throw new Error("bot not connected");
   return helix("POST", "chat/messages", {
-    broadcaster_id: broadcaster.id, sender_id: bot.id, message: message.slice(0, 500),
+    broadcaster_id: broadcaster.id, sender_id: bot.id, message: newDomain(message).slice(0, 500),
     ...(replyTo ? { reply_parent_message_id: replyTo } : {}),
   });
 }
@@ -277,19 +281,29 @@ export function matchLine(d, m) {
 
 // Timers (Nightbot/StreamElements-style): a message every N minutes, but only after M chat lines since the
 // last time, so the bot never talks to an empty room. "whenQueueOpen" timers only run while the queue is open.
+// At most one timer goes out per check, and never within config.bot.timerGapMinutes (default 6) of the last
+// one, so they don't all land at once (e.g. when the stream starts). The one that has waited longest goes first.
 export async function runTimers(config) {
   const timers = config.bot?.timers || [];
   if (!timers.length) return;
   let queueOpen = null;
+  const due = [];
   for (const t of timers) {
     const lines = await redis("INCR", "bot:timerlines:" + t.name);
     if (lines < (t.minLines || 5)) continue;
     if (t.whenQueueOpen) { queueOpen ??= (await queue.load()).open; if (!queueOpen) continue; }
-    if (!(await redis("SET", "bot:timer:" + t.name, "1", "NX", "EX", (t.minutes || 15) * 60))) continue;
-    await redis("SET", "bot:timerlines:" + t.name, 0);
-    await say(t.text);
-    await logEvent({ timer: t.name });
+    if (await redis("EXISTS", "bot:timer:" + t.name)) continue;
+    due.push({ t, last: +(await redis("GET", "bot:timerlast:" + t.name)) || 0 });
   }
+  if (!due.length) return;
+  const gap = (config.bot?.timerGapMinutes ?? 6) * 60;
+  if (gap > 0 && !(await redis("SET", "bot:timer:gap", "1", "NX", "EX", gap))) return;
+  const { t } = due.sort((a, b) => a.last - b.last)[0];
+  await redis("SET", "bot:timer:" + t.name, "1", "EX", (t.minutes || 15) * 60);
+  await redis("SET", "bot:timerlines:" + t.name, 0);
+  await redis("SET", "bot:timerlast:" + t.name, Date.now());
+  await say(t.text);
+  await logEvent({ timer: t.name });
 }
 
 // Auto clip: when chat pops off (a burst of lines from several people, or a few people typing "clip it"),
