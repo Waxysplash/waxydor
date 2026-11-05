@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-05T04:04:00.425Z",
+  "fetchedAt": "2026-11-05T20:14:05.858Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -794,42 +794,6 @@
       "favoritePosition": "forward"
     },
     {
-      "name": "RD_Doomsday",
-      "gamesPlayed": "14",
-      "winRate": "71",
-      "goals": "0",
-      "assists": "1",
-      "cleanSheetsDef": "5",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "158",
-      "passSuccessRate": "85",
-      "ratingAve": "6.9",
-      "tacklesMade": "14",
-      "tackleSuccessRate": "70",
-      "proName": "D. oomsday",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "173",
-      "proNationality": "14",
-      "proOverall": "74",
-      "proOverallStr": "74",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
-    },
-    {
       "name": "JaceTheAce3623",
       "gamesPlayed": "1",
       "winRate": "0",
@@ -1050,6 +1014,6 @@
     "midfielder": 6,
     "goalkeeper": 1,
     "forward": 10,
-    "defender": 9
+    "defender": 8
   }
 }
