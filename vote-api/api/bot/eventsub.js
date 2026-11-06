@@ -5,6 +5,7 @@ import { redis } from "../../lib/shared.js";
 import { alertFromEvent, pushAlert, ensureStreamEvents } from "../../lib/alerts.js";
 import { streamOffline, streamOnline } from "../../lib/queue.js";
 import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent, runTimers, loadConfig, hypeCheck } from "../../lib/bot.js";
+import { postNewClips } from "../../lib/discord.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
   if (!text.startsWith("!")) {
     try { await runTimers(await loadConfig()); } catch (err) { console.error("timers", err); }
     try { await hypeCheck(e, await loadConfig()); } catch (err) { console.error("autoclip", err); }
+    try { await postNewClips(); } catch (err) { console.error("discord clips", err.message); }
     return res.status(204).end();
   }
   try {
