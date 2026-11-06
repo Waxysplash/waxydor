@@ -58,7 +58,8 @@
       "bigMiss": -2,
       "hatTrick": 2,
       "concededAllowance": 3,
-      "penSave": 5
+      "penSave": 5,
+      "penMiss": -4
     }
   },
   "seasons": [
@@ -500,6 +501,7 @@
       "Waxys Phantoms squad regulars don't queue. The queue fills the spots that are left."
     ]
   },
+  "penMisses": [],
   "penSaves": [
     {
       "matchId": "166362792550275",

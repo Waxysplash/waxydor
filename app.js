@@ -117,7 +117,7 @@
     : `<span class="idx${r.qualified || r.gaffer || r.legend ? "" : " prov"}" title="${r.qualified || r.gaffer || r.legend ? "" : "Provisional: needs " + C.minGames + " apps"}">${r.index}</span>`;
   const breakdownHtml = (r) => {
     const parts = WaxyRanking.FACTORS.map(([k, label]) => `<span><b>${fmt1(r.parts[k])}</b>/${C.weights[k]} ${label}</span>`).join("");
-    const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", bigMisses: "big misses", penSaves: "penalty saves", hatTricks: "hat-tricks", conceded: "goals conceded", bigGames: "big-game bonus" };
+    const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", bigMisses: "big misses", penSaves: "penalty saves", penMisses: "missed penalties", hatTricks: "hat-tricks", conceded: "goals conceded", bigGames: "big-game bonus" };
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
     const status = r.gaffer ? "The gaffer · not in the race" : r.legend ? "Club legend · not in the race" : r.qualified ? "Qualified" : `Provisional · ${left} more app${left === 1 ? "" : "s"} to qualify`;
@@ -196,6 +196,7 @@
         ${ptRow("Shot that doesn't score", () => P.missedShot)}
         ${P.bigMiss ? ptRow("Big miss", () => P.bigMiss) : ""}
         ${P.penSave ? ptRow("Penalty saved", () => P.penSave) : ""}
+        ${P.penMiss ? ptRow("Missed penalty", () => P.penMiss) : ""}
         ${P.hatTrick ? ptRow("Hat-trick bonus (on top of the goals)", () => P.hatTrick) : ""}
         ${ptRow(`Each goal conceded past ${P.concededAllowance} in a game`, (p) => P[p].conceded)}
       </tbody></table></div>
@@ -205,6 +206,7 @@
         <li><b>Missed shots</b> cost a little so random shots hurt, but a goal is worth far more than a miss costs. Shoot when it's on.</li>
         ${P.bigMiss ? `<li><b>Big misses:</b> the sitters, the open goals. EA doesn't record them, so the captain logs them after each stream and each one costs ${Math.abs(P.bigMiss)}.</li>` : ""}
         ${P.penSave ? `<li><b>Penalty saves:</b> EA doesn't record them either, so the captain logs them and each one is worth ${P.penSave}.</li>` : ""}
+        ${P.penMiss ? `<li><b>Missed penalties:</b> logged by the captain like big misses, and they hurt more: each one costs ${Math.abs(P.penMiss)}.</li>` : ""}
         ${P.hatTrick ? `<li><b>Hat-trick:</b> three or more goals in a match earns a ${P.hatTrick}-point bonus on top of the goals, at any position.</li>` : ""}
         <li><b>Positions:</b> EA records four: forward, midfielder, defender and keeper. ST and LW are both forward; CAM and CDM are both midfielder.</li>
         <li><b>Games before matches were saved</b> (before 2 October 2026) only exist in EA's season totals. They're scored at the player's main position, the one played most in saved matches. Saves and goals conceded aren't in EA's totals, so those count from saved matches only.</li>
