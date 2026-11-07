@@ -16,6 +16,14 @@
   .gaffer { border-top: 1px solid rgba(217, 166, 59, .35); color: var(--gold); }
   .gaffer .rk, .gaffer .nm, .gaffer .ix { color: var(--gold); }
   .foot { position: absolute; left: 110px; right: 110px; bottom: 56px; display: flex; justify-content: space-between; align-items: center; }
+  /* Vertical (TikTok, 1080x1920 browser source): stacked, kept out of TikTok's right 170px and bottom 440px. */
+  @media (orientation: portrait) {
+    .scene { width: 1080px; height: 1920px; }
+    .wrap { grid-template-columns: 1fr; align-content: center; gap: 70px; padding: 160px 170px 470px 70px; }
+    .mega { font-size: 210px; }
+    .row-mini { font-size: 22px; }
+    .foot { left: 70px; right: 170px; bottom: 460px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
 </style>
 </head>
 <body>
