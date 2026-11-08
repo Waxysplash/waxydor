@@ -391,7 +391,7 @@
     "twitchToPlayer": {},
     "autoclip": {
       "note": "WaxyBot clips on its own when chat pops off: `messages` lines from `chatters` different people inside `seconds`, or `keywordChatters` people typing a keyword. At most one auto clip per `cooldown` seconds.",
-      "on": true,
+      "on": false,
       "seconds": 12,
       "messages": 6,
       "chatters": 3,
