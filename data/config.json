@@ -362,6 +362,30 @@
       "opponent": "BOSTON HIT CREW",
       "date": "2026-11-04",
       "count": 2
+    },
+    {
+      "matchId": "175056543180087",
+      "player": "P_J_Gill",
+      "opponent": "Chads FC",
+      "date": "2026-11-07",
+      "count": 4,
+      "note": "Game not given; logged on their last non-big game of 7 Nov so the 1.5x big-game boost does not change it"
+    },
+    {
+      "matchId": "174820776420498",
+      "player": "George-Truly",
+      "opponent": "TruuGoats FC",
+      "date": "2026-11-07",
+      "count": 3,
+      "note": "Game not given; logged on their last non-big game of 7 Nov so the 1.5x big-game boost does not change it"
+    },
+    {
+      "matchId": "175056543180087",
+      "player": "AuzzyBoz",
+      "opponent": "Chads FC",
+      "date": "2026-11-07",
+      "count": 3,
+      "note": "Game not given; logged on their last non-big game of 7 Nov so the 1.5x big-game boost does not change it"
     }
   ],
   "fanVote": {
