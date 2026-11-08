@@ -18,6 +18,16 @@
   .card .s { color: var(--muted); font-size: 18px; }
   .card.raid { background: linear-gradient(135deg, rgba(185, 152, 90, .35), var(--glass)); }
   .socials { margin-top: 26px; }
+  /* Vertical (TikTok, 1080x1920 browser source): stacked, kept out of TikTok's top 160px, right 170px and bottom 440px. */
+  @media (orientation: portrait) {
+    .scene { width: 1080px; height: 1920px; }
+    .wrap { padding: 170px 170px 460px 70px; gap: 40px; }
+    .mega { font-size: 190px; }
+    .lead { font-size: 28px; }
+    .cards { flex-direction: column; gap: 14px; }
+    .card { min-width: 0; padding: 16px 22px; }
+    .card .v { font-size: 38px; }
+  }
 </style>
 </head>
 <body>

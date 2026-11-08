@@ -19,6 +19,14 @@
   @keyframes slideOut { to { transform: translateX(-120%); opacity: 0; } }
   .lt.right.out { animation-name: slideOutR; }
   @keyframes slideOutR { to { transform: translateX(120%); opacity: 0; } }
+  /* Vertical (TikTok, 1080x1920 browser source): sits above TikTok's bottom 440px and clear of the right 170px. */
+  @media (orientation: portrait) {
+    .scene { width: 1080px; height: 1920px; }
+    .lt { left: 50px; bottom: 470px; max-width: 860px; }
+    .lt.right { left: auto; right: 190px; }
+    .body { min-width: 0; padding: 16px 28px 18px 22px; }
+    .t { font-size: 48px; }
+  }
 </style>
 </head>
 <body>

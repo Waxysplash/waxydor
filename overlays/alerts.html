@@ -32,6 +32,17 @@
   .clip { position: absolute; top: 46px; right: 60px; display: flex; align-items: center; gap: 12px; padding: 12px 20px; font-family: var(--display);
           font-weight: 800; font-size: 30px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); opacity: 0; transform: translateX(40px); transition: opacity .3s, transform .4s; }
   .clip.show { opacity: 1; transform: none; }
+  /* Vertical (TikTok, 1080x1920 browser source): below TikTok's top 160px, clear of the right 170px. */
+  @media (orientation: portrait) {
+    body { width: 1080px; height: 1920px; }
+    .stage { top: 180px; left: 40px; right: 170px; }
+    .card { min-width: 0; max-width: 860px; gap: 16px; padding: 16px 26px 16px 16px; }
+    .card .crest { width: 72px; height: 72px; }
+    .name { font-size: 50px; }
+    .line { font-size: 22px; }
+    .msg { max-width: 640px; }
+    .clip { top: 180px; right: 190px; font-size: 26px; }
+  }
   .clip .rec { width: 14px; height: 14px; border-radius: 50%; background: var(--shield); box-shadow: 0 0 0 4px rgba(157, 58, 43, .3); }
 </style>
 </head>
