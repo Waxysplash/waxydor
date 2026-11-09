@@ -134,7 +134,11 @@
     }
   ],
   "gaffer": "TTVWaxysplash",
-  "legends": ["Poke_1101", "Portugal__23", "DYL_597"],
+  "legends": [
+    "Poke_1101",
+    "Portugal__23",
+    "DYL_597"
+  ],
   "legendsFrom": "s2",
   "brand": {
     "tagline": "The captain of your favourite team",
@@ -230,6 +234,12 @@
       "label": "",
       "opponent": "Ansilounz Fc",
       "date": "2026-11-07"
+    },
+    {
+      "matchId": "177798112800462",
+      "label": "",
+      "opponent": "El Granate",
+      "date": "2026-11-08"
     }
   ],
   "bigMisses": [
