@@ -134,11 +134,7 @@
     }
   ],
   "gaffer": "TTVWaxysplash",
-  "legends": [
-    "Poke_1101",
-    "Portugal__23",
-    "DYL_597"
-  ],
+  "legends": ["Poke_1101", "Portugal__23", "DYL_597"],
   "legendsFrom": "s2",
   "brand": {
     "tagline": "The captain of your favourite team",
@@ -396,6 +392,13 @@
       "date": "2026-11-07",
       "count": 3,
       "note": "Game not given; logged on their last non-big game of 7 Nov so the 1.5x big-game boost does not change it"
+    },
+    {
+      "matchId": "183760635550442",
+      "player": "progreekgamer111",
+      "opponent": "Common Sense",
+      "date": "2026-11-11",
+      "count": 2
     }
   ],
   "fanVote": {
