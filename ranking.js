@@ -12,7 +12,7 @@
     ["motm", "Man of the match per game", "Being the best player on the pitch"],
     ["accuracy", "Shot and tackle accuracy", "Finishing chances and winning tackles cleanly"],
   ];
-  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "penSaves", "penMisses", "hatTricks", "conceded", "bigGames"];
+  const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "penSaves", "penMisses", "streamMotm", "hatTricks", "conceded", "bigGames"];
 
   function inSeason(season) {
     return (m) => new Date(m.date) >= new Date(season.start) && new Date(m.date) <= new Date(season.end);
@@ -40,6 +40,10 @@
     // Missed penalties too (config.penMisses), one entry per miss; they cost more than a big miss.
     const penMisses = new Map();
     for (const b of config.penMisses || []) { const k = b.matchId + "|" + b.player; penMisses.set(k, (penMisses.get(k) || 0) + (b.count || 1)); }
+    // Man of the Stream (config.streamMotm): the captain's pick for a whole stream, logged on one of that stream's games.
+    // It's a flat bonus, so a big game doesn't multiply it.
+    const streamMotm = new Map();
+    for (const b of config.streamMotm || []) { const k = b.matchId + "|" + b.player; streamMotm.set(k, (streamMotm.get(k) || 0) + (b.count || 1)); }
     const posOf = (p) => POSITIONS.includes(p.pos) ? p.pos : "forward";
     // One match line, scored by the position played. bigExtra is what a big game adds on top.
     function scoreLine(p, x) {
@@ -63,6 +67,7 @@
       let total = 0;
       for (const k in got) total += got[k];
       const bigExtra = big.has(String(x.matchId)) || (C.playoffsAreBigGames && x.matchType === "playoffMatch") ? total * (C.bigGameMultiplier - 1) : 0;
+      got.streamMotm = (streamMotm.get(x.matchId + "|" + p.name) || 0) * n(P.streamMotm);
       return { pos, cs, got, bigExtra };
     }
 
