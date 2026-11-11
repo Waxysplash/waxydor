@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-11T02:11:59.894Z",
+  "fetchedAt": "2026-11-11T09:27:29.784Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -360,42 +360,6 @@
       "prevGoals9": "5",
       "prevGoals10": "4",
       "favoritePosition": "forward"
-    },
-    {
-      "name": "MXTTHlAS",
-      "gamesPlayed": "34",
-      "winRate": "58",
-      "goals": "3",
-      "assists": "5",
-      "cleanSheetsDef": "4",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "20",
-      "passesMade": "466",
-      "passSuccessRate": "81",
-      "ratingAve": "7.3",
-      "tacklesMade": "50",
-      "tackleSuccessRate": "34",
-      "proName": "",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "178",
-      "proNationality": "26",
-      "proOverall": "81",
-      "proOverallStr": "81",
-      "manOfTheMatch": "2",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
     },
     {
       "name": "oKingJJo",
@@ -1086,6 +1050,6 @@
     "midfielder": 8,
     "goalkeeper": 2,
     "forward": 7,
-    "defender": 10
+    "defender": 9
   }
 }
