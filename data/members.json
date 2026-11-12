@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-11T23:40:07.001Z",
+  "fetchedAt": "2026-11-12T04:13:01.102Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -902,42 +902,6 @@
       "favoritePosition": "defender"
     },
     {
-      "name": "natepuck",
-      "gamesPlayed": "4",
-      "winRate": "75",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "1",
-      "shotSuccessRate": "0",
-      "passesMade": "23",
-      "passSuccessRate": "88",
-      "ratingAve": "6.4",
-      "tacklesMade": "0",
-      "tackleSuccessRate": "0",
-      "proName": "L. Foster",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "196",
-      "proNationality": "112",
-      "proOverall": "81",
-      "proOverallStr": "81",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
-    },
-    {
       "name": "SeoulChris",
       "gamesPlayed": "0",
       "favoritePosition": "",
@@ -1050,6 +1014,6 @@
     "midfielder": 8,
     "goalkeeper": 1,
     "forward": 7,
-    "defender": 9
+    "defender": 8
   }
 }
