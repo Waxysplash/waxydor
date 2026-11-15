@@ -9,7 +9,7 @@ import { timingSafeEqual } from "node:crypto";
 import { redis } from "../../lib/shared.js";
 import { createClip, say, logEvent } from "../../lib/bot.js";
 import { pushAlert } from "../../lib/alerts.js";
-import { postLive, postFullTime, refreshRecap } from "../../lib/discord.js";
+import { postLive, postFullTime, refreshRecap, welcomeNew } from "../../lib/discord.js";
 
 const keyOk = async (given) => {
   const want = (await redis("GET", "bot:clipkey")) || "";
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   const live = req.body?.live;
   if (live) {
     try {
-      const run = { test: () => postLive({ test: true }), fulltime: postFullTime, refresh: refreshRecap }[live];
+      const run = { test: () => postLive({ test: true }), fulltime: postFullTime, refresh: refreshRecap, welcome: () => welcomeNew({ force: true }) }[live];
       if (!run) return res.status(400).json({ error: "live must be test, fulltime or refresh" });
       return res.json(await run());
     } catch (e) { return res.status(500).json({ error: String(e.message).slice(0, 200) }); }

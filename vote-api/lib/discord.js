@@ -148,3 +148,57 @@ export async function refreshRecap() {
   await hookCall("PATCH", `/messages/${live.id}`, { embeds: [await recapEmbed(live)] });
   return { refreshed: live.id };
 }
+
+// ---------- Welcome new members (Kamal 14 Nov 2026) ----------
+// Discord only pushes "member joined" to bots that stay connected, and WaxyBot runs on demand, so it looks instead:
+// it lists SplashPad's members with its own bot account (env DISCORD_BOT_TOKEN, "Server Members Intent" on) and
+// welcomes anyone who joined since the last look, in #welcome through a webhook (env DISCORD_WELCOME_WEBHOOK).
+// Checked after every stats poll (~20 min) and off the back of Twitch chat (at most every 2 minutes).
+const GUILD = "637346797299302402";
+const CH = { rules: "1571354143988256810", live: "683758594906390645", general: "637353437675257875", waxydor: "1470786157687079106" };
+const clean = (v) => (v || "").replace(/^﻿/, "").trim();
+
+export async function welcomeNew({ force = false } = {}) {
+  const token = clean(process.env.DISCORD_BOT_TOKEN), hook = clean(process.env.DISCORD_WELCOME_WEBHOOK);
+  if (!token || !hook) return { reason: "DISCORD_BOT_TOKEN or DISCORD_WELCOME_WEBHOOK not set" };
+  if (!force && !(await redis("SET", "discord:welcomecheck", "1", "NX", "EX", 120))) return { reason: "checked recently" };
+  // First run: start from now, so the whole server isn't welcomed at once.
+  let since = await redis("GET", "discord:welcomesince");
+  if (!since) { since = new Date().toISOString(); await redis("SET", "discord:welcomesince", since); return { started: since }; }
+
+  const members = [];
+  let after = "0";
+  for (let page = 0; page < 10; page++) {
+    const r = await fetch(`https://discord.com/api/v10/guilds/${GUILD}/members?limit=1000&after=${after}`, { headers: { Authorization: `Bot ${token}` } });
+    if (!r.ok) throw new Error(`discord members ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    const batch = await r.json();
+    members.push(...batch);
+    if (batch.length < 1000) break;
+    after = batch.at(-1).user.id;
+  }
+  const fresh = members
+    .filter((m) => !m.user.bot && !m.pending && m.joined_at > since)
+    .sort((a, b) => a.joined_at.localeCompare(b.joined_at));
+
+  let welcomed = 0;
+  for (const m of fresh.slice(-5)) {
+    if (!(await redis("SADD", "discord:welcomed", m.user.id))) continue; // once per person, even if they leave and rejoin
+    const r = await fetch(hook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: "WaxyBot", avatar_url: CREST,
+        content: `Welcome to **SplashPad**, <@${m.user.id}>! 🇲🇦⚽\n` +
+          `📜 Start with <#${CH.rules}>\n🔴 Go-live pings land in <#${CH.live}>\n🏆 The Waxy d'Or race is in <#${CH.waxydor}>\n` +
+          `💬 Then come say hi in <#${CH.general}>. Glad you're here!!`,
+        allowed_mentions: { users: [m.user.id] },
+      }),
+    });
+    if (!r.ok) { await redis("SREM", "discord:welcomed", m.user.id); throw new Error(`discord ${r.status}: ${(await r.text()).slice(0, 200)}`); }
+    welcomed++;
+  }
+  // Move the mark forward to the newest join seen, so nobody is checked twice.
+  const newest = fresh.at(-1)?.joined_at;
+  if (newest && newest > since) await redis("SET", "discord:welcomesince", newest);
+  return { welcomed, members: members.length };
+}

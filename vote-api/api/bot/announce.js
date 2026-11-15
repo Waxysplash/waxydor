@@ -4,7 +4,7 @@
 // It also posts any new channel clips to Discord (lib/discord.js).
 import { redis } from "../../lib/shared.js";
 import { loadData, matchLine, say, isLive, ids } from "../../lib/bot.js";
-import { postNewClips, refreshRecap } from "../../lib/discord.js";
+import { postNewClips, refreshRecap, welcomeNew } from "../../lib/discord.js";
 
 export default async function handler(req, res) {
   try {
@@ -12,8 +12,10 @@ export default async function handler(req, res) {
     const clips = await postNewClips({ force: true }).catch((err) => ({ error: err.message }));
     // The full-time card in #going-live picks up results EA added since the stream ended.
     await refreshRecap().catch((err) => console.error("recap", err.message));
+    // New Discord members get a welcome in #welcome.
+    const welcome = await welcomeNew({ force: true }).catch((err) => ({ error: err.message }));
     const { bot, broadcaster } = await ids();
-    if (!bot || !broadcaster) return res.json({ posted: 0, reason: "bot not connected", clips });
+    if (!bot || !broadcaster) return res.json({ posted: 0, reason: "bot not connected", clips, welcome });
     const d = await loadData();
     const recent = d.matches.slice(0, 10);
     const first = !(await redis("EXISTS", "bot:announced"));
@@ -22,10 +24,10 @@ export default async function handler(req, res) {
     // Remember them before posting, so a slow or repeated call can't post twice.
     if (unseen.length) await redis("SADD", "bot:announced", ...unseen.map((m) => m.matchId));
     // First run, or stream offline: just remember what's there.
-    if (first || !unseen.length || !(await isLive())) return res.json({ posted: 0, remembered: unseen.length, clips });
+    if (first || !unseen.length || !(await isLive())) return res.json({ posted: 0, remembered: unseen.length, clips, welcome });
     const fresh = unseen.filter((m) => Date.now() - new Date(m.date).getTime() < 3 * 3600_000).reverse().slice(-3);
     for (const m of fresh) await say(matchLine(d, m));
-    return res.json({ posted: fresh.length, clips });
+    return res.json({ posted: fresh.length, clips, welcome });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: String(e.message).slice(0, 200) });
