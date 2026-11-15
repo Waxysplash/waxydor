@@ -53,7 +53,8 @@ const SITE = "https://waxysplash.com/";
 const BLIP_MS = 15 * 60_000, RECAP_MS = 6 * 3600_000;
 
 async function hookCall(method, path, body) {
-  const hook = process.env.DISCORD_LIVE_WEBHOOK;
+  // Strip a byte-order mark or spaces that can sneak in when the env var is set from a Windows shell.
+  const hook = (process.env.DISCORD_LIVE_WEBHOOK || "").replace(/^FEFF/, "").trim();
   if (!hook) throw new Error("DISCORD_LIVE_WEBHOOK not set");
   const r = await fetch(hook + path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   if (!r.ok) throw new Error(`discord ${r.status}: ${(await r.text()).slice(0, 200)}`);
