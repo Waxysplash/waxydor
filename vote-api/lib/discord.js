@@ -67,7 +67,7 @@ async function streamInfo() {
     helix("GET", `streams?user_id=${broadcaster.id}`).then((j) => (j.data || [])[0]).catch(() => null),
     helix("GET", `channels?broadcaster_id=${broadcaster.id}`).then((j) => (j.data || [])[0]).catch(() => null),
   ]);
-  return { title: s?.title || c?.title || "Waxy Splash is live", game: s?.game_name || c?.game_name || "", startedAt: s?.started_at };
+  return { title: s?.title || c?.title || "Waxysplash is live", game: s?.game_name || c?.game_name || "", startedAt: s?.started_at };
 }
 
 function liveEmbed(info) {
@@ -76,7 +76,7 @@ function liveEmbed(info) {
     author: { name: "Waxys Phantoms · LIVE NOW", icon_url: CREST, url: TWITCH },
     title: info.title.slice(0, 250),
     url: TWITCH,
-    description: `**Waxy Splash is live on Twitch!** Come hang out${/pro clubs/i.test(info.title) ? ", type **!join** to get in the queue" : ""} 🇲🇦`,
+    description: `**Waxysplash is live on Twitch!** Come hang out${/pro clubs/i.test(info.title) ? ", type **!join** to get in the queue" : ""} 🇲🇦`,
     fields: info.game ? [{ name: "Playing", value: info.game, inline: true }, { name: "Watch", value: `[twitch.tv/waxysplash](${TWITCH})`, inline: true }] : [],
     thumbnail: { url: CREST },
     // Twitch's live preview; the query string stops Discord caching an old frame.
