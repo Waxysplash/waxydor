@@ -9,6 +9,7 @@ import { timingSafeEqual } from "node:crypto";
 import { redis } from "../../lib/shared.js";
 import { createClip, say, logEvent } from "../../lib/bot.js";
 import { pushAlert } from "../../lib/alerts.js";
+import { postLive, postFullTime, refreshRecap } from "../../lib/discord.js";
 
 const keyOk = async (given) => {
   const want = (await redis("GET", "bot:clipkey")) || "";
@@ -24,6 +25,15 @@ export default async function handler(req, res) {
     const clips = ((await redis("LRANGE", "bot:clips", 0, 49)) || []).map((c) => JSON.parse(c))
       .filter((c) => !since || c.at > since).reverse();
     return res.json({ clips });
+  }
+  // Discord go-live card checks, same key: { "live": "test" | "fulltime" | "refresh" }.
+  const live = req.body?.live;
+  if (live) {
+    try {
+      const run = { test: () => postLive({ test: true }), fulltime: postFullTime, refresh: refreshRecap }[live];
+      if (!run) return res.status(400).json({ error: "live must be test, fulltime or refresh" });
+      return res.json(await run());
+    } catch (e) { return res.status(500).json({ error: String(e.message).slice(0, 200) }); }
   }
   const source = req.body?.source === "voice" ? "voice" : "obs";
   // A double press makes one clip, not two.

@@ -5,7 +5,7 @@ import { redis } from "../../lib/shared.js";
 import { alertFromEvent, pushAlert, ensureStreamEvents } from "../../lib/alerts.js";
 import { streamOffline, streamOnline } from "../../lib/queue.js";
 import { webhookSecret, verifySignature, handleCommand, say, ids, logEvent, runTimers, loadConfig, hypeCheck } from "../../lib/bot.js";
-import { postNewClips } from "../../lib/discord.js";
+import { postNewClips, postLive, postFullTime } from "../../lib/discord.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -34,7 +34,9 @@ export default async function handler(req, res) {
     try {
       const msg = await (subType === "stream.offline" ? streamOffline() : streamOnline());
       if (msg) await say(msg).catch((err) => console.error("queue say", err.message));
-      await logEvent({ stream: subType, queue: msg ? msg.slice(0, 120) : "no change" });
+      // Discord: go-live card on online, full-time recap on offline.
+      const discord = await (subType === "stream.offline" ? postFullTime() : postLive()).catch((err) => ({ error: err.message }));
+      await logEvent({ stream: subType, queue: msg ? msg.slice(0, 120) : "no change", discord });
     } catch (err) { console.error(subType, err); }
     return res.status(204).end();
   }
