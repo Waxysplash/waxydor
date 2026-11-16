@@ -44,7 +44,7 @@
   for (const el of [header.querySelector(".crest"), header.querySelector(".brand h1")]) {
     if (!el || el.closest("a")) continue;
     const a = document.createElement("a");
-    a.href = "./"; a.className = "home-link"; a.setAttribute("aria-label", "Waxy Splash home");
+    a.href = "./"; a.className = "home-link"; a.setAttribute("aria-label", "Waxysplash home");
     el.replaceWith(a); a.appendChild(el);
   }
   // A small live dot on "Play with us" while the queue is open.
