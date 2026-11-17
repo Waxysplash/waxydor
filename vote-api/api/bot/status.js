@@ -8,9 +8,21 @@ export default async function handler(req, res) {
   if (cors(req, res)) return;
   const { bot, broadcaster } = await ids();
   if (req.query.channel) {
-    const ch = (await helix("GET", `channels?broadcaster_id=${broadcaster.id}`)).data?.[0] || {};
+    // Also used by the website's live pill and home hero: is he live, since when, and the next scheduled stream.
+    const [chJ, stJ, scJ] = await Promise.all([
+      helix("GET", `channels?broadcaster_id=${broadcaster.id}`),
+      helix("GET", `streams?user_id=${broadcaster.id}`).catch(() => ({})),
+      helix("GET", `schedule?broadcaster_id=${broadcaster.id}&first=3`).catch(() => ({})),
+    ]);
+    const ch = chJ.data?.[0] || {}, st = stJ.data?.[0];
+    const next = (scJ.data?.segments || []).find((s) => !s.canceled_until && new Date(s.end_time || s.start_time) > new Date());
     res.setHeader("Cache-Control", "s-maxage=30");
-    return res.json({ category: ch.game_name || "", title: ch.title || "" });
+    return res.json({
+      category: (st && st.game_name) || ch.game_name || "", title: (st && st.title) || ch.title || "",
+      live: !!st, viewers: st ? st.viewer_count : 0, startedAt: st ? st.started_at : null,
+      next: next ? { start: next.start_time, end: next.end_time, title: next.title || "", category: next.category?.name || "" } : null,
+      broadcasterId: broadcaster.id,
+    });
   }
   const connected = bot && broadcaster;
   const followers = connected ? await followCheck().catch((e) => "error: " + e.message) : "not connected";
