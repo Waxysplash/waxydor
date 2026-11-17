@@ -38,35 +38,36 @@
   .pc .in::after { inset: .84em; background: radial-gradient(120% 70% at 30% 0%, #3a3826 0%, #2a2a1e 55%, #1f1e15 100%); }
   .pc .in > * { z-index: 1; }
   .pc .in { overflow: hidden; }
-  .pc .wm { position: absolute; right: -2em; top: 5em; width: 17em; opacity: .045; }
-  .pc .top { position: absolute; left: 2.4em; top: 2.6em; text-align: center; }
-  .pc .num { font-family: "PC Display", sans-serif; font-weight: 800; font-size: 5.6em; line-height: .85; color: var(--num); }
-  .pc .num.trial { font-size: 2.6em; line-height: 1.2; letter-spacing: .04em; }
-  .pc .lbl { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; color: #a8a07e; margin-top: .3em; }
-  .pc .pos { font-family: "PC Display", sans-serif; font-size: 2.1em; letter-spacing: .06em; margin-top: .25em; }
-  .pc .crest { position: absolute; right: 2.4em; top: 2.4em; width: 4.6em; filter: drop-shadow(0 .3em .6em rgba(0, 0, 0, .45)); }
-  .pc .arm { position: absolute; right: 7.8em; top: 3.4em; width: 2.2em; height: 2.2em; border-radius: 50%; background: #9d3a2b; color: #e9dcbb;
-             display: grid; place-items: center; font-family: "PC Display", sans-serif; font-size: 1.3em; box-shadow: 0 0 0 .12em #d9a63b; }
-  /* With a photo: it fills the top right like an FC card, the crest moves under the position, the armband onto the photo. */
-  .pc .pimg { position: absolute; left: 8em; right: 1.5em; top: 1.3em; height: 13em; width: auto; object-fit: cover; object-position: 50% 20%;
-              -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
-  .pc.has-ph .crest { left: 3.2em; right: auto; top: 11.2em; width: 2.6em; }
-  .pc.has-ph .arm { right: 2.2em; top: 9.6em; }
+  /* Layout follows a real FC card: rating and position stacked top left, club badge under them, picture top right,
+     then name, a thin rule, the stats and one small tag. Everything keeps 3em clear of the edge so nothing touches the inner line. */
+  .pc .wm { position: absolute; right: -1em; top: 4em; width: 15em; opacity: .045; }
+  .pc .top { position: absolute; left: 3em; top: 3em; width: 4.6em; text-align: center; }
+  .pc .num { font-family: "PC Display", sans-serif; font-weight: 800; font-size: 4.8em; line-height: .85; color: var(--num); }
+  .pc .num.trial { font-size: 2.3em; line-height: 1.2; letter-spacing: .04em; }
+  .pc .lbl { font-size: .62em; letter-spacing: .16em; text-transform: uppercase; color: #a8a07e; margin-top: .3em; }
+  .pc .pos { font-family: "PC Display", sans-serif; font-size: 1.8em; letter-spacing: .06em; margin-top: .15em; line-height: 1; }
+  .pc .crest { position: absolute; right: 3.2em; top: 3.2em; width: 3.6em; filter: drop-shadow(0 .3em .6em rgba(0, 0, 0, .45)); }
+  .pc .arm { position: absolute; left: 6.9em; top: 2.9em; width: 1.7em; height: 1.7em; border-radius: 50%; background: #9d3a2b; color: #e9dcbb;
+             display: grid; place-items: center; font-family: "PC Display", sans-serif; font-size: 1em; box-shadow: 0 0 0 .12em #d9a63b; z-index: 2; }
+  /* With a photo it fills the top right; the badge moves under the position, small. */
+  .pc .pimg { position: absolute; left: 8.4em; right: 2.2em; top: 2em; height: 11.6em; width: auto; object-fit: cover; object-position: 50% 15%;
+              -webkit-mask-image: linear-gradient(#000 72%, transparent), linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+              -webkit-mask-composite: source-in; mask-image: linear-gradient(#000 72%, transparent), linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-composite: intersect; }
+  .pc.has-ph .crest { left: 4.1em; right: auto; top: 10.4em; width: 2.4em; }
   .pc.has-ph .wm { display: none; }
-  .pc .name { position: absolute; left: 1.6em; right: 1.6em; top: 14.2em; text-align: center; }
-  .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2.5em; line-height: 1; text-transform: uppercase;
+  .pc .name { position: absolute; left: 3em; right: 3em; top: 14.3em; text-align: center; }
+  .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2em; line-height: 1; text-transform: uppercase; letter-spacing: .02em;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pc .rule { position: absolute; left: 3em; right: 3em; top: 18.7em; height: .12em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
-  /* Stats are a small table: a header row, this season's numbers, then all-time numbers in brass. */
-  .pc .stats { position: absolute; left: 2.2em; right: 2.4em; top: 19.4em; display: grid; grid-template-columns: 2.4em repeat(6, 1fr); row-gap: .45em; align-items: baseline; text-align: center; }
-  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.6em; line-height: 1; }
+  .pc .name span { display: block; font-size: .72em; color: #a8a07e; margin-top: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc .rule { position: absolute; left: 4em; right: 4em; top: 18.2em; height: .1em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
+  /* Stats are a small table: a header row, this season's numbers (NOW), then all-time numbers in brass (ALL). */
+  .pc .stats { position: absolute; left: 3em; right: 3.2em; top: 18.9em; display: grid; grid-template-columns: 2.6em repeat(6, minmax(0, 1fr)); row-gap: .4em; align-items: baseline; text-align: center; }
+  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.35em; line-height: 1; }
   .pc .stats b.all { color: #b9985a; }
-  .pc .stats span, .pc .stats i { font-size: .62em; letter-spacing: .1em; color: #a8a07e; font-style: normal; }
-  .pc .stats i { text-align: left; letter-spacing: .14em; }
-  .pc .foot { position: absolute; left: 0; right: 0; top: 25.7em; text-align: center; }
-  .pc .foot .tag { display: inline-block; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
-  .pc .foot .club { font-size: .66em; letter-spacing: .2em; text-transform: uppercase; color: #a8a07e; margin-top: .55em; }
+  .pc .stats span, .pc .stats i { font-size: .55em; letter-spacing: .08em; color: #a8a07e; font-style: normal; }
+  .pc .stats i { text-align: left; letter-spacing: .12em; }
+  .pc .foot { position: absolute; left: 0; right: 0; top: 24.6em; text-align: center; }
+  .pc .foot .tag { display: inline-block; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .58em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
 
   .feature { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
   .feature .side h2 { font-family: var(--display); margin: 0 0 6px; font-size: 28px; }
@@ -138,7 +139,7 @@
 
   <div class="card">
     <h3 id="squadTitle">The squad</h3>
-    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Gold cards are the top five in the Waxy d'Or race. Top line of stats is this season, the brass ALL line is all-time. Tap a card to open it, or hit Compare and pick two.</p>
+    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Gold cards are the top five in the Waxy d'Or race. NOW is this season, the brass ALL line is all-time. Tap a card to open it, or hit Compare and pick two.</p>
     <div class="tools" id="tools">
       <button class="chip on" data-pos="">All</button><button class="chip" data-pos="forward">FWD</button><button class="chip" data-pos="midfielder">MID</button><button class="chip" data-pos="defender">DEF</button><button class="chip" data-pos="goalkeeper">GK</button>
       <input id="q" type="search" placeholder="Find a player" aria-label="Find a player">
@@ -214,19 +215,19 @@
       ? `<div class="num">${r.ovr}</div><div class="lbl">OVR</div>`
       : `<div class="num trial">NEW</div><div class="lbl">${trial ? "on trial" : "OVR"}</div>`;
     const h = honours(r.name)[0];
-    const tag = r.gaffer ? "Captain · the gaffer"
-      : r.legend ? "Club legend · not in the race"
-      : rank >= 0 ? `#${rank + 1} in the Waxy d'Or race`
-      : r.resting ? `No apps yet in ${season.name}`
-      : trial ? `On trial · ${C.compareMinGames - r.gp} app${C.compareMinGames - r.gp === 1 ? "" : "s"} to a rating`
-      : `${C.minGames - r.gp} app${C.minGames - r.gp === 1 ? "" : "s"} from the race`;
+    const tag = r.gaffer ? "Captain"
+      : r.legend ? "Club legend"
+      : rank >= 0 ? `#${rank + 1} Waxy d'Or race`
+      : r.resting ? "No apps this season"
+      : trial ? `On trial · ${C.compareMinGames - r.gp} to go`
+      : `${C.minGames - r.gp} app${C.minGames - r.gp === 1 ? "" : "s"} to qualify`;
     const cols = (s) => r.pos === "goalkeeper"
       ? [["APP", s.gp], ["SV%", s.savePct ?? "–"], ["MOTM", s.mom], ["PAS%", s.passPct], ["WIN%", s.winPct], ["RAT", s.rating.toFixed(1)]]
       : [["APP", s.gp], ["GLS", s.g], ["AST", s.a], ["MOTM", s.mom], ["PAS%", s.passPct], ["RAT", s.rating.toFixed(1)]];
     // No apps this season: dashes instead of 0% and a 0.0 rating.
     const now = cols(r).map(([k, v], i) => [k, r.gp || !i ? v : "–"]), ever = cols(career(r.name));
     const stats = `<span></span>${now.map(([k]) => `<span>${k}</span>`).join("")}
-      <i>${esc(season.id.toUpperCase())}</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}
+      <i>NOW</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}
       <i>ALL</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}`;
     const tagName = opts.link ? "a" : "div";
     const ph = photoUrl(r.name);
@@ -237,10 +238,10 @@
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
-        <div class="name"><b style="font-size:${(2.5 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
+        <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="stats">${stats}</div>
-        <div class="foot"><span class="tag">${tag}</span><div class="club">Waxys Phantoms · ${esc(season.name)}</div></div>
+        <div class="foot"><span class="tag">${tag}</span></div>
         <i class="shine"></i>
       </div>
     </${tagName}>`;
