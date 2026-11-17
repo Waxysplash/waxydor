@@ -607,9 +607,9 @@
     }
   ],
   "divisionOverride": {
-    "division": "2",
+    "division": "1",
     "whileEADivisionIs": "4",
-    "note": "Kamal, 6 Nov 2026: in game the club is in Division 2 while EA's API still reports 4. Applies only while EA says 4."
+    "note": "Kamal, 17 Nov 2026: in game the club is in Division 1 while EA's API still reports 4. Applies only while EA says 4."
   },
   "streamMotm": [
     {
