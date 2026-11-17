@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* Old GitHub Pages copy: send visitors to waxysplash.com (OBS sources with ?obs are left alone). */if(location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
+<script>/* Sends github.io visitors to waxysplash.com. Off (17 Nov 2026) while waxysplash.com serves a stale 14 Nov copy; set WAXY_FWD back to true once it updates again. */var WAXY_FWD=false;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Player cards · Waxysplash</title>
 <meta name="description" content="Waxys Phantoms player cards: every player's overall rating, season stats and Waxy d'Or standing.">
@@ -47,6 +47,12 @@
   .pc .crest { position: absolute; right: 2.4em; top: 2.4em; width: 4.6em; filter: drop-shadow(0 .3em .6em rgba(0, 0, 0, .45)); }
   .pc .arm { position: absolute; right: 7.8em; top: 3.4em; width: 2.2em; height: 2.2em; border-radius: 50%; background: #9d3a2b; color: #e9dcbb;
              display: grid; place-items: center; font-family: "PC Display", sans-serif; font-size: 1.3em; box-shadow: 0 0 0 .12em #d9a63b; }
+  /* With a photo: it fills the top right like an FC card, the crest moves under the position, the armband onto the photo. */
+  .pc .pimg { position: absolute; left: 8em; right: 1.5em; top: 1.3em; height: 13em; width: auto; object-fit: cover; object-position: 50% 20%;
+              -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+  .pc.has-ph .crest { left: 3.2em; right: auto; top: 11.2em; width: 2.6em; }
+  .pc.has-ph .arm { right: 2.2em; top: 9.6em; }
+  .pc.has-ph .wm { display: none; }
   .pc .name { position: absolute; left: 1.6em; right: 1.6em; top: 14.2em; text-align: center; }
   .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2.5em; line-height: 1; text-transform: uppercase;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -137,6 +143,7 @@
       <button class="chip on" data-pos="">All</button><button class="chip" data-pos="forward">FWD</button><button class="chip" data-pos="midfielder">MID</button><button class="chip" data-pos="defender">DEF</button><button class="chip" data-pos="goalkeeper">GK</button>
       <input id="q" type="search" placeholder="Find a player" aria-label="Find a player">
       <span class="sp"></span>
+      <a class="btn ghost" href="photo.html">📷 Add your photo</a>
       <button class="btn ghost" id="cmpBtn">⇄ Compare</button>
     </div>
     <div class="card" id="cmpBox" hidden style="background:var(--panel-2)"></div>
@@ -157,6 +164,11 @@
   let snapshot = { members: [] };
   try { snapshot = await load("snapshots/" + season.id + "-start.json"); } catch (e) {}
   const R = WaxyRanking.rank({ config, members, matches: matchStore.matches, snapshot, season });
+  // Approved card photos (sent from photo.html). If the API is slow or down, cards just show without photos.
+  const API = ((config.fanVote && config.fanVote.apiUrl) || "").replace(/\/$/, "");
+  let photos = {};
+  try { photos = (await Promise.race([fetch(API + "/api/photo").then((r) => r.json()), new Promise((_, no) => setTimeout(no, 2500))])).photos || {}; } catch (e) {}
+  const photoUrl = (name) => photos[name] ? `${API}/api/photo?p=${encodeURIComponent(name)}&v=${photos[name]}` : "";
   const C = config.index, W = season.weights || C.weights;
   // A brand-new signing with no match on record yet still gets a card.
   const blank = (name) => ({ name, pro: "New signing", pos: null, gp: 0, g: 0, a: 0, mom: 0, passPct: 0, winPct: 0, rating: 0, savePct: null, index: null, gaffer: false });
@@ -217,9 +229,11 @@
       <i>${esc(season.id.toUpperCase())}</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}
       <i>ALL</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}`;
     const tagName = opts.link ? "a" : "div";
-    return `<${tagName} class="pc${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
+    const ph = photoUrl(r.name);
+    return `<${tagName} class="pc${ph ? " has-ph" : ""}${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
       <div class="in">
         <img class="wm" src="brand/crest.png" alt="">
+        ${ph ? `<img class="pimg" src="${ph}" alt="" loading="lazy" crossorigin="anonymous">` : ""}
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
@@ -318,7 +332,7 @@
           ? `${r.gp} appearance${r.gp === 1 ? "" : "s"} for Waxys Phantoms in ${esc(season.name)}. The card updates itself after every match.`
           : r.resting ? `No appearances yet in ${esc(season.name)}. The ALL line is every game for Waxys Phantoms since Season 1.`
           : `Welcome to Waxys Phantoms. Your stats show up here after your first match. If your EA name is different from your Twitch name, ask the captain to link them.`}</p>
-        <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button></div>
+        <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button><a class="btn ghost" href="photo.html?p=${encodeURIComponent(r.name)}">${photoUrl(r.name) ? "Change photo" : "Add your photo"}</a></div>
         ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.FACTORS.map(([k, label]) =>
           `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / W[k]}%"></s></i><b>${r.parts[k]}/${W[k]}</b></div>`).join("")}</div></div>` : ""}
       </div></div>`;

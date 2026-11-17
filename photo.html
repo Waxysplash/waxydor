@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>/* Sends github.io visitors to waxysplash.com. Off (17 Nov 2026) while waxysplash.com serves a stale 14 Nov copy; set WAXY_FWD back to true once it updates again. */var WAXY_FWD=false;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your card photo · Waxysplash</title>
+<meta name="description" content="Play for Waxys Phantoms? Send a photo for your player card.">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:site_name" content="Waxysplash">
+<meta property="og:title" content="Your card photo · Waxysplash">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=__BUILD__">
+<style>
+  .ph-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: start; }
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 18px; }
+  .steps > li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+  .steps .n { width: 34px; height: 34px; border-radius: 50%; background: var(--panel-3); color: var(--gold); font-family: var(--num); font-size: 20px; display: grid; place-items: center; }
+  .steps h4 { margin: 4px 0 8px; font-size: 15px; color: var(--cream); }
+  .steps p { margin: 0 0 8px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .field { font: inherit; font-size: 15px; background: var(--panel-2); color: var(--cream); border: 1px solid var(--line-2); border-radius: 10px; padding: 10px 12px; width: 100%; max-width: 320px; }
+  .file { display: inline-block; cursor: pointer; }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .dis { opacity: .45; pointer-events: none; }
+  /* The crop frame is the shape of the photo window on a card (3:4). Drag to move, slider to zoom. */
+  .crop { width: 240px; }
+  .frame { position: relative; width: 240px; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: repeating-linear-gradient(135deg, #2a2a1e 0 12px, #33331f 12px 24px); border: 2px solid var(--brass); touch-action: none; cursor: grab; }
+  .frame canvas { width: 100%; height: 100%; display: block; }
+  .frame .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--muted); font-size: 13px; padding: 20px; }
+  .crop input[type=range] { width: 100%; margin-top: 10px; accent-color: var(--gold); }
+  .crop .hint { font-size: 12px; color: var(--dim); text-align: center; }
+  .msg { margin-top: 12px; font-size: 14px; color: var(--muted); }
+  .msg.ok { color: #9bc04a; } .msg.err { color: var(--red-2); }
+  .queue { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+  .qi { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; min-width: 0; }
+  .qi img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; display: block; }
+  .qi b { display: block; margin-top: 8px; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qi small { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qi .row { display: flex; gap: 6px; margin-top: 8px; }
+  .qi button { flex: 1; font: inherit; font-size: 13px; font-weight: 800; border-radius: 8px; padding: 7px 0; cursor: pointer; border: 1px solid var(--line-2); background: transparent; color: var(--cream); }
+  .qi button.yes { background: var(--gold); color: var(--olive); border-color: var(--gold); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { font: inherit; font-size: 13px; border-radius: 999px; padding: 5px 10px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); cursor: pointer; }
+  .chips button:hover { color: var(--cream); border-color: var(--red); }
+  @media (max-width: 640px) { .ph-grid { grid-template-columns: minmax(0, 1fr); } .crop { margin: 0 auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
+      <div>
+        <h1>Your card photo</h1>
+        <div class="sub">Play for the Phantoms? Put your face on your card.</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="card" id="captainCard" hidden>
+    <h3>Waiting for your OK</h3>
+    <div id="pending"></div>
+    <h4 style="margin:22px 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">On cards now (tap to take one down)</h4>
+    <div class="chips" id="live"></div>
+  </div>
+
+  <div class="card">
+    <div class="ph-grid">
+      <ol class="steps">
+        <li><span class="n">1</span><div><h4>Log in with Twitch</h4><div id="login"><p>Checking…</p></div></div></li>
+        <li id="s2" class="dis"><span class="n">2</span><div><h4>Which player are you?</h4>
+          <select class="field" id="player" aria-label="Your player"><option value="">Pick your gamertag</option></select></div></li>
+        <li id="s3" class="dis"><span class="n">3</span><div><h4>Choose a photo</h4>
+          <p>Head and shoulders works best. Drag it in the frame to line it up, and use the slider to zoom.</p>
+          <label class="file cta"><input type="file" id="file" accept="image/*">Choose a photo</label></div></li>
+        <li id="s4" class="dis"><span class="n">4</span><div><h4>Send it</h4>
+          <p>Waxy checks every photo before it goes on a card. Keep it you, and keep it clean.</p>
+          <button class="cta gold" id="send" type="button">Send for approval</button>
+          <div class="msg" id="msg" role="status"></div></div></li>
+      </ol>
+      <div class="crop">
+        <div class="frame" id="frame"><canvas id="cv" width="480" height="640"></canvas><div class="empty" id="empty">Your photo shows here</div></div>
+        <input type="range" id="zoom" min="1" max="3" step="0.01" value="1" aria-label="Zoom" disabled>
+        <div class="hint">Drag to move · slide to zoom</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(async function () {
+  const $ = (s) => document.querySelector(s);
+  const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+  const load = (f) => fetch(DATA + f + "?t=" + Math.floor(Date.now() / 6e4)).then((r) => r.json());
+  const [cfg, members] = await Promise.all([load("config.json"), load("members.json")]);
+  const API = (cfg.fanVote.apiUrl || "").replace(/\/$/, "");
+  const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+
+  // Twitch sends the login back to vote.html (the address registered with Twitch), which forwards "photo-" logins here.
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("access_token")) {
+    if (h.get("state") === store.get("waxy.pstate")) store.set("waxy.ptoken", h.get("access_token"));
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  let token = store.get("waxy.ptoken");
+  const post = async (body) => {
+    const r = await fetch(API + "/api/photo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, ...body }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.message || "Something went wrong. Try again in a minute."), { status: r.status });
+    return j;
+  };
+  function loginButton(note) {
+    const state = "photo-" + crypto.getRandomValues(new Uint32Array(4)).join("-");
+    store.set("waxy.pstate", state);
+    const u = new URL("https://id.twitch.tv/oauth2/authorize");
+    u.search = new URLSearchParams({ client_id: cfg.fanVote.twitchClientId, redirect_uri: "https://waxysplash.github.io/waxydor/vote.html", response_type: "token", scope: "user:read:follows", state }).toString();
+    $("#login").innerHTML = `${note ? `<p>${esc(note)}</p>` : `<p>So Waxy knows who sent the photo.</p>`}<a class="cta red" href="${u}">Log in with Twitch</a>`;
+  }
+
+  // Squad picker: everyone with a game for the club, newest gamertags included.
+  const names = members.members.filter((m) => +m.gamesPlayed > 0).map((m) => m.name).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  $("#player").insertAdjacentHTML("beforeend", names.map((n) => `<option>${esc(n)}</option>`).join(""));
+  const want = new URLSearchParams(location.search).get("p");
+  if (want && names.includes(want)) $("#player").value = want;
+
+  if (!token) { loginButton(); return; }
+  let me;
+  try { me = await post({ action: "me" }); }
+  catch (e) { token = null; store.set("waxy.ptoken", null); loginButton(e.status === 401 ? "Your login ran out. Log in again." : e.message); return; }
+
+  const tidy = (s) => s.toLowerCase().replace(/^ttv_?|_?ttv$/g, "").replace(/[^a-z0-9]/g, "");
+  if (!$("#player").value) { const hit = names.find((n) => tidy(n) === tidy(me.login)); if (hit) $("#player").value = hit; }
+  $("#login").innerHTML = `<p>Logged in as <b style="color:var(--cream)">${esc(me.login)}</b>. <a href="" id="out">Log out</a></p>${me.pending.length ? `<p>Waiting for Waxy's OK: <b>${me.pending.map(esc).join(", ")}</b>.</p>` : ""}`;
+  $("#out").addEventListener("click", (e) => { e.preventDefault(); store.set("waxy.ptoken", null); location.reload(); });
+  $("#s2").classList.remove("dis"); $("#s3").classList.remove("dis");
+
+  // ---------- crop: the photo is drawn into a 480x640 canvas; drag moves it, the slider zooms ----------
+  const cv = $("#cv"), cx = cv.getContext("2d");
+  let img = null, zoom = 1, ox = 0, oy = 0;
+  const base = () => Math.max(cv.width / img.width, cv.height / img.height);
+  function clamp() {
+    const s = base() * zoom, w = img.width * s, hh = img.height * s;
+    ox = Math.min(0, Math.max(cv.width - w, ox)); oy = Math.min(0, Math.max(cv.height - hh, oy));
+  }
+  function draw() {
+    if (!img) return; clamp();
+    const s = base() * zoom;
+    cx.fillStyle = "#2a2a1e"; cx.fillRect(0, 0, cv.width, cv.height);
+    cx.drawImage(img, ox, oy, img.width * s, img.height * s);
+  }
+  $("#file").addEventListener("change", async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    $("#msg").className = "msg"; $("#msg").textContent = "";
+    try {
+      const bmp = await createImageBitmap(f, { imageOrientation: "from-image" });
+      img = bmp; zoom = 1; $("#zoom").value = 1; $("#zoom").disabled = false;
+      const s = base(); ox = (cv.width - img.width * s) / 2; oy = (cv.height - img.height * s) / 3;
+      $("#empty").hidden = true; draw();
+      $("#s4").classList.remove("dis");
+    } catch { $("#msg").className = "msg err"; $("#msg").textContent = "Couldn't open that file. Try a JPG or PNG."; }
+  });
+  $("#zoom").addEventListener("input", (e) => {
+    if (!img) return;
+    const before = base() * zoom; zoom = +e.target.value; const after = base() * zoom;
+    // zoom around the middle of the frame
+    ox = cv.width / 2 - (cv.width / 2 - ox) * after / before; oy = cv.height / 2 - (cv.height / 2 - oy) * after / before;
+    draw();
+  });
+  let drag = null;
+  const fr = $("#frame");
+  fr.addEventListener("pointerdown", (e) => { if (!img) return; drag = { x: e.clientX, y: e.clientY, ox, oy }; fr.setPointerCapture(e.pointerId); });
+  fr.addEventListener("pointermove", (e) => { if (!drag) return; const k = cv.width / fr.clientWidth; ox = drag.ox + (e.clientX - drag.x) * k; oy = drag.oy + (e.clientY - drag.y) * k; draw(); });
+  fr.addEventListener("pointerup", () => { drag = null; });
+  fr.addEventListener("pointercancel", () => { drag = null; });
+
+  $("#send").addEventListener("click", async () => {
+    const player = $("#player").value, msg = $("#msg");
+    if (!player) { msg.className = "msg err"; msg.textContent = "Pick which player you are first."; return; }
+    if (!img) { msg.className = "msg err"; msg.textContent = "Choose a photo first."; return; }
+    let q = 0.85, image = cv.toDataURL("image/jpeg", q);
+    while (image.length * 0.75 > 300_000 && q > 0.4) { q -= 0.1; image = cv.toDataURL("image/jpeg", q); }
+    $("#send").disabled = true; msg.className = "msg"; msg.textContent = "Sending…";
+    try {
+      await post({ action: "submit", player, image });
+      msg.className = "msg ok"; msg.textContent = `Sent. It goes on ${player}'s card once Waxy approves it.`;
+      if (me.captain) refresh().catch(() => {});
+    } catch (e) { msg.className = "msg err"; msg.textContent = e.message; }
+    $("#send").disabled = false;
+  });
+
+  // ---------- the captain's approval queue ----------
+  if (!me.captain) return;
+  $("#captainCard").hidden = false;
+  async function refresh() {
+    const d = await post({ action: "pending" });
+    $("#pending").innerHTML = d.pending.length ? `<div class="queue">${d.pending.map((x) => `<div class="qi"><img src="${x.image}" alt="Photo for ${esc(x.player)}">
+        <b>${esc(x.player)}</b><small>from ${esc(x.login)} · ${new Date(x.at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}</small>
+        <div class="row"><button class="yes" data-a="approve" data-p="${esc(x.player)}">Approve</button><button data-a="reject" data-p="${esc(x.player)}">Reject</button></div></div>`).join("")}</div>`
+      : `<p class="note">Nothing waiting.</p>`;
+    $("#live").innerHTML = d.live.length ? d.live.map((p) => `<button data-a="remove" data-p="${esc(p)}">${esc(p)} ✕</button>`).join("") : `<span class="note">None yet.</span>`;
+  }
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("button[data-a]"); if (!b) return;
+    if (b.dataset.a === "remove" && !confirm(`Take ${b.dataset.p}'s photo off their card?`)) return;
+    b.disabled = true;
+    try { await post({ action: b.dataset.a, player: b.dataset.p }); await refresh(); } catch (err) { alert(err.message); b.disabled = false; }
+  });
+  refresh().catch((e) => { $("#pending").innerHTML = `<p class="note">${esc(e.message)}</p>`; });
+})();
+</script>
+<script src="nav.js?v=__BUILD__"></script>
+</body>
+</html>

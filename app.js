@@ -173,6 +173,15 @@
         <div class="pst"><div><b>${r.gp}</b><span>APP</span></div><div><b>${r.g}</b><span>GLS</span></div><div><b>${r.a}</b><span>AST</span></div><div><b>${r.mom}</b><span>MOTM</span></div><div><b>${r.rating.toFixed(1)}</b><span>RAT</span></div></div>
         <div class="ptag">#${i + 1} in the Waxy d'Or race</div>
       </div></a>`).join("");
+  // Approved card photos go on the podium cards too (loaded after, so a slow API never holds the page up).
+  const PAPI = ((config.fanVote && config.fanVote.apiUrl) || "").replace(/\/$/, "");
+  if (PAPI) fetch(PAPI + "/api/photo").then((r) => r.json()).then(({ photos = {} }) => {
+    document.querySelectorAll("#podium .pod").forEach((el, i) => {
+      const n = top3[i] && top3[i].name; if (!n || !photos[n]) return;
+      el.classList.add("has-ph");
+      el.querySelector(".pin").insertAdjacentHTML("afterbegin", `<img class="pimg" src="${PAPI}/api/photo?p=${encodeURIComponent(n)}&v=${photos[n]}" alt="">`);
+    });
+  }).catch(() => {});
   const more = $("#moreRes"); if (more) more.addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="matches"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
   $("#toTable").addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="table"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
 

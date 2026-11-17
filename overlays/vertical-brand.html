@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Vertical brand · WaxySplash</title>
+<title>Vertical brand · Waxysplash</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@500;600;700&display=swap">
 <style>
   /* OBS browser source 1080x1920, transparent. Built for the Road to Glory layout: facecam on top, game below, seam at ~640px.
@@ -11,7 +11,8 @@
              &div=7 &rating=80 &coins=12k &record=3W 1L   (small stat tiles on the bar; any you leave out are hidden)
              &hook=Can Morocco reach Div 1?  &hookfor=4  (headline over the game for N seconds; 0 = stays)
              &crest=0 (no crest)  &bar=0 (no bar, crest + twitch only)  &side=left|right (crest side)
-             &mode=rtg|proclubs (fix the bar). Without mode or series it follows the Twitch channel every minute:
+             &mode=rtg|proclubs (fix the bar). Pro Clubs shows live Division + W-D-L tiles from data/club.json (&stats=0 hides them).
+             OBS: "RTG Vertical Bar" (mode=rtg) and "Pro Clubs Vertical Bar" (mode=proclubs) are separate sources at 100% scale, seam=742. Without mode or series it follows the Twitch channel every minute:
              a title with "Road to Glory" or "RTG" shows the series bar, an EA FC category shows Waxys Phantoms · Pro Clubs.
      Palette is taken from the crest: cream, olive, brass, red. Safe zones: right 170px and bottom 440px left clear. */
   :root { --cream: #e9dcbb; --cream-2: #cdbd94; --olive: #2a2a1e; --olive-2: #3b3a2a; --brass: #b9985a; --brass-2: #7f6a3c; --red: #9d3a2b; --gold: #d9a63b;
@@ -54,7 +55,7 @@
 <div class="scene" id="scene">
   <img class="crest left" id="crest" src="../brand/logo.png" alt="Waxys Phantoms crest">
   <div class="bar has-crest side-left" id="bar">
-    <div class="series" id="series"><div class="t" id="seriesName">Morocco Road to Glory</div><div class="e" id="ep">WaxySplash</div></div>
+    <div class="series" id="series"><div class="t" id="seriesName">Morocco Road to Glory</div><div class="e" id="ep">Waxysplash</div></div>
     <div class="stats" id="stats"></div>
   </div>
   <div class="twitch" id="twitch" hidden><span class="ico"></span>twitch.tv/<b>Waxysplash</b></div>
@@ -73,16 +74,31 @@
   const ep = p("ep", "");
   const stats = [["div", "Division"], ["rating", "Rating"], ["coins", "Coins"], ["record", "Record"]].filter(([k]) => p(k, "")).map(([k, l]) => `<div class="stat"><b>${p(k, "")}</b><span>${l}</span></div>`).join("");
   const twitch = `twitch.tv/<i>Waxysplash</i>`;
+  const tile = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+  let club = "";
+  async function loadClub() {
+    if (p("stats", "1") === "0") return;
+    try {
+      const base = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "../data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
+      const c = await fetch(base + "club.json?t=" + Math.floor(Date.now() / 60000)).then((r) => r.json());
+      const o = c.overall || {};
+      club = (c.division ? tile(c.division, "Division") : "") + (o.wins != null ? tile(`${o.wins}-${o.ties}-${o.losses}`, "W-D-L") : "");
+    } catch (e) {}
+  }
+  let current = "";
   function show(mode) {
-    const [name, line, st] = mode === "proclubs" ? ["Waxys Phantoms", `Pro Clubs · ${twitch}`, ""]
+    current = mode;
+    const [name, line, st] = mode === "proclubs" ? ["Waxys Phantoms", `Pro Clubs · ${twitch}`, club]
       : mode === "rtg" ? [p("series", "") || "Morocco Road to Glory", (ep ? `Episode <b>${ep}</b> · ` : "") + twitch, stats]
-      : ["Waxy Splash", twitch, ""];
+      : ["Waxysplash", twitch, ""];
     document.getElementById("seriesName").textContent = name;
     document.getElementById("ep").innerHTML = line;
     document.getElementById("stats").innerHTML = st;
   }
   const fixed = p("mode", "") || (q.has("series") ? "rtg" : "");
   show(fixed || "rtg");
+  async function refreshClub() { await loadClub(); if (current === "proclubs") show("proclubs"); }
+  refreshClub(); setInterval(refreshClub, 300000);
   // Follow the Twitch channel (Kamal, 30 Oct 2026): both shows stream under EA FC, so the title tells Road to Glory apart.
   async function follow() {
     try {

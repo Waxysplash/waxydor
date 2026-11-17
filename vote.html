@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<script>/* Old GitHub Pages copy: send visitors to waxysplash.com (OBS sources with ?obs are left alone). */if(location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
+<script>/* Sends github.io visitors to waxysplash.com. Off (17 Nov 2026) while waxysplash.com serves a stale 14 Nov copy; set WAXY_FWD back to true once it updates again. */var WAXY_FWD=false;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
 <script>
   // The queue page's captain login and the Clip of the Week login come back through here (the address registered
   // with Twitch); send them on.
   if (/[#&]state=queue-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "queue.html#"));
+  if (/[#&]state=photo-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "photo.html#"));
   if (/[#&]state=clips-/.test(location.hash)) location.replace(location.href.replace(/vote\.html.*?#/, "clips.html#"));
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
