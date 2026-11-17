@@ -50,7 +50,7 @@
   .pc .name { position: absolute; left: 1.6em; right: 1.6em; top: 14.2em; text-align: center; }
   .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2.5em; line-height: 1; text-transform: uppercase;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; }
+  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .rule { position: absolute; left: 3em; right: 3em; top: 18.7em; height: .12em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
   /* Stats are a small table: a header row, this season's numbers, then all-time numbers in brass. */
   .pc .stats { position: absolute; left: 2.2em; right: 2.4em; top: 19.4em; display: grid; grid-template-columns: 2.4em repeat(6, 1fr); row-gap: .45em; align-items: baseline; text-align: center; }
@@ -59,7 +59,7 @@
   .pc .stats span, .pc .stats i { font-size: .62em; letter-spacing: .1em; color: #a8a07e; font-style: normal; }
   .pc .stats i { text-align: left; letter-spacing: .14em; }
   .pc .foot { position: absolute; left: 0; right: 0; top: 25.7em; text-align: center; }
-  .pc .foot .tag { display: inline-block; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
+  .pc .foot .tag { display: inline-block; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
   .pc .foot .club { font-size: .66em; letter-spacing: .2em; text-transform: uppercase; color: #a8a07e; margin-top: .55em; }
 
   .feature { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
@@ -111,8 +111,8 @@
     .feature > * { min-width: 0; max-width: 100%; }
     .feature .btns { justify-content: center; }
     .pc.big { font-size: 13px; }
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .grid .pc { font-size: 7.4px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); container-type: inline-size; }
+    .grid .pc { font-size: min(7.4px, calc((50cqi - 8px) / 22)); }
   }
 </style>
 </head>
@@ -223,7 +223,7 @@
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
-        <div class="name"><b>${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
+        <div class="name"><b style="font-size:${(2.5 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="stats">${stats}</div>
         <div class="foot"><span class="tag">${tag}</span><div class="club">Waxys Phantoms · ${esc(season.name)}</div></div>

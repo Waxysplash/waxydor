@@ -126,7 +126,7 @@
   // ---------- hero: live stream, or the countdown to the next one ----------
   const esc2 = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const W2 = lastStream.filter((m) => m.result === "W").length, D2 = lastStream.filter((m) => m.result === "D").length, L2 = lastStream.filter((m) => m.result === "L").length;
-  $("#lastStrip").innerHTML = lastStream.length ? lastStream.map((m) => `<div class="res"><span class="r ${m.result}">${m.result}</span><b>${m.goalsFor}–${m.goalsAgainst}</b><span>${esc2(m.opponent)}</span></div>`).join("")
+  $("#lastStrip").innerHTML = lastStream.length ? lastStream.slice(0, 5).map((m) => `<div class="res"><span class="r ${m.result}">${m.result}</span><b>${m.goalsFor}–${m.goalsAgainst}</b><span>${esc2(m.opponent)}</span></div>`).join("") + (lastStream.length > 5 ? `<a class="res more" href="#tabs" id="moreRes"><b>+${lastStream.length - 5}</b><span>more games</span></a>` : "")
     : `<div class="note">No games yet.</div>`;
   const GF2 = lastStream.reduce((s, m) => s + (+m.goalsFor || 0), 0);
   const scorers = new Map();
@@ -150,7 +150,7 @@
       <h2>${next ? `${next.toLocaleDateString(undefined, { weekday: "long" })} <em>${next.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</em>` : `Pro Clubs <em>with viewers.</em>`}</h2>
       ${next ? `<div class="cd" id="nextCd"></div>` : ""}
       <p class="lede">${next && L.next.title ? esc2(L.next.title) + ". " : ""}Type <b>!join</b> in Twitch chat when the queue opens and you could be on the pitch.</p>
-      ${lastStream.length ? `<div class="hs"><div><b>${lastStream.length}</b><span>games last stream</span></div><div><b>${W2}-${D2}-${L2}</b><span>W-D-L</span></div><div><b>${GF2}</b><span>goals scored</span></div>${topS ? `<div><b>${esc2(topS[0])}</b><span>top scorer · ${topS[1]} goals</span></div>` : ""}</div>` : ""}
+      ${lastStream.length ? `<div class="hs"><div><b>${lastStream.length}</b><span>games last stream</span></div><div><b>${W2}-${D2}-${L2}</b><span>W-D-L</span></div><div><b>${GF2}</b><span>goals scored</span></div>${topS ? `<div class="fitbox"><b style="font-size:min(28px, ${(190 / topS[0].length).toFixed(1)}cqi)">${esc2(topS[0])}</b><span>top scorer · ${topS[1]} goals</span></div>` : ""}</div>` : ""}
       <div class="cta-row"><a class="cta red" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Follow on Twitch ↗</a>${L.broadcasterId ? `<a class="cta" href="https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${L.broadcasterId}">Add streams to calendar</a>` : `<a class="cta" href="https://discord.gg/5Uu3nVP" target="_blank" rel="noopener">Get pinged on Discord ↗</a>`}</div>`;
     if (next) {
       const cdTick = () => {
@@ -164,11 +164,16 @@
 
   // ---------- podium: the top three in the race ----------
   const top3 = rows.filter((r) => r.qualified).slice(0, 3);
-  $("#podium").innerHTML = top3.map((r, i) => `<a class="pod p${i + 1}" href="card.html?p=${encodeURIComponent(r.name)}">
-      <span class="rk">${i + 1}</span>
-      <div class="nm">${esc2(r.name)}${moveTag(r)}</div><div class="ps">${posShort[r.pos] || ""} · ${r.ovr || "–"} OVR · ${r.gp} apps</div>
-      <div class="ix" data-count="${r.index}">${r.index}<small>index</small></div>
-      <div class="ln">${r.g} G · ${r.a} A · ${r.rating.toFixed(1)} avg · ${r.mom} MOTM</div></a>`).join("");
+  // Each of the top three is drawn as a small FC-style card: rank and index top left, crest top right, name, then a stat row.
+  const fit = (n, base, at) => (base * Math.min(1, at / Math.max(at, n.length))).toFixed(2);
+  $("#podium").innerHTML = top3.map((r, i) => `<a class="pod p${i + 1}" href="card.html?p=${encodeURIComponent(r.name)}" aria-label="${esc2(r.name)}, number ${i + 1} in the race">
+      <div class="pin"><img class="pwm" src="brand/crest.png" alt="">
+        <div class="ptop"><div><b class="pix" data-count="${r.index}">${r.index}</b><span>Index</span><em>${posShort[r.pos] || ""}</em></div><img src="brand/crest.png" alt=""></div>
+        <div class="pnm"><b style="font-size:${fit(r.name, 1.7, 12)}em">${esc2(r.name)}</b><span>${esc2(r.pro || "")}${r.ovr ? ` · ${r.ovr} OVR` : ""} ${moveTag(r)}</span></div>
+        <div class="pst"><div><b>${r.gp}</b><span>APP</span></div><div><b>${r.g}</b><span>GLS</span></div><div><b>${r.a}</b><span>AST</span></div><div><b>${r.mom}</b><span>MOTM</span></div><div><b>${r.rating.toFixed(1)}</b><span>RAT</span></div></div>
+        <div class="ptag">#${i + 1} in the Waxy d'Or race</div>
+      </div></a>`).join("");
+  const more = $("#moreRes"); if (more) more.addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="matches"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
   $("#toTable").addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="table"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
 
   // ---------- Road to Glory teaser: the latest episode ----------
