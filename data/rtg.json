@@ -1,0 +1,17 @@
+{
+  "series": "Morocco Road to Glory",
+  "tagline": "A full Moroccan Ultimate Team in EA FC 27, from the first squad to FUT Champs.",
+  "tiktok": "https://www.tiktok.com/@waxysplash",
+  "note": "Edited by hand after each episode. record = the episode's FUT Champs weekend, when it has one. Covers are in brand/rtg/.",
+  "episodes": [
+    { "n": 1, "title": "A full Moroccan team", "line": "How far can we go?", "cover": "brand/rtg/ep1.jpg" },
+    { "n": 2, "title": "Featuring Ounahi", "line": "The first big signing joins the squad.", "cover": "brand/rtg/ep2.jpg" },
+    { "n": 3, "title": "Is Maamma the real deal?", "line": "New signing from Future Stars. Morocco qualify for FUT Champions, and the board aren't happy it took so long.", "cover": "brand/rtg/ep3.jpg" },
+    { "n": 4, "title": "The vet vs the rookie", "line": "One spot in the FUT Champs team: El Kaabi, 33 and three World Cups, or Ben Seghir, 21.", "cover": "brand/rtg/ep4.jpg" },
+    { "n": 5, "title": "Our first FUT Champs", "line": "Champs humbles Morocco. The gaffer quits twice. Can we clinch it on pens?", "record": "6W 9L", "cover": "brand/rtg/ep5.jpg" },
+    { "n": 6, "title": "Bolstering the defence", "line": "After 6W 9L the board want changes. Issa Diop evolves into the new centre back.", "cover": "brand/rtg/ep6.jpg" },
+    { "n": 7, "title": "Better than last week?", "line": "FUT Champs weekend two. Saibari scores 32 and Champion IV is done.", "record": "7W 8L", "cover": "brand/rtg/ep7.jpg" },
+    { "n": 8, "title": "The new boys", "line": "Yassine and Taha audition in Division Rivals, and a follower's pick starts his evolution.", "cover": "brand/rtg/ep8.jpg" },
+    { "n": 9, "title": "The exam", "line": "Rivals was the audition. FUT Champs is the exam.", "record": "6W 9L", "status": "Coming soon" }
+  ]
+}

@@ -23,18 +23,33 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
-      <div>
-        <h1 id="clubName">Waxys Phantoms</h1>
-        <div class="sub">Waxysplash's EA FC Pro Clubs club. <a href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Live on Twitch</a>: type <b>!join</b> and play with us.</div>
+  <!-- Hero: live (stream + join) or offline (countdown to the next stream). Filled by app.js from the live status nav.js fetches. -->
+  <section class="hero">
+    <div class="hero-main">
+      <img class="wm" src="brand/crest.png" alt="">
+      <div class="hero-in" id="heroIn">
+        <span class="kicker">Waxys Phantoms · EA FC Pro Clubs</span>
+        <h1 class="sr-only" id="clubName" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Waxys Phantoms</h1>
+        <h2>Pro Clubs <em>with viewers.</em></h2>
+        <p class="lede">Type <b>!join</b> in Twitch chat and you could be on the pitch tonight.</p>
       </div>
     </div>
-    <div class="record" id="record"></div>
-  </header>
+    <div class="hero-side">
+      <p class="side-h">Get involved</p>
+      <div class="do" id="doList">
+        <a class="hot" href="queue.html"><span class="ic">!</span><span><b>Join the queue</b><span id="doQueue">Type !join in Twitch chat on stream</span></span><span class="go">›</span></a>
+        <a href="card.html"><span class="ic">⇄</span><span><b>Compare two players</b><span>Put any two cards side by side</span></span><span class="go">›</span></a>
+        <a href="clips.html"><span class="ic">▶</span><span><b>Clip of the week</b><span>Watch and vote the best moment</span></span><span class="go">›</span></a>
+        <a href="vote.html"><span class="ic">★</span><span><b>Fan vote</b><span>You pick the Fans' Player of the Season</span></span><span class="go">›</span></a>
+      </div>
+      <p class="side-h">Last stream</p>
+      <div class="strip" id="lastStrip"></div>
+    </div>
+  </section>
 
-  <div class="season" id="seasonBox">
+  <div class="record" id="record" hidden></div>
+
+  <div class="season rv" id="seasonBox">
     <div>
       <h2 id="seasonName">Season</h2>
       <div class="phase" id="seasonPhase"></div>
@@ -43,8 +58,22 @@
   </div>
 
   <a class="queue-banner" id="queueBanner" href="queue.html" hidden></a>
-  <div class="card season-record" id="seasonRecord"></div>
-  <div class="card featured" id="featured" hidden></div>
+  <div class="card season-record rv" id="seasonRecord"></div>
+
+  <div class="sec-head rv"><h2>Race for the Waxy d'Or</h2><a href="#tab-table" id="toTable">Full table ↓</a></div>
+  <div class="podium rv" id="podium"></div>
+
+  <div class="card featured rv" id="featured" hidden style="margin-top:16px"></div>
+
+  <a class="rtg-teaser rv" id="rtgTeaser" href="rtg.html">
+    <img src="brand/rtg/ep8.jpg" alt="Morocco Road to Glory episode cover" loading="lazy" id="rtgImg">
+    <div>
+      <div class="k">The series · on TikTok</div>
+      <h3>Morocco Road to Glory</h3>
+      <p id="rtgLine">A full Moroccan Ultimate Team, from Division Rivals to FUT Champs. Every episode, every record.</p>
+      <span class="go">All episodes →</span>
+    </div>
+  </a>
 
   <nav class="tabs" id="tabs">
     <button data-tab="table" class="active">Table</button>

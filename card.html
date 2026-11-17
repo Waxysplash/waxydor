@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=nav5">
+<link rel="stylesheet" href="styles.css?v=__BUILD__">
 <style>
   /* The card uses the stream fonts from brand/fonts (same origin, so a saved image keeps them). Everything is in em,
      so one card is drawn at any size: .pc.big for the featured card, plain .pc in the squad grid. */
@@ -37,6 +37,7 @@
   .pc .in::before { inset: .7em; background: rgba(155, 154, 106, .75); }
   .pc .in::after { inset: .84em; background: radial-gradient(120% 70% at 30% 0%, #3a3826 0%, #2a2a1e 55%, #1f1e15 100%); }
   .pc .in > * { z-index: 1; }
+  .pc .in { overflow: hidden; }
   .pc .wm { position: absolute; right: -2em; top: 5em; width: 17em; opacity: .045; }
   .pc .top { position: absolute; left: 2.4em; top: 2.6em; text-align: center; }
   .pc .num { font-family: "PC Display", sans-serif; font-weight: 800; font-size: 5.6em; line-height: .85; color: var(--num); }
@@ -49,7 +50,7 @@
   .pc .name { position: absolute; left: 1.6em; right: 1.6em; top: 14.2em; text-align: center; }
   .pc .name b { display: block; font-family: "PC Display", sans-serif; font-weight: 800; font-size: 2.5em; line-height: 1; text-transform: uppercase;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; }
+  .pc .name span { display: block; font-size: .85em; color: #a8a07e; margin-top: .2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .rule { position: absolute; left: 3em; right: 3em; top: 18.7em; height: .12em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
   /* Stats are a small table: a header row, this season's numbers, then all-time numbers in brass. */
   .pc .stats { position: absolute; left: 2.2em; right: 2.4em; top: 19.4em; display: grid; grid-template-columns: 2.4em repeat(6, 1fr); row-gap: .45em; align-items: baseline; text-align: center; }
@@ -58,7 +59,7 @@
   .pc .stats span, .pc .stats i { font-size: .62em; letter-spacing: .1em; color: #a8a07e; font-style: normal; }
   .pc .stats i { text-align: left; letter-spacing: .14em; }
   .pc .foot { position: absolute; left: 0; right: 0; top: 25.7em; text-align: center; }
-  .pc .foot .tag { display: inline-block; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
+  .pc .foot .tag { display: inline-block; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .78em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
   .pc .foot .club { font-size: .66em; letter-spacing: .2em; text-transform: uppercase; color: #a8a07e; margin-top: .55em; }
 
   .feature { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
@@ -67,17 +68,51 @@
   .breakdown { margin-top: 18px; max-width: 420px; }
   .breakdown h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn { font: inherit; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--cream); }
-  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn { font: inherit; font-weight: 700; font-size: 14px; border-radius: 10px; padding: 10px 16px; cursor: pointer; border: 1px solid var(--gold); background: var(--gold); color: var(--olive); }
+  .btn.ghost { background: transparent; color: var(--cream); border-color: var(--line-2); }
+  .btn.ghost:hover { border-color: var(--brass); }
+  .btn.on { background: var(--cream); color: var(--olive); border-color: var(--cream); }
+
+  /* Tilt and shine: the card leans toward the pointer and a foil glint follows it (not on touch, not with reduced motion). */
+  .tilt { perspective: 900px; display: block; }
+  .tilt .pc { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .25s var(--ease); will-change: transform; }
+  .tilt.moving .pc { transition: transform .05s linear; }
+  .pc .shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .25s; mix-blend-mode: soft-light;
+    background: radial-gradient(40% 30% at var(--mx, 50%) var(--my, 30%), rgba(255,240,200,.9), transparent 70%),
+                linear-gradient(115deg, transparent 35%, rgba(217,166,59,.35) 48%, rgba(233,220,187,.5) 50%, rgba(217,166,59,.35) 52%, transparent 65%); background-size: 100% 100%, 250% 250%; background-position: 0 0, var(--sx, 50%) 50%; }
+  .tilt.moving .shine { opacity: 1; }
+  .pc.gold .shine { mix-blend-mode: overlay; }
+
+  /* squad tools: position chips, search, compare */
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 18px; }
+  .chip { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: transparent; color: var(--muted); cursor: pointer; }
+  .chip:hover { color: var(--cream); }
+  .chip.on { background: var(--cream); color: var(--olive); border-color: var(--cream); }
+  .tools input { font: inherit; font-size: 14px; background: var(--panel-2); color: var(--cream); border: 1px solid var(--line-2); border-radius: 999px; padding: 8px 14px; min-width: 0; flex: 1 1 160px; max-width: 260px; }
+  .tools input::placeholder { color: var(--dim); }
+  .tools .sp { flex: 1; }
+  .grid.picking .tilt { cursor: copy; }
+  .grid .tilt.picked .pc { outline: 3px solid var(--gold); outline-offset: 4px; }
+  .grid .tilt.picked::after { content: attr(data-pick); position: absolute; margin: -12px 0 0 -12px; width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: var(--olive); font-weight: 800; display: grid; place-items: center; }
+  .grid .tilt { position: relative; }
+  .cmp { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; }
+  .cmp .vs { font-family: var(--num); font-size: 40px; color: var(--gold); text-align: center; }
+  .cmp table { min-width: 0; }
+  .cmp td, .cmp th { text-align: center; padding: 8px 6px; cursor: default; }
+  .cmp td.k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .cmp td.v { font-family: var(--num); font-size: 24px; color: var(--muted); }
+  .cmp td.v.win { color: var(--gold); }
+  .cmp .who { font-family: var(--display); font-size: 18px; color: var(--cream); }
+  .cmp-empty { color: var(--muted); }
+  @media (max-width: 760px) { .cmp { grid-template-columns: 1fr 1fr; } .cmp .mid { grid-column: 1 / -1; order: 3; } .cmp .pc { font-size: 6.5px; } }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 18px 12px; justify-items: center; }
-  .grid .pc { transition: transform .15s ease; }
-  .grid .pc:hover { transform: translateY(-3px); }
   @media (max-width: 640px) {
-    .feature { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .feature { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+    .feature > * { min-width: 0; max-width: 100%; }
     .feature .btns { justify-content: center; }
     .pc.big { font-size: 13px; }
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .grid .pc { font-size: 7.4px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); container-type: inline-size; }
+    .grid .pc { font-size: min(7.4px, calc((50cqi - 8px) / 22)); }
   }
 </style>
 </head>
@@ -97,7 +132,14 @@
 
   <div class="card">
     <h3 id="squadTitle">The squad</h3>
-    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Under 5 apps you're on trial; 10 apps puts you in the Waxy d'Or race. Gold cards are the current top five. On each card the first line of stats is this season and the brass ALL line is all-time. Tap a card to open it.</p>
+    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Gold cards are the top five in the Waxy d'Or race. Top line of stats is this season, the brass ALL line is all-time. Tap a card to open it, or hit Compare and pick two.</p>
+    <div class="tools" id="tools">
+      <button class="chip on" data-pos="">All</button><button class="chip" data-pos="forward">FWD</button><button class="chip" data-pos="midfielder">MID</button><button class="chip" data-pos="defender">DEF</button><button class="chip" data-pos="goalkeeper">GK</button>
+      <input id="q" type="search" placeholder="Find a player" aria-label="Find a player">
+      <span class="sp"></span>
+      <button class="btn ghost" id="cmpBtn">⇄ Compare</button>
+    </div>
+    <div class="card" id="cmpBox" hidden style="background:var(--panel-2)"></div>
     <div class="grid" id="grid"></div>
   </div>
 </div>
@@ -181,16 +223,86 @@
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
         ${r.gaffer ? `<div class="arm">C</div>` : ""}
-        <div class="name"><b>${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
+        <div class="name"><b style="font-size:${(2.5 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="stats">${stats}</div>
         <div class="foot"><span class="tag">${tag}</span><div class="club">Waxys Phantoms · ${esc(season.name)}</div></div>
+        <i class="shine"></i>
       </div>
     </${tagName}>`;
   }
 
   $("#squadTitle").textContent = `The squad · ${season.name}`;
-  $("#grid").innerHTML = all.map((r) => cardHtml(r, { link: true })).join("");
+  const wrapTilt = (r, html) => `<div class="tilt" data-name="${esc(r.name)}" data-pos="${esc(r.pos || "")}">${html}</div>`;
+  $("#grid").innerHTML = all.map((r) => wrapTilt(r, cardHtml(r, { link: true }))).join("");
+
+  // ---------- filter by position and name ----------
+  let fPos = "", fQ = "";
+  const applyFilter = () => document.querySelectorAll("#grid .tilt").forEach((t) => {
+    t.hidden = (fPos && t.dataset.pos !== fPos) || (fQ && !norm(t.dataset.name).includes(fQ));
+  });
+  $("#tools").addEventListener("click", (e) => {
+    const c = e.target.closest(".chip"); if (!c) return;
+    fPos = c.dataset.pos; document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === c)); applyFilter();
+  });
+  $("#q").addEventListener("input", (e) => { fQ = norm(e.target.value); applyFilter(); });
+
+  // ---------- compare two players ----------
+  let picking = false, picks = [];
+  const byN = (n) => all.find((r) => r.name === n);
+  function renderCompare() {
+    const box = $("#cmpBox");
+    document.querySelectorAll("#grid .tilt").forEach((t) => { const i = picks.indexOf(t.dataset.name); t.classList.toggle("picked", i >= 0); if (i >= 0) t.dataset.pick = i + 1; });
+    if (!picking && picks.length < 2) { box.hidden = true; return; }
+    box.hidden = false;
+    if (picks.length < 2) { box.innerHTML = `<div class="cmp-empty">Tap ${picks.length ? "one more card" : "two cards"} to compare.</div>`; return; }
+    const [a, b] = picks.map(byN);
+    const rowsC = [["Waxy index", (r) => r.index ?? null], ["Apps", (r) => r.gp], ["Goals", (r) => r.g], ["Assists", (r) => r.a], ["Avg rating", (r) => r.gp ? +r.rating.toFixed(1) : null],
+      ["MOTM", (r) => r.mom], ["Pass %", (r) => r.gp ? r.passPct : null], ["Win %", (r) => r.gp ? r.winPct : null], ["Goals + assists per game", (r) => r.gp ? +((r.g + r.a) / r.gp).toFixed(2) : null]];
+    box.innerHTML = `<div class="cmp"><div class="tilt">${cardHtml(a)}</div>
+      <div class="mid"><table><thead><tr><th class="who">${esc(a.name)}</th><th></th><th class="who">${esc(b.name)}</th></tr></thead><tbody>
+      ${rowsC.map(([k, f]) => { const x = f(a), y = f(b); const wa = x != null && (y == null || x > y), wb = y != null && (x == null || y > x);
+        return `<tr><td class="v${wa ? " win" : ""}">${x ?? "–"}</td><td class="k">${k}</td><td class="v${wb ? " win" : ""}">${y ?? "–"}</td></tr>`; }).join("")}
+      </tbody></table><div class="btns" style="justify-content:center;margin-top:10px"><button class="btn ghost" id="cmpLink">Copy link</button><button class="btn ghost" id="cmpReset">Pick again</button></div></div>
+      <div class="tilt">${cardHtml(b)}</div></div>`;
+    history.replaceState(null, "", `?vs=${encodeURIComponent(a.name)},${encodeURIComponent(b.name)}`);
+    $("#cmpReset").onclick = () => { picks = []; picking = true; $("#cmpBtn").classList.add("on"); $("#grid").classList.add("picking"); history.replaceState(null, "", location.pathname); renderCompare(); };
+    $("#cmpLink").onclick = async (e) => { try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Copied"; } catch (err) {} };
+    bindTilt(box); box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  $("#cmpBtn").onclick = () => {
+    picking = !picking; $("#cmpBtn").classList.toggle("on", picking); $("#grid").classList.toggle("picking", picking);
+    if (picking) picks = []; renderCompare();
+  };
+  $("#grid").addEventListener("click", (e) => {
+    if (!picking) return;
+    const t = e.target.closest(".tilt"); if (!t) return;
+    e.preventDefault();
+    const n = t.dataset.name, i = picks.indexOf(n);
+    if (i >= 0) picks.splice(i, 1); else picks.push(n);
+    if (picks.length >= 2) { picks = picks.slice(-2); picking = false; $("#cmpBtn").classList.remove("on"); $("#grid").classList.remove("picking"); }
+    renderCompare();
+  });
+  const vs = new URLSearchParams(location.search).get("vs");
+  if (vs) { const [x, y] = vs.split(",").map((s) => find(decodeURIComponent(s))); if (x && y) { picks = [x.name, y.name]; renderCompare(); } }
+
+  // ---------- tilt + shine (mouse and pen only) ----------
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function bindTilt(root) {
+    if (still) return;
+    root.querySelectorAll(".tilt").forEach((t) => {
+      if (t.dataset.bound) return; t.dataset.bound = 1;
+      t.addEventListener("pointermove", (e) => {
+        if (e.pointerType === "touch") return;
+        const b = t.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
+        t.classList.add("moving");
+        t.style.setProperty("--ry", ((x - .5) * 16).toFixed(2) + "deg"); t.style.setProperty("--rx", ((.5 - y) * 12).toFixed(2) + "deg");
+        t.style.setProperty("--mx", (x * 100).toFixed(1) + "%"); t.style.setProperty("--my", (y * 100).toFixed(1) + "%"); t.style.setProperty("--sx", (x * 100).toFixed(1) + "%");
+      });
+      t.addEventListener("pointerleave", () => { t.classList.remove("moving"); t.style.setProperty("--rx", "0deg"); t.style.setProperty("--ry", "0deg"); });
+    });
+  }
+  bindTilt(document);
 
   const p = new URLSearchParams(location.search).get("p");
   if (p) {
@@ -199,7 +311,7 @@
     document.title = `${r.name} · Phantoms Player Cards`;
     const f = $("#featured");
     f.hidden = false;
-    f.innerHTML = `<div class="feature">${cardHtml(r, { big: true })}
+    f.innerHTML = `<div class="feature"><div class="tilt">${cardHtml(r, { big: true })}</div>
       <div class="side">
         <h2>${esc(r.name)}</h2>
         <p>${known
@@ -210,6 +322,7 @@
         ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.FACTORS.map(([k, label]) =>
           `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / W[k]}%"></s></i><b>${r.parts[k]}/${W[k]}</b></div>`).join("")}</div></div>` : ""}
       </div></div>`;
+    bindTilt(f);
     $("#copy").onclick = async (e) => {
       try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Copied"; } catch (err) { e.target.textContent = "Copy failed"; }
     };
@@ -233,6 +346,6 @@
   }
 })();
 </script>
-<script src="nav.js?v=nav5"></script>
+<script src="nav.js?v=__BUILD__"></script>
 </body>
 </html>

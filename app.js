@@ -106,6 +106,95 @@
   openTab(location.hash.slice(1)) || openTab(saved);
   addEventListener("hashchange", () => openTab(location.hash.slice(1) || "table"));
 
+  // ---------- the last stream, and how the race moved because of it ----------
+  // A stream is a run of matches with no gap over 3 hours. Ranking again without them gives "before the last stream".
+  const byTime = [...S.matches].sort((a, b) => b.timestamp - a.timestamp);
+  const lastStream = [];
+  for (const m of byTime) { if (lastStream.length && lastStream.at(-1).timestamp - m.timestamp > 3 * 3600) break; lastStream.push(m); }
+  const streamStart = lastStream.length ? lastStream.at(-1).timestamp : Infinity;
+  const qualifiedRank = (list) => new Map(list.filter((r) => r.qualified).map((r, i) => [r.name, i + 1]));
+  const nowRank = qualifiedRank(rows);
+  let prevRank = new Map();
+  try { prevRank = qualifiedRank(WaxyRanking.rank({ config, members, matches: S.matches.filter((m) => m.timestamp < streamStart), snapshot, season }).rows); } catch (e) {}
+  const moveTag = (r) => {
+    if (!r.qualified || !prevRank.size) return "";
+    const a = nowRank.get(r.name), b = prevRank.get(r.name);
+    if (!b) return `<span class="mv nw" title="New in the race since the last stream">NEW</span>`;
+    return a < b ? `<span class="mv up" title="Up ${b - a} since the last stream">▲${b - a}</span>` : a > b ? `<span class="mv dn" title="Down ${a - b} since the last stream">▼${a - b}</span>` : "";
+  };
+
+  // ---------- hero: live stream, or the countdown to the next one ----------
+  const esc2 = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const W2 = lastStream.filter((m) => m.result === "W").length, D2 = lastStream.filter((m) => m.result === "D").length, L2 = lastStream.filter((m) => m.result === "L").length;
+  $("#lastStrip").innerHTML = lastStream.length ? lastStream.slice(0, 5).map((m) => `<div class="res"><span class="r ${m.result}">${m.result}</span><b>${m.goalsFor}–${m.goalsAgainst}</b><span>${esc2(m.opponent)}</span></div>`).join("") + (lastStream.length > 5 ? `<a class="res more" href="#tabs" id="moreRes"><b>+${lastStream.length - 5}</b><span>more games</span></a>` : "")
+    : `<div class="note">No games yet.</div>`;
+  const GF2 = lastStream.reduce((s, m) => s + (+m.goalsFor || 0), 0);
+  const scorers = new Map();
+  for (const m of lastStream) for (const p of m.players) if (+p.goals) scorers.set(p.name, (scorers.get(p.name) || 0) + +p.goals);
+  const topS = [...scorers].sort((a, b) => b[1] - a[1])[0];
+  (window.WAXY_LIVE || Promise.resolve({})).then((L) => {
+    const q = L.queue;
+    if (q) $("#doQueue").textContent = q.open ? `Open now · ${q.waiting.length} waiting · ${q.playing.length} playing` : "Opens when the stream starts. Type !join in chat";
+    const hero = $("#heroIn");
+    const lastLine = lastStream.length ? `Last stream: <b>${W2}W ${D2}D ${L2}L</b> in ${lastStream.length} games, ${new Date(lastStream[0].timestamp * 1000).toLocaleDateString(undefined, { weekday: "long" })}.` : "";
+    if (L.live) {
+      const mins = L.startedAt ? Math.round((Date.now() - new Date(L.startedAt)) / 6e4) : null;
+      hero.innerHTML = `<span class="kicker live"><i></i>Live now${L.viewers ? ` · ${L.viewers} watching` : ""}${mins != null ? ` · ${mins >= 60 ? Math.floor(mins / 60) + "h " : ""}${mins % 60}m` : ""}</span>
+        <h2>${esc2(L.title || "Waxysplash is live")}</h2>
+        <div class="player-box"><iframe src="https://player.twitch.tv/?channel=waxysplash&parent=${location.hostname}&muted=true" allowfullscreen title="Waxysplash live on Twitch"></iframe></div>
+        <div class="cta-row"><a class="cta gold" href="queue.html">Join the queue${q && q.open ? ` <small>${q.waiting.length} waiting</small>` : ""}</a><a class="cta" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a></div>`;
+      return;
+    }
+    const next = L.next && new Date(L.next.start);
+    hero.innerHTML = `<span class="kicker">${next ? "Next stream" : "Offline right now"}</span>
+      <h2>${next ? `${next.toLocaleDateString(undefined, { weekday: "long" })} <em>${next.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</em>` : `Pro Clubs <em>with viewers.</em>`}</h2>
+      ${next ? `<div class="cd" id="nextCd"></div>` : ""}
+      <p class="lede">${next && L.next.title ? esc2(L.next.title) + ". " : ""}Type <b>!join</b> in Twitch chat when the queue opens and you could be on the pitch.</p>
+      ${lastStream.length ? `<div class="hs"><div><b>${lastStream.length}</b><span>games last stream</span></div><div><b>${W2}-${D2}-${L2}</b><span>W-D-L</span></div><div><b>${GF2}</b><span>goals scored</span></div>${topS ? `<div class="fitbox"><b style="font-size:min(28px, ${(190 / topS[0].length).toFixed(1)}cqi)">${esc2(topS[0])}</b><span>top scorer · ${topS[1]} goals</span></div>` : ""}</div>` : ""}
+      <div class="cta-row"><a class="cta red" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Follow on Twitch ↗</a>${L.broadcasterId ? `<a class="cta" href="https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${L.broadcasterId}">Add streams to calendar</a>` : `<a class="cta" href="https://discord.gg/5Uu3nVP" target="_blank" rel="noopener">Get pinged on Discord ↗</a>`}</div>`;
+    if (next) {
+      const cdTick = () => {
+        const ms = Math.max(0, next - new Date());
+        const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, mi = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1000) % 60;
+        $("#nextCd").innerHTML = [[d, "days"], [h, "hrs"], [mi, "min"], [s, "sec"]].map(([v, l]) => `<div><b>${String(v).padStart(2, "0")}</b><span>${l}</span></div>`).join("");
+      };
+      cdTick(); setInterval(cdTick, 1000);
+    }
+  });
+
+  // ---------- podium: the top three in the race ----------
+  const top3 = rows.filter((r) => r.qualified).slice(0, 3);
+  // Each of the top three is drawn as a small FC-style card: rank and index top left, crest top right, name, then a stat row.
+  const fit = (n, base, at) => (base * Math.min(1, at / Math.max(at, n.length))).toFixed(2);
+  $("#podium").innerHTML = top3.map((r, i) => `<a class="pod p${i + 1}" href="card.html?p=${encodeURIComponent(r.name)}" aria-label="${esc2(r.name)}, number ${i + 1} in the race">
+      <div class="pin"><img class="pwm" src="brand/crest.png" alt="">
+        <div class="ptop"><div><b class="pix" data-count="${r.index}">${r.index}</b><span>Index</span><em>${posShort[r.pos] || ""}</em></div><img src="brand/crest.png" alt=""></div>
+        <div class="pnm"><b style="font-size:${fit(r.name, 1.7, 12)}em">${esc2(r.name)}</b><span>${esc2(r.pro || "")}${r.ovr ? ` · ${r.ovr} OVR` : ""} ${moveTag(r)}</span></div>
+        <div class="pst"><div><b>${r.gp}</b><span>APP</span></div><div><b>${r.g}</b><span>GLS</span></div><div><b>${r.a}</b><span>AST</span></div><div><b>${r.mom}</b><span>MOTM</span></div><div><b>${r.rating.toFixed(1)}</b><span>RAT</span></div></div>
+        <div class="ptag">#${i + 1} in the Waxy d'Or race</div>
+      </div></a>`).join("");
+  const more = $("#moreRes"); if (more) more.addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="matches"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
+  $("#toTable").addEventListener("click", (e) => { e.preventDefault(); document.querySelector('#tabs [data-tab="table"]').click(); $("#tabs").scrollIntoView({ behavior: "smooth" }); });
+
+  // ---------- Road to Glory teaser: the latest episode ----------
+  load("rtg.json").then((rtg) => {
+    const eps = (rtg.episodes || []).filter((e) => e.cover);
+    const ep = eps.at(-1); if (!ep) return;
+    $("#rtgImg").src = ep.cover;
+    $("#rtgLine").innerHTML = `Latest: <b>Episode ${ep.n}, ${esc2(ep.title)}</b>. ${esc2(ep.line || "")}`;
+  }).catch(() => {});
+
+  // numbers count up the first time they scroll into view
+  const countUp = (el) => {
+    const raw = (el.childNodes[0]?.nodeValue || "").trim(); if (!/^\d+(\.\d+)?$/.test(raw)) return;
+    const to = parseFloat(raw);
+    const dec = (raw.split(".")[1] || "").length, t0 = performance.now(), dur = 900;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur), v = to * (1 - Math.pow(1 - k, 3)); el.childNodes[0].nodeValue = v.toFixed(dec); if (k < 1) requestAnimationFrame(step); };
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(step);
+  };
+  const cio = "IntersectionObserver" in window && new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } }));
+  if (cio) document.querySelectorAll(".pod .ix, .sr-grid b").forEach((el) => cio.observe(el));
+
   // ---------- table ----------
   const cols = [
     ["#", null], ["Player", "name"], ["Pos", "pos"], ["Apps", "gp"], ["G", "g"], ["A", "a"], ["Rating", "rating"], ["MOTM", "mom"],
@@ -128,7 +217,7 @@
       <div class="bd-st">${status}${r.index != null ? ` · index ${r.index}` : ` · index shown from ${C.compareMinGames} apps`}</div>`;
   };
   const rowHtml = (r, i) => `<tr class="${r.qualified || r.gaffer || r.legend ? "" : "unq"} rank-${i} prow">
-        <td>${i}</td><td class="name">${r.name}<small>${r.pro || ""} · ${r.ovr || ""} OVR</small></td><td>${posShort[r.pos] || ""}</td>
+        <td>${i}</td><td class="name">${r.name}${typeof i === "number" && sortKey === "index" && sortDir < 0 ? moveTag(r) : ""}<small>${r.pro || ""} · ${r.ovr || ""} OVR</small></td><td>${posShort[r.pos] || ""}</td>
         <td>${r.gp}</td><td>${r.g}</td><td>${r.a}</td><td>${r.rating.toFixed(1)}</td><td>${r.mom}</td>
         <td>${r.winPct}%</td><td>${r.passPct}%</td><td>${r.passes}</td><td>${r.shotPct}%</td><td>${r.tacklePct}%</td><td>${r.tackles}</td>
         <td>${fmt1(r.ppg)}</td><td><span class="form">${r.form.map((f) => `<i class="${f}">${f}</i>`).join("") || "–"}</span></td>
@@ -229,7 +318,7 @@
   const resColor = { W: "var(--win)", L: "var(--loss)", D: "var(--draw)" };
   $("#matches").innerHTML = seasonMatches.length ? seasonMatches.map((m, i) => `
     <div class="match" data-i="${i}">
-      <div class="res" style="background:${resColor[m.result]}">${m.result}</div>
+      <div class="res ${m.result}">${m.result === "W" ? "WON" : m.result === "L" ? "LOST" : "DRAW"}</div>
       <div><div class="opp">vs ${m.opponent}</div><div class="meta">${bigBy.has(String(m.matchId)) || (C.playoffsAreBigGames && m.matchType === "playoffMatch") ? `<span class="big">★ Big game${bigBy.get(String(m.matchId)) ? " · " + bigBy.get(String(m.matchId)) : m.matchType === "playoffMatch" ? " · Playoff" : ""}</span> ` : ""}${new Date(m.date).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} · ${m.matchType === "playoffMatch" ? "Playoff" : "League"}</div></div>
       <div class="score">${m.goalsFor}–${m.goalsAgainst}</div>
     </div>
