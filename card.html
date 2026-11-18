@@ -237,7 +237,6 @@
         ${ph ? `<img class="pimg" src="${ph}" alt="" loading="lazy" crossorigin="anonymous">` : ""}
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
-        ${r.gaffer ? `<div class="arm">C</div>` : ""}
         <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="stats">${stats}</div>
