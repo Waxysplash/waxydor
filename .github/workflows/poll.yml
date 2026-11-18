@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency: poll
 jobs:
   poll:
@@ -20,6 +21,13 @@ jobs:
           git config user.name "Waxysplash"
           git config user.email "259485011+Waxysplash@users.noreply.github.com"
           git add data
-          if git diff --cached --quiet; then echo "no change"; else git commit -m "data: poll $(date -u +%Y-%m-%dT%H:%MZ)" && git push; fi
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          # A push made with the workflow token doesn't start the Pages deploy, so start it here, but only when
+          # something besides the fetch timestamps changed (a new match, new stats).
+          real=$(git diff --cached -U0 data | grep '^[+-] ' | grep -vE '"(fetchedAt|updatedAt|takenAt)":' || true)
+          git commit -m "data: poll $(date -u +%Y-%m-%dT%H:%MZ)" && git push
+          if [ -n "$real" ]; then gh workflow run pages.yml --ref main; else echo "timestamps only, no deploy"; fi
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Post new results in Twitch chat (only while live)
         run: curl -s -m 30 -X POST https://waxydor-vote-api.vercel.app/api/bot/announce || true
