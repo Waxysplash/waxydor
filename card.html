@@ -60,12 +60,12 @@
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .name span { display: block; font-size: .72em; color: #a8a07e; margin-top: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .rule { position: absolute; left: 4em; right: 4em; top: 18.2em; height: .1em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
-  /* Stats are a small table: a header row, this season's numbers (NOW), then all-time numbers in brass (ALL). */
-  .pc .stats { position: absolute; left: 3em; right: 3.2em; top: 18.9em; display: grid; grid-template-columns: 2.6em repeat(6, minmax(0, 1fr)); row-gap: .4em; align-items: baseline; text-align: center; }
+  /* Stats are a small table: a header row, all-time numbers in brass, then this season's numbers. */
+  .pc .stats { position: absolute; left: 3em; right: 3.2em; top: 18.9em; display: grid; grid-template-columns: 2.8em repeat(6, minmax(0, 1fr)); row-gap: .35em; align-items: baseline; text-align: center; }
   .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.35em; line-height: 1; }
   .pc .stats b.all { color: #b9985a; }
   .pc .stats span, .pc .stats i { font-size: .55em; letter-spacing: .08em; color: #a8a07e; font-style: normal; }
-  .pc .stats i { text-align: left; letter-spacing: .12em; }
+  .pc .stats i { text-align: left; letter-spacing: .1em; font-size: .46em; line-height: 1.1; align-self: center; }
   .pc .foot { position: absolute; left: 0; right: 0; top: 24.6em; text-align: center; }
   .pc .foot .tag { display: inline-block; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .58em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
 
@@ -139,7 +139,7 @@
 
   <div class="card">
     <h3 id="squadTitle">The squad</h3>
-    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Gold cards are the top five in the Waxy d'Or race. NOW is this season, the brass ALL line is all-time. Tap a card to open it, or hit Compare and pick two.</p>
+    <p class="note">The big number is each player's Pro overall (OVR) from EA FC. Gold cards are the top five in the Waxy d'Or race. The brass line is all-time, the line under it is this season. Tap a card to open it, or hit Compare and pick two.</p>
     <div class="tools" id="tools">
       <button class="chip on" data-pos="">All</button><button class="chip" data-pos="forward">FWD</button><button class="chip" data-pos="midfielder">MID</button><button class="chip" data-pos="defender">DEF</button><button class="chip" data-pos="goalkeeper">GK</button>
       <input id="q" type="search" placeholder="Find a player" aria-label="Find a player">
@@ -227,8 +227,8 @@
     // No apps this season: dashes instead of 0% and a 0.0 rating.
     const now = cols(r).map(([k, v], i) => [k, r.gp || !i ? v : "–"]), ever = cols(career(r.name));
     const stats = `<span></span>${now.map(([k]) => `<span>${k}</span>`).join("")}
-      <i>NOW</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}
-      <i>ALL</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}`;
+      <i>ALL<br>TIME</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}
+      <i>${/^season\s+/i.test(season.name) ? "SEASON<br>" + esc(season.name.replace(/^season\s+/i, "")) : esc(season.name)}</i>${now.map(([, v]) => `<b>${v}</b>`).join("")}`;
     const tagName = opts.link ? "a" : "div";
     const ph = photoUrl(r.name);
     return `<${tagName} class="pc${ph ? " has-ph" : ""}${opts.big ? " big" : ""}${gold ? " gold" : ""}${r.gaffer ? " gaffer" : ""}"${opts.link ? ` href="?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(r.name)} player card">
