@@ -333,7 +333,7 @@
           : r.resting ? `No appearances yet in ${esc(season.name)}. The ALL line is every game for Waxys Phantoms since Season 1.`
           : `Welcome to Waxys Phantoms. Your stats show up here after your first match. If your EA name is different from your Twitch name, ask the captain to link them.`}</p>
         <div class="btns"><button class="btn" id="save">Save image</button><button class="btn ghost" id="copy">Copy link</button><a class="btn ghost" href="photo.html?p=${encodeURIComponent(r.name)}">${photoUrl(r.name) ? "Change photo" : "Add your photo"}</a></div>
-        ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.FACTORS.map(([k, label]) =>
+        ${known && r.parts ? `<div class="breakdown"><h4>Where the Waxy index ${r.index != null ? `of ${r.index} ` : ""}comes from</h4><div class="bars">${WaxyRanking.factorsFor(config, season).map(([k, label]) =>
           `<div class="bar"><span>${label.replace(" per game", "")}</span><i><s style="width:${100 * r.parts[k] / W[k]}%"></s></i><b>${r.parts[k]}/${W[k]}</b></div>`).join("")}</div></div>` : ""}
       </div></div>`;
     bindTilt(f);

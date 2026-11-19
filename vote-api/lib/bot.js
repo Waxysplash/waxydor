@@ -247,7 +247,7 @@ export async function loadData() {
 // ---------- commands ----------
 const norm = (s) => String(s || "").toLowerCase().replace(/^ttv[\s_-]*/, "").replace(/[^a-z0-9]/g, "");
 const pos = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "GK" };
-const LABEL = { contribution: "contribution", appearances: "appearances", rating: "rating", passAccuracy: "pass accuracy", winRate: "win rate", motm: "MOTM", accuracy: "accuracy" };
+const LABEL = { contribution: "contribution", appearances: "appearances", rating: "rating", passAccuracy: "pass accuracy", winRate: "win rate", motm: "MOTM", accuracy: "accuracy", pointsEarned: "points earned" };
 
 function findPlayer(d, query) {
   const all = [...d.R.rows, ...(d.R.legends || []), ...(d.R.gaffer ? [d.R.gaffer] : [])];
@@ -259,13 +259,13 @@ function findPlayer(d, query) {
 function playerLine(d, r) {
   if (r.legend) return `${r.name} (club legend, not in the race): ${r.gp} apps · ${r.g}G ${r.a}A · rating ${r.rating.toFixed(1)}`;
   if (r.gaffer) return `${r.name} (the gaffer, not in the race): ${r.gp} apps · ${r.g}G ${r.a}A · rating ${r.rating.toFixed(1)}`;
-  const C = d.config.index;
+  const C = d.config.index, W = (d.season && d.season.weights) || C.weights;
   const rank = d.R.ranked.indexOf(r);
   const head = r.qualified ? `#${rank + 1} · index ${r.index}` : r.index != null ? `provisional ${r.index} (needs ${C.minGames - r.gp} more app${C.minGames - r.gp === 1 ? "" : "s"})` : `needs ${C.minGames - r.gp} more apps for an index`;
   let weak = "";
   if (r.index != null) {
-    const [k] = Object.entries(r.parts).map(([k, v]) => [k, v / C.weights[k]]).sort((a, b) => a[1] - b[1])[0];
-    weak = ` · weakest: ${LABEL[k]} ${r.parts[k]}/${C.weights[k]}`;
+    const [k] = Object.entries(r.parts).map(([k, v]) => [k, v / W[k]]).sort((a, b) => a[1] - b[1])[0];
+    weak = ` · weakest: ${LABEL[k]} ${r.parts[k]}/${W[k]}`;
   }
   return `${r.name} (${pos[r.pos] || r.pos}) ${head} · ${r.gp} apps · ${r.g}G ${r.a}A · rating ${r.rating.toFixed(1)} · pass ${r.passPct}%${weak}`;
 }

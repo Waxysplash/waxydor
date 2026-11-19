@@ -11,6 +11,9 @@
     ["winRate", "Win rate", "Winning when on the pitch"],
     ["motm", "Man of the match per game", "Being the best player on the pitch"],
     ["accuracy", "Shot and tackle accuracy", "Finishing chances and winning tackles cleanly"],
+    // Season 3 onwards (weight 0 before that): league points the team took while you were on the pitch, 3 a win and 1 a draw,
+    // as a running total, so turning up and winning both count and sitting out stops the climb.
+    ["pointsEarned", "Points earned on the pitch", "3 for a win and 1 for a draw in every game you play"],
   ];
   const BREAKDOWN = ["goals", "assists", "cleanSheets", "saves", "tackles", "passes", "missedShots", "bigMisses", "penSaves", "penMisses", "streamMotm", "hatTricks", "conceded", "bigGames"];
 
@@ -117,7 +120,7 @@
       const passes = d("passesMade"), tackles = d("tacklesMade"), reds = d("redCards");
       const csEA = d("cleanSheetsDef") + d("cleanSheetsGK");
       const posCount = {};
-      const L = { g: 0, a: 0, tk: 0, pm: 0, sh: 0, csDefGk: 0, wins: 0, rating: 0, pa: 0, ta: 0, sv: 0, gc: 0 };
+      const L = { g: 0, a: 0, tk: 0, pm: 0, sh: 0, csDefGk: 0, wins: 0, draws: 0, rating: 0, pa: 0, ta: 0, sv: 0, gc: 0 };
       const br = Object.fromEntries(BREAKDOWN.map((k) => [k, 0]));
       const exp = { pts: 0, mom: 0, rating: 0 };
       for (const { p, x } of lines) {
@@ -125,7 +128,7 @@
         posCount[pos] = (posCount[pos] || 0) + 1;
         if (cs && (pos === "defender" || pos === "goalkeeper")) L.csDefGk++;
         L.g += n(p.goals); L.a += n(p.assists); L.tk += n(p.tacklesMade); L.pm += n(p.passesMade); L.sh += n(p.shots);
-        L.wins += x.result === "W" ? 1 : 0; L.rating += n(p.rating); L.pa += n(p.passAttempts); L.ta += n(p.tackleAttempts);
+        L.wins += x.result === "W" ? 1 : 0; L.draws += x.result === "D" ? 1 : 0; L.rating += n(p.rating); L.pa += n(p.passAttempts); L.ta += n(p.tackleAttempts);
         if (pos === "goalkeeper") { L.sv += n(p.saves); L.gc += n(p.goalsConceded); }
         for (const k in got) br[k] += got[k];
         // The extra is shown on its own line so the breakdown says exactly what the big game added.
@@ -176,7 +179,7 @@
       const form = seasonMatches.filter((x) => x.players.some((p) => p.name === m.name)).slice(0, 5).map((x) => x.result);
       return {
         name: m.name, pro: m.proName, pos, ovr: n(m.proOverall), gp, g, a, ga: g + a, mom, passes, tackles, reds,
-        shots: totalShots, rating, shotPct, passPct, tacklePct, winPct, form, breakdown: br, savePct: L.sv + L.gc ? Math.round(100 * L.sv / (L.sv + L.gc)) : null,
+        shots: totalShots, rating, shotPct, passPct, tacklePct, winPct, leaguePts: 3 * L.wins + L.draws, form, breakdown: br, savePct: L.sv + L.gc ? Math.round(100 * L.sv / (L.sv + L.gc)) : null,
         points: Math.round(contribution * 10) / 10, ppg: gp ? contribution / gp : 0, cmp, vsPos,
         gaffer: m.name.toLowerCase() === gname,
         legend: m.name.toLowerCase() !== gname && legendNames.has(m.name.toLowerCase()),
@@ -192,7 +195,7 @@
     const max = (f) => Math.max(...pool.map(f), 0.01);
     const best = {
       gp: max((r) => r.gp), ppg: max((r) => r.cmp.ppg), rating: max((r) => r.cmp.rating), pass: max((r) => r.passPct),
-      win: max((r) => r.winPct), mom: max((r) => r.cmp.mom), shot: max((r) => r.shotPct), tackle: max((r) => r.tacklePct),
+      win: max((r) => r.winPct), leaguePts: max((r) => r.leaguePts), mom: max((r) => r.cmp.mom), shot: max((r) => r.shotPct), tackle: max((r) => r.tacklePct),
     };
     // A season can keep its own weights (season.weights), so a finished season isn't rescored when the rules change.
     const W = season.weights || C.weights;
@@ -207,17 +210,19 @@
         // A season can set the volume per position (season.passVolume), since defenders and keepers pass less by the nature of the job.
         passAccuracy: between(r.passPct, C.passFloor, best.pass) * clamp((r.passes / r.gp) / (season.passVolume ? season.passVolume[r.pos] : r.pos === "goalkeeper" ? C.passVolumeFullKeeper : C.passVolumeFull)),
         winRate: clamp(r.winPct / best.win),
+        pointsEarned: clamp(r.leaguePts / best.leaguePts),
         motm: clamp(r.cmp.mom / best.mom),
         // Keepers don't shoot or tackle, so in a season with keeperSaves their accuracy is save percentage instead.
         accuracy: season.keeperSaves && r.pos === "goalkeeper" && r.savePct != null
           ? between(r.savePct, season.keeperSaves.floor, season.keeperSaves.full)
           : (clamp(r.shotPct / best.shot) + clamp(r.tacklePct / best.tackle)) / 2,
       };
-      r.parts = Object.fromEntries(FACTORS.map(([k]) => [k, Math.round(W[k] * share[k] * 10) / 10]));
+      // Only the factors this season weighs (weight above 0) make up the index.
+      r.parts = Object.fromEntries(FACTORS.filter(([k]) => W[k] > 0).map(([k]) => [k, Math.round(W[k] * share[k] * 10) / 10]));
       r.penalty = r.reds * C.redCardPenalty;
       r.qualified = r.gp >= C.minGames;
       // Below compareMinGames there is too little to go on, so no index is shown at all.
-      r.index = r.gp >= C.compareMinGames ? Math.max(0, Math.round(FACTORS.reduce((t, [k]) => t + W[k] * share[k], 0) - r.penalty)) : null;
+      r.index = r.gp >= C.compareMinGames ? Math.max(0, Math.round(FACTORS.reduce((t, [k]) => t + (W[k] || 0) * share[k], 0) - r.penalty)) : null;
     }
     // Ties: index, then appearances, then contribution points. Players short of the minimum sit below, provisional.
     const order = (x, y) => ((y.index ?? -1) - (x.index ?? -1)) || (y.gp - x.gp) || (y.points - x.points);
@@ -231,7 +236,11 @@
     return (config.bigGameWindows || []).find((w) => t >= new Date(w.from).getTime() && t <= new Date(w.to).getTime()) || null;
   }
 
-  const api = { rank, FACTORS, BREAKDOWN, POSITIONS, inSeason, bigWindow };
+  // The weights a season is scored with, and the factors that count in it (weight above 0).
+  const weightsFor = (config, season) => (season && season.weights) || config.index.weights;
+  const factorsFor = (config, season) => { const W = weightsFor(config, season); return FACTORS.filter(([k]) => W[k] > 0); };
+
+  const api = { rank, FACTORS, BREAKDOWN, POSITIONS, inSeason, bigWindow, weightsFor, factorsFor };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.WaxyRanking = api;
 })(typeof window !== "undefined" ? window : globalThis);

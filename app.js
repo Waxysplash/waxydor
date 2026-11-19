@@ -23,6 +23,8 @@
   const legends = R.legends || [];
   S.rows = rows;
   const C = config.index;
+  // This season's weights and the factors that count in it (a factor with weight 0 isn't shown).
+  const SW = WaxyRanking.weightsFor(config, season), SF = WaxyRanking.factorsFor(config, season);
   const posShort = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "GK" };
   const fmt1 = (v) => (Math.round(v * 10) / 10).toString();
 
@@ -214,7 +216,7 @@
   const idxCell = (r) => r.index == null ? `<span class="idx" style="opacity:.5">–</span>`
     : `<span class="idx${r.qualified || r.gaffer || r.legend ? "" : " prov"}" title="${r.qualified || r.gaffer || r.legend ? "" : "Provisional: needs " + C.minGames + " apps"}">${r.index}</span>`;
   const breakdownHtml = (r) => {
-    const parts = WaxyRanking.FACTORS.map(([k, label]) => `<span><b>${fmt1(r.parts[k])}</b>/${C.weights[k]} ${label}</span>`).join("");
+    const parts = SF.map(([k, label]) => `<span><b>${fmt1(r.parts[k])}</b>/${SW[k]} ${label}</span>`).join("");
     const b = r.breakdown, lbl = { goals: "goals", assists: "assists", cleanSheets: "clean sheets", saves: "saves", tackles: "tackles", passes: "passes", missedShots: "missed shots", bigMisses: "big misses", penSaves: "penalty saves", penMisses: "missed penalties", streamMotm: "Man of the Stream", hatTricks: "hat-tricks", conceded: "goals conceded", bigGames: "big-game bonus" };
     const pts = WaxyRanking.BREAKDOWN.filter((k) => b[k]).map((k) => `${b[k] > 0 ? "+" : ""}${fmt1(b[k])} ${lbl[k]}`).join(" · ");
     const left = C.minGames - r.gp;
@@ -255,7 +257,7 @@
     const tr = e.target.closest("tr.prow"); if (!tr) return;
     const bd = tr.nextElementSibling; bd.hidden = !bd.hidden; tr.classList.toggle("open", !bd.hidden);
   });
-  $("#tableNote").innerHTML = `Ranked by the Waxy index: ${WaxyRanking.FACTORS.map(([k, label]) => `${label.toLowerCase()} ${C.weights[k]}`).join(", ")}. ${C.minGames} apps to qualify. <b>Tap a player</b> to see exactly where their index comes from, or read <a href="#" data-goto="rules">how it works</a>. Updated ${new Date(members.fetchedAt).toLocaleString()}.`;
+  $("#tableNote").innerHTML = `Ranked by the Waxy index: ${SF.map(([k, label]) => `${label.toLowerCase()} ${SW[k]}`).join(", ")}. ${C.minGames} apps to qualify. <b>Tap a player</b> to see exactly where their index comes from, or read <a href="#" data-goto="rules">how it works</a>. Updated ${new Date(members.fetchedAt).toLocaleString()}.`;
   document.addEventListener("click", (e) => { const a = e.target.closest("[data-goto]"); if (!a) return; e.preventDefault(); document.querySelector(`#tabs [data-tab="${a.dataset.goto}"]`).click(); window.scrollTo(0, 0); });
   renderTable();
 
@@ -264,7 +266,7 @@
   const P = C.points, POS = WaxyRanking.POSITIONS, posName = { forward: "Forward", midfielder: "Midfielder", defender: "Defender", goalkeeper: "Keeper" };
   const cell = (v) => v ? `${v > 0 ? "+" : "−"}${Math.abs(v)}` : "–";
   const ptRow = (label, f) => `<tr><td class="name">${label}</td>${POS.map((p) => `<td>${cell(f(p))}</td>`).join("")}</tr>`;
-  const rest = 100 - C.weights.contribution;
+  const rest = 100 - SW.contribution;
   $("#rules").innerHTML = `
     <div class="card"><h3>How the Waxy d'Or works</h3>
       <p class="lead">The Waxy d'Or is the Waxys Phantoms player of the season. The table ranks the squad by the <b>Waxy index</b>, a score out of 100 built from every stat EA records, so the best all-round player rises to the top, not just the top scorer. ${rest} of the 100 points have nothing to do with goals.</p>
@@ -278,7 +280,7 @@
     <div class="card"><h3>The Waxy index, out of 100</h3>
       <div class="note">In order of weight. In each factor, the best regular (${C.compareMinGames}+ apps) gets the full points and everyone else gets their share of it.${season.positionRelative ? ` <b>Every position can win it:</b> contribution points, man of the match and match rating are judged against an average player in the same position, so a defender who outdoes the other defenders scores as well as a striker who outdoes the other strikers. The averages come from every match the club has saved, and each match counts by the position played in it.` : ""}</div>
       <div class="table-wrap"><table class="rules-t"><thead><tr><th>#</th><th class="name">Factor</th><th>Points</th><th class="name">What it rewards</th></tr></thead><tbody>
-        ${WaxyRanking.FACTORS.map(([k, label, what], i) => `<tr><td>${i + 1}</td><td class="name">${label}</td><td><b>${C.weights[k]}</b></td><td class="name wrap">${what}${k === "rating" ? ` (scored from ${C.ratingFloor.toFixed(1)} up to the best)` : k === "passAccuracy" ? ` (scored from ${C.passFloor}% up to the best, in full at ${season.passVolume ? POS.map((p, i) => `${season.passVolume[p]}+${i ? "" : " completed passes per game"} for ${posName[p].toLowerCase()}s`).join(", ") : `${C.passVolumeFull}+ completed passes per game, ${C.passVolumeFullKeeper}+ for keepers`}, and less below that)` : k === "accuracy" ? (season.keeperSaves ? ` (half each; keepers are scored on save percentage instead, from ${season.keeperSaves.floor}% up to ${season.keeperSaves.full}%)` : " (half each)") : ""}</td></tr>`).join("")}
+        ${SF.map(([k, label, what], i) => `<tr><td>${i + 1}</td><td class="name">${label}</td><td><b>${SW[k]}</b></td><td class="name wrap">${what}${k === "rating" ? ` (scored from ${C.ratingFloor.toFixed(1)} up to the best)` : k === "passAccuracy" ? ` (scored from ${C.passFloor}% up to the best, in full at ${season.passVolume ? POS.map((p, i) => `${season.passVolume[p]}+${i ? "" : " completed passes per game"} for ${posName[p].toLowerCase()}s`).join(", ") : `${C.passVolumeFull}+ completed passes per game, ${C.passVolumeFullKeeper}+ for keepers`}, and less below that)` : k === "accuracy" ? (season.keeperSaves ? ` (half each; keepers are scored on save percentage instead, from ${season.keeperSaves.floor}% up to ${season.keeperSaves.full}%)` : " (half each)") : ""}</td></tr>`).join("")}
         <tr><td>–</td><td class="name">Red cards</td><td><b>−${C.redCardPenalty}</b></td><td class="name wrap">Each one taken off the total</td></tr>
       </tbody></table></div>
     </div>
