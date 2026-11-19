@@ -9,6 +9,8 @@ permissions:
 concurrency: poll
 jobs:
   poll:
+    # This file is mirrored into PIMnerds/waxydor; only poll from the Waxysplash repo.
+    if: github.repository == 'Waxysplash/waxydor'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +29,20 @@ jobs:
           real=$(git diff --cached -U0 data | grep '^[+-] ' | grep -vE '"(fetchedAt|updatedAt|takenAt)":' || true)
           git commit -m "data: poll $(date -u +%Y-%m-%dT%H:%MZ)" && git push
           if [ -n "$real" ]; then gh workflow run pages.yml --ref main; else echo "timestamps only, no deploy"; fi
+          if [ -n "$real" ]; then echo "real=1" >> "$GITHUB_OUTPUT"; fi
+        id: commit
         env:
           GH_TOKEN: ${{ github.token }}
+      # waxysplash.com is the Vercel project linked to PIMnerds/waxydor; a push to its main deploys production.
+      # Only push when real stats changed, so Vercel doesn't redeploy every 20 minutes for timestamps.
+      # Never force: if PIMnerds/main has commits we don't, this fails loudly instead of overwriting them.
+      - name: Push to PIMnerds/waxydor (deploys waxysplash.com)
+        if: steps.commit.outputs.real == '1'
+        env:
+          PIM_TOKEN: ${{ secrets.PIM_PUSH_TOKEN }}
+        run: |
+          if [ -z "$PIM_TOKEN" ]; then echo "::warning::PIM_PUSH_TOKEN secret not set, waxysplash.com not updated"; exit 0; fi
+          # checkout@v4 stores the workflow token as an extraheader for all of github.com; clear it so ours is used.
+          git -c http.https://github.com/.extraheader= push "https://x-access-token:${PIM_TOKEN}@github.com/PIMnerds/waxydor.git" HEAD:refs/heads/main
       - name: Post new results in Twitch chat (only while live)
         run: curl -s -m 30 -X POST https://waxydor-vote-api.vercel.app/api/bot/announce || true
