@@ -49,7 +49,7 @@
         "goal": 8,
         "assist": 7,
         "cleanSheet": 4,
-        "save": 0.5,
+        "save": 1,
         "conceded": -1
       },
       "tackle": 0.25,
