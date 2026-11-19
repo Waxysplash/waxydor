@@ -31,6 +31,8 @@
     const pts = (pos) => P[pos] || P.forward;
     // Big games are picked by the captain (config.bigGames); everything a player does in one counts bigGameMultiplier times.
     const big = new Set((config.bigGames || []).map((b) => String(b.matchId)));
+    // A whole stream can be big: every match inside one of config.bigGameWindows [{ from, to, label }] counts too.
+    for (const x of matches || []) if (bigWindow(config, x)) big.add(String(x.matchId));
     // Big misses are logged by the captain after the stream (config.bigMisses), one entry per miss.
     const misses = new Map();
     for (const b of config.bigMisses || []) { const k = b.matchId + "|" + b.player; misses.set(k, (misses.get(k) || 0) + (b.count || 1)); }
@@ -224,7 +226,12 @@
     return { rows: [...ranked, ...provisional], ranked, provisional, gaffer, legends, seasonMatches, positionBase: base };
   }
 
-  const api = { rank, FACTORS, BREAKDOWN, POSITIONS, inSeason };
+  function bigWindow(config, m) {
+    const t = (m.timestamp || 0) * 1000;
+    return (config.bigGameWindows || []).find((w) => t >= new Date(w.from).getTime() && t <= new Date(w.to).getTime()) || null;
+  }
+
+  const api = { rank, FACTORS, BREAKDOWN, POSITIONS, inSeason, bigWindow };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.WaxyRanking = api;
 })(typeof window !== "undefined" ? window : globalThis);

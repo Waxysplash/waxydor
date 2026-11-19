@@ -271,7 +271,9 @@ function playerLine(d, r) {
 }
 
 export function matchLine(d, m) {
-  const big = (d.config.bigGames || []).some((b) => String(b.matchId) === String(m.matchId)) || (d.config.index.playoffsAreBigGames && m.matchType === "playoffMatch");
+  const t = (m.timestamp || 0) * 1000;
+  const inWindow = (d.config.bigGameWindows || []).some((w) => t >= new Date(w.from).getTime() && t <= new Date(w.to).getTime());
+  const big = inWindow || (d.config.bigGames || []).some((b) => String(b.matchId) === String(m.matchId)) || (d.config.index.playoffsAreBigGames && m.matchType === "playoffMatch");
   const scorers = m.players.filter((p) => p.goals || p.assists).sort((a, b) => b.goals - a.goals || b.assists - a.assists)
     .map((p) => `${p.name}${p.goals ? " " + p.goals + "⚽" : ""}${p.assists ? " " + p.assists + "🅰️" : ""}`).join(", ");
   const motm = m.players.find((p) => p.mom);

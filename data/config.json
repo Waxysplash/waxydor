@@ -251,6 +251,13 @@
       "date": "2026-11-18"
     }
   ],
+  "bigGameWindows": [
+    {
+      "from": "2026-11-18T19:30:00Z",
+      "to": "2026-11-19T07:00:00Z",
+      "label": "Big stream"
+    }
+  ],
   "bigMisses": [
     {
       "matchId": "135616778750097",

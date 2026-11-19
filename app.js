@@ -324,6 +324,7 @@
 
   // ---------- matches ----------
   const bigBy = new Map((config.bigGames || []).map((b) => [String(b.matchId), b.label || ""]));
+  for (const m of seasonMatches) { const w = WaxyRanking.bigWindow(config, m); if (w && !bigBy.has(String(m.matchId))) bigBy.set(String(m.matchId), w.label || ""); }
   const resColor = { W: "var(--win)", L: "var(--loss)", D: "var(--draw)" };
   $("#matches").innerHTML = seasonMatches.length ? seasonMatches.map((m, i) => `
     <div class="match" data-i="${i}">
