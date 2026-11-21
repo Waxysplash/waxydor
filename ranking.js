@@ -190,7 +190,8 @@
     const gaffer = all.find((r) => r.gaffer) || null;
     const legends = all.filter((r) => r.legend);
     // Each factor is measured against the best regular (compareMinGames+ apps), so a one-game cameo can't set the bar.
-    const q = rows.filter((r) => r.gp >= C.compareMinGames);
+    // A season can raise that bar (season.barMinGames): from Season 2 (21 Nov 2026) only qualified players, so a hot five-game start can't move everyone.
+    const q = rows.filter((r) => r.gp >= (season.barMinGames || C.compareMinGames));
     const pool = q.length ? q : rows;
     const max = (f) => Math.max(...pool.map(f), 0.01);
     const best = {
