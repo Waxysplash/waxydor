@@ -133,13 +133,6 @@
         "floor": 50,
         "full": 80
       }
-    },
-    {
-      "matchId": "202178632620198",
-      "player": "CHIN0_LOKZ650",
-      "opponent": "Open up FC",
-      "date": "2026-11-18",
-      "note": "Man of the Stream for 18 Nov; logged on his last game of the stream"
     }
   ],
   "gaffer": "TTVWaxysplash",
@@ -665,6 +658,20 @@
       "opponent": "Gatitos CF",
       "date": "2026-11-15",
       "note": "Joint Man of the Stream for 15 Nov (with Joshthomas213); logged on his last game of the stream"
+    },
+    {
+      "matchId": "202178632620198",
+      "player": "CHIN0_LOKZ650",
+      "opponent": "Open up FC",
+      "date": "2026-11-18",
+      "note": "Man of the Stream for 18 Nov; logged on his last game of the stream"
+    },
+    {
+      "matchId": "204266087280077",
+      "player": "CHIN0_LOKZ650",
+      "opponent": "Far Post",
+      "date": "2026-11-19",
+      "note": "Man of the Stream for 19 Nov; logged on his last game of the stream"
     }
   ]
 }
