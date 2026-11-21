@@ -473,6 +473,12 @@
     "note": "WaxyBot text commands and Twitch-name links. {user} = the chatter, {site} = the site link.",
     "timerGapMinutes": 6,
     "twitchToPlayer": {},
+    "tiktok": {
+      "note": "WaxyBot on TikTok LIVE: tiktokbot/tiktok_relay.py on the stream PC forwards TikTok ! comments from Social Stream Ninja. Answers show as a toast on the vertical canvas and are typed into TikTok chat from the channel account. cooldown = seconds per TikTok viewer. twitchEcho also posts the answer in Twitch chat.",
+      "on": true,
+      "cooldown": 10,
+      "twitchEcho": false
+    },
     "autoclip": {
       "note": "WaxyBot clips on its own when chat pops off: `messages` lines from `chatters` different people inside `seconds`, or `keywordChatters` people typing a keyword. At most one auto clip per `cooldown` seconds.",
       "on": false,
@@ -601,6 +607,7 @@
     "subFirstPick": true,
     "inviteMinutes": 2,
     "noShowPenalty": 3,
+    "tiktokAllowed": true,
     "rules": [
       "Type !join in chat to get in. Followers only: WaxyBot checks automatically.",
       "Mic on, play your position, no rage quits. A rage quit takes you out of the queue for the night.",

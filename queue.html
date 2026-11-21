@@ -33,6 +33,7 @@
   .q-row .ps { font-weight: 800; color: var(--accent); }
   .q-row.sub { border-color: rgba(217,166,59,.45); }
   .q-row .left { color: var(--muted); font-size: 12px; }
+  .badge-sub.badge-tt { color: var(--accent-2); background: transparent; box-shadow: inset 0 0 0 1px var(--accent-2); }
   .badge-sub { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #1b1a12; background: var(--accent-2); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
   .perks { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
   .perk { background: var(--panel-2); border: 1px solid rgba(217,166,59,.35); border-radius: 12px; padding: 12px 14px; }
@@ -140,7 +141,7 @@
   }
 
   const row = (e, i, playing) => `<div class="q-row ${e.sub ? "sub" : ""}${captain && !playing ? " pick" : ""}${captain && playing ? " has-acts" : ""}"${captain && !playing ? ` data-login="${esc(e.login)}" title="Put ${esc(e.name)} on the pitch"` : ""}><div class="rk">${playing ? "▶" : i + 1}</div>
-    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.note ? `<small>${esc(e.note)}</small>` : ""}</div>
+    <div class="nm">${esc(e.name)}${e.sub ? '<span class="badge-sub">SUB</span>' : ""}${e.tiktok ? '<span class="badge-sub badge-tt" title="From TikTok LIVE: invite their EA name">TIKTOK</span>' : ""}${e.note ? `<small>${esc(e.note)}</small>` : ""}</div>
     <div class="ps">${e.pos && e.pos !== "ANY" ? esc(e.pos) : ""}</div><div class="left">${playing ? `${e.matchesLeft} match${e.matchesLeft === 1 ? "" : "es"} left` : ""}</div>${captain && playing ? `<div class="acts">
     <button data-act="back" data-login="${esc(e.login)}" title="Back to the front of the queue">Back to queue</button><button data-act="remove" data-login="${esc(e.login)}" title="Take off the pitch and out of the queue">Remove</button></div>` : ""}</div>`;
   function render(s) {

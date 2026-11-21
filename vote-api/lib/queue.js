@@ -2,7 +2,7 @@
 // The whole queue is one small JSON document in Redis, changed under a short lock so two
 // commands arriving together can't overwrite each other. Rules live in config.queue.
 import { redis } from "./shared.js";
-import { pushAlert } from "./alerts.js";
+import { pushAlert, tiktokChat } from "./alerts.js";
 
 const KEY = "queue:state";
 const POSITIONS = ["GK", "CB", "LB", "RB", "LWB", "RWB", "CDM", "CM", "CAM", "LM", "RM", "LW", "RW", "CF", "ST", "ANY"];
@@ -35,7 +35,7 @@ async function withLock(fn) {
 // the front and ahead of everyone else; non-subs go to the back.
 export const ordered = (s) => s.waiting;
 function enqueue(s, rules, e) {
-  const entry = { login: e.login, name: e.name, pos: e.pos || "ANY", note: e.note || "", sub: !!e.sub };
+  const entry = { login: e.login, name: e.name, pos: e.pos || "ANY", note: e.note || "", sub: !!e.sub, ...(e.tiktok ? { tiktok: true } : {}) };
   let i = s.waiting.length;
   if (rules.subPriority && entry.sub) { i = 0; while (i < s.waiting.length && s.waiting[i].sub) i++; }
   s.waiting.splice(i, 0, entry);
@@ -44,15 +44,25 @@ function enqueue(s, rules, e) {
 export function publicView(s, rules) {
   return {
     open: s.open, updatedAt: s.updatedAt,
-    playing: s.playing.map(({ login, name, pos, note, sub, left }) => ({ login, name, pos, note, sub, matchesLeft: left })),
-    waiting: ordered(s, rules).map(({ login, name, pos, note, sub }) => ({ login, name, pos, note, sub })),
+    playing: s.playing.map(({ login, name, pos, note, sub, tiktok, left }) => ({ login, name, pos, note, sub, tiktok: !!tiktok, matchesLeft: left })),
+    waiting: ordered(s, rules).map(({ login, name, pos, note, sub, tiktok }) => ({ login, name, pos, note, sub, tiktok: !!tiktok })),
   };
 }
 
 const posOf = (t) => { const u = String(t || "").toUpperCase(); return POSITIONS.includes(u) ? u : ALIAS[u] || null; };
 const turns = (rules, sub) => (sub ? rules.subMatchesPerTurn : rules.matchesPerTurn);
 const where = (s, rules, login) => s.waiting.findIndex((e) => e.login === login) + 1;
-const tag = (e) => `@${e.name}`;
+// TikTok viewers (login "tt:<name>", from lib/tiktok.js) get 🎵 instead of @, since an @ on Twitch can't reach them.
+const tag = (e) => (e.tiktok ? `🎵${e.name}` : `@${e.name}`);
+// Mods can name a TikTok viewer with or without the tt: prefix (!pick tt:sam or !pick sam).
+const is = (x, target) => !!target && (x.login === target || x.login === "tt:" + target);
+// A TikTok viewer called up hears it on TikTok too: a toast on the vertical canvas and a reply in TikTok chat.
+async function tellTikTok(called, rules) {
+  for (const e of called.filter((x) => x.tiktok)) {
+    const text = `${tag(e)} you're up! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes.`;
+    await pushAlert({ type: "tiktok", name: e.name, cmd: "you're up", text, chat: tiktokChat(text) });
+  }
+}
 
 // A viewer's first ever call-up from the queue is a signing: a HERE WE GO alert on stream and a line in chat with
 // their player card. queue:signed remembers everyone signed, so it happens once per player, not once per night.
@@ -67,7 +77,7 @@ async function sign(called, rules) {
   if (!fresh.length) return "";
   const card = (e) => `${(rules.siteUrl || "").replace(/\/?$/, "/")}card.html?p=${encodeURIComponent(e.login)}`;
   return ` 🖊️ HERE WE GO! ${fresh.map(tag).join(", ")} sign${fresh.length === 1 ? "s" : ""} for Waxys Phantoms.` +
-    (fresh.length === 1 && rules.siteUrl ? ` Player card: ${card(fresh[0])}` : "");
+    (fresh.length === 1 && rules.siteUrl && !fresh[0].tiktok ? ` Player card: ${card(fresh[0])}` : "");
 }
 
 export async function command(c, args, chatter, rules, isFollower) {
@@ -76,7 +86,9 @@ export async function command(c, args, chatter, rules, isFollower) {
 
   switch (c) {
     case "!join": {
-      if (rules.followersOnly && !chatter.mod && !(await isFollower(chatter.id))) return `@${chatter.name} follow the channel first, then !join again.`;
+      // TikTok follows can't be checked, so TikTok viewers are let in (or not) by config.queue.tiktokAllowed.
+      if (chatter.tiktok) { if (!rules.tiktokAllowed) return `${chatter.name} the queue is Twitch only for now.`; }
+      else if (rules.followersOnly && !chatter.mod && !(await isFollower(chatter.id))) return `@${chatter.name} follow the channel first, then !join again.`;
       if (await redis("GET", "queue:ban:" + me)) return `@${chatter.name} you're out of the queue for tonight.`;
       // Anything after !join is fine: it's kept as their note (Streamlabs-style), and a position in it is picked up.
       const note = args.join(" ").replace(/\s+/g, " ").trim().slice(0, 40);
@@ -86,7 +98,7 @@ export async function command(c, args, chatter, rules, isFollower) {
         if (s.playing.some((e) => e.login === me)) return `@${chatter.name} you're on the pitch already.`;
         const old = s.waiting.find((e) => e.login === me);
         if (old) { Object.assign(old, { pos, note, sub: !!chatter.sub }); return `@${chatter.name} you're already in, #${where(s, rules, me)}${note ? ` (updated: ${note})` : ""}.`; }
-        enqueue(s, rules, { login: me, name: chatter.name, pos, note, sub: chatter.sub });
+        enqueue(s, rules, { login: me, name: chatter.name, pos, note, sub: chatter.sub, tiktok: chatter.tiktok });
         return `@${chatter.name} you're in the queue at #${where(s, rules, me)}${chatter.sub && rules.subPriority ? " · ⭐ sub priority" : ""}.`;
       });
     }
@@ -122,7 +134,7 @@ export async function command(c, args, chatter, rules, isFollower) {
         const called = [];
         for (let i = 0; i < count; i++) {
           const list = ordered(s, rules);
-          const pick = c === "!pick" ? list.find((e) => e.login === target)
+          const pick = c === "!pick" ? list.find((e) => is(e, target))
             : c === "!random" ? list[Math.floor(Math.random() * list.length)]
             : want ? list.find((e) => e.pos === want) || list.find((e) => e.pos === "ANY") : list[0];
           if (!pick) break;
@@ -132,14 +144,15 @@ export async function command(c, args, chatter, rules, isFollower) {
         }
         if (!called.length) return c === "!pick" ? `${target || "That player"} isn't waiting in the queue.` : want ? `Nobody in the queue for ${want}.` : "Nobody waiting in the queue.";
         return `${called.map(tag).join(", ")} you're up! Watch for the Waxys Phantoms invite and accept it within ${rules.inviteMinutes} minutes.${called.length === 1 ? ` ${turns(rules, called[0].sub)} match${turns(rules, called[0].sub) === 1 ? "" : "es"}${called[0].note ? ` · ${called[0].note}` : ""}.` : ""}` +
-          await sign(called, rules).catch((e) => { console.error("signing", e.message); return ""; });
+          await sign(called, rules).catch((e) => { console.error("signing", e.message); return ""; }) +
+          await tellTikTok(called, rules).then(() => "", (e) => { console.error("tiktok call-up", e.message); return ""; });
       });
     }
     case "!remove":
       // Take someone out without a ban (left, wrong person, etc.).
       return withLock((s) => {
-        const was = [...s.waiting, ...s.playing].find((x) => x.login === target);
-        s.waiting = s.waiting.filter((x) => x.login !== target); s.playing = s.playing.filter((x) => x.login !== target);
+        const was = [...s.waiting, ...s.playing].find((x) => is(x, target));
+        s.waiting = s.waiting.filter((x) => x !== was); s.playing = s.playing.filter((x) => x !== was);
         return was ? `${tag(was)} removed from the queue.` : `${target || "That player"} isn't in the queue.`;
       });
     case "!ft": case "!fulltime":
@@ -163,29 +176,29 @@ export async function command(c, args, chatter, rules, isFollower) {
     case "!back":
       // Undo a pick: off the pitch and back to the front of the queue, no penalty.
       return withLock((s) => {
-        const e = s.playing.find((x) => x.login === target);
+        const e = s.playing.find((x) => is(x, target));
         if (!e) return `${target || "That player"} isn't on the pitch from the queue.`;
         s.playing = s.playing.filter((x) => x !== e);
-        s.waiting.unshift({ login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub });
+        s.waiting.unshift({ login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub, ...(e.tiktok ? { tiktok: true } : {}) });
         return `${tag(e)} is back in the queue at #1.`;
       });
     case "!noshow":
       // Missed the invite: back into the queue, a few places down.
       return withLock((s) => {
-        const e = s.playing.find((x) => x.login === target);
+        const e = s.playing.find((x) => is(x, target));
         if (!e) return `${target || "That player"} isn't on the pitch from the queue.`;
         s.playing = s.playing.filter((x) => x !== e);
         // Missed the invite: back in line behind the next noShowPenalty players, sub or not.
-        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub });
+        s.waiting.splice(Math.min(rules.noShowPenalty, s.waiting.length), 0, { login: e.login, name: e.name, pos: e.pos, note: e.note, sub: e.sub, ...(e.tiktok ? { tiktok: true } : {}) });
         return `${tag(e)} missed the invite, back in the queue at #${where(s, rules, e.login)}. !next for the next player.`;
       });
     case "!kick":
       // Rage quit or no mic: out of the queue for the rest of the night.
       return withLock(async (s) => {
-        const was = [...s.waiting, ...s.playing].find((x) => x.login === target);
-        s.waiting = s.waiting.filter((x) => x.login !== target); s.playing = s.playing.filter((x) => x.login !== target);
         if (!target) return "Usage: !kick @name";
-        await redis("SET", "queue:ban:" + target, "1", "EX", 12 * 3600);
+        const was = [...s.waiting, ...s.playing].find((x) => is(x, target));
+        s.waiting = s.waiting.filter((x) => x !== was); s.playing = s.playing.filter((x) => x !== was);
+        await redis("SET", "queue:ban:" + (was ? was.login : target), "1", "EX", 12 * 3600);
         return `${was ? tag(was) : target} is out of the queue for tonight.`;
       });
   }

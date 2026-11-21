@@ -374,8 +374,12 @@ export async function handleCommand(text, chatter) {
     }
     case "!me": {
       const map = d.config.bot?.twitchToPlayer || {};
-      const r = findPlayer(d, map[chatter.login] || chatter.login) || findPlayer(d, chatter.name);
-      return r ? playerLine(d, r) + ` · card ${card(r)}` : `@${chatter.name} I can't match your Twitch name to an EA player yet. Try !player <your EA name>, and the captain can link you.`;
+      // TikTok viewers have no Twitch name; their own !link <EA name> (lib/tiktok.js) arrives as chatter.player.
+      const r = (chatter.player && findPlayer(d, chatter.player)) || findPlayer(d, map[chatter.login] || chatter.login) || findPlayer(d, chatter.name);
+      if (r) return playerLine(d, r) + ` · card ${card(r)}`;
+      if (chatter.tiktok) return chatter.player ? `${chatter.name} no EA player called ${chatter.player} at the club yet. Fix it with !link <your EA name>.`
+        : `${chatter.name} type !link <your EA name> once, then !me shows your stats.`;
+      return `@${chatter.name} I can't match your Twitch name to an EA player yet. Try !player <your EA name>, and the captain can link you.`;
     }
     case "!player": case "!stats": {
       if (!arg) return "Usage: !player <name>, e.g. !player George";
@@ -487,6 +491,7 @@ export async function handleCommand(text, chatter) {
       return `There's no ${name} command.`;
     }
     case "!commands": case "!help": {
+      if (chatter.tiktok) return "WaxyBot on TikTok: !join [position] !leave !queue !table !race !me !link <EA name> !player <name> !last !record !waxydor";
       const flat = (await redis("HGETALL", "bot:cmds")) || [];
       const fromChat = {};
       for (let k = 0; k < flat.length; k += 2) fromChat[flat[k]] = JSON.parse(flat[k + 1]);

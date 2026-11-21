@@ -10,6 +10,7 @@ import { redis } from "../../lib/shared.js";
 import { createClip, say, logEvent } from "../../lib/bot.js";
 import { pushAlert } from "../../lib/alerts.js";
 import { postLive, postFullTime, refreshRecap, welcomeNew } from "../../lib/discord.js";
+import { tiktokCommand } from "../../lib/tiktok.js";
 
 const keyOk = async (given) => {
   const want = (await redis("GET", "bot:clipkey")) || "";
@@ -25,6 +26,12 @@ export default async function handler(req, res) {
     const clips = ((await redis("LRANGE", "bot:clips", 0, 49)) || []).map((c) => JSON.parse(c))
       .filter((c) => !since || c.at > since).reverse();
     return res.json({ clips });
+  }
+  // TikTok LIVE commands from the relay on the stream PC (lib/tiktok.js), same key: { "tiktok": { name, text }, "dry": true? }.
+  // It lives here, not in its own file, because the Vercel Hobby plan allows 12 functions and the API has 12.
+  if (req.body?.tiktok) {
+    try { return res.json(await tiktokCommand(req.body.tiktok, { dry: !!req.body.dry })); }
+    catch (e) { console.error("tiktok", e); return res.status(500).json({ error: String(e.message).slice(0, 200) }); }
   }
   // Discord go-live card checks, same key: { "live": "test" | "fulltime" | "refresh" }.
   const live = req.body?.live;

@@ -13,6 +13,14 @@ export async function pushAlert(a) {
   return id;
 }
 
+// WaxyBot's answer as a TikTok LIVE comment: TikTok cuts comments at 150 characters and doesn't link URLs, so the
+// https:// goes and long answers are trimmed. The 🤖 marks it as the bot (it posts from the channel's own account) and
+// lets the relay skip its own comments.
+export function tiktokChat(text) {
+  const t = "🤖 " + String(text).replace(/https?:\/\//g, "").replace(/\/(?=\s|$)/g, "").replace(/\s+/g, " ").trim();
+  return t.length > 150 ? t.slice(0, 149).replace(/\s+\S*$/, "") + "…" : t;
+}
+
 // Everything newer than `after`, oldest first. With no `after`, just the latest number, so a freshly
 // opened overlay doesn't replay old alerts.
 export async function alertsSince(after) {
@@ -91,7 +99,7 @@ export async function subscribeAlerts(callback) {
   return out;
 }
 
-// !testalert [follow|sub|resub|gift|raid|cheer|clip|signing] for mods, so the overlay can be checked in OBS any time.
+// !testalert [follow|sub|resub|gift|raid|cheer|clip|signing|tiktok] for mods, so the overlay can be checked in OBS any time.
 const SAMPLES = {
   follow: { type: "follow" },
   sub: { type: "sub", tier: 1 },
@@ -101,6 +109,7 @@ const SAMPLES = {
   cheer: { type: "cheer", bits: 500, message: "What a strike" },
   clip: { type: "clip" },
   signing: { type: "signing", pos: "ST", no: 7 },
+  tiktok: { type: "tiktok", cmd: "!table", text: "S2 Waxy index: 1. George-Truly 8.4 | 2. Melo2Mellow 7.9 | 3. Kamal 7.6 · full table waxysplash.com" },
 };
 export async function testAlert(kind, name) {
   const k = SAMPLES[kind] ? kind : "follow";

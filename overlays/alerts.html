@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="brand.css?v=crest1">
 <style>
   /* OBS browser source 1920x1080, transparent, on top of every scene. WaxyBot's alerts: follows, subs, gifts,
-     raids, cheers, queue signings (HERE WE GO) and the captain's clip key. Params: ?sound=0 mutes the chime, &volume=0.5, &test=1 cycles
+     raids, cheers, queue signings (HERE WE GO), the captain's clip key, and (vertical source only) WaxyBot's answers to TikTok viewers. Params: ?sound=0 mutes the chime, &volume=0.5, &test=1 cycles
      sample alerts (mods can also type !testalert follow|sub|resub|gift|raid|cheer|clip|signing in chat). */
   body { width: 1920px; height: 1080px; overflow: hidden; }
   .stage { position: absolute; left: 0; right: 0; top: 46px; display: flex; justify-content: center; pointer-events: none; }
@@ -44,6 +44,18 @@
     .clip { top: 180px; right: 190px; font-size: 26px; }
   }
   .clip .rec { width: 14px; height: 14px; border-radius: 50%; background: var(--shield); box-shadow: 0 0 0 4px rgba(157, 58, 43, .3); }
+
+  /* WaxyBot's answer to a TikTok viewer's command: vertical canvas only (TikTok viewers can't see the Twitch screen),
+     in the card's spot, one at a time with the other alerts. */
+  .tt { position: absolute; top: 180px; left: 40px; right: 170px; display: flex; justify-content: center; pointer-events: none; }
+  .tt .plate { max-width: 870px; padding: 16px 26px 18px; opacity: 0; transform: translateY(-30px); transition: opacity .35s ease, transform .45s cubic-bezier(.2, .9, .25, 1.15); }
+  .tt .plate.show { opacity: 1; transform: none; }
+  .tt .who { font-size: 20px; color: var(--gold); }
+  .tt .who b { color: var(--cream); font-weight: 800; }
+  .tt .ans { font-size: 28px; line-height: 1.3; color: var(--cream); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .tt .bar { margin-top: 12px; }
+  .tt .plate.show .bar { animation: fill var(--dur, 6s) linear forwards; }
+  @media (orientation: landscape) { .tt { display: none; } }
 </style>
 </head>
 <body>
@@ -60,6 +72,7 @@
   </div>
 </div>
 <div class="clip plate" id="clip"><span class="rec"></span>WaxyClip saved</div>
+<div class="tt"><div class="plate" id="tt"><div class="who eyebrow" id="ttwho"></div><div class="ans" id="ttans"></div><div class="bar"></div></div></div>
 
 <script>
 (function () {
@@ -106,7 +119,21 @@
   const queue = [];
   let busy = false;
 
+  const portrait = () => matchMedia("(orientation: portrait)").matches;
+
   async function show(a) {
+    if (a.type === "tiktok") {
+      if (!portrait()) return; // the Twitch (landscape) screen stays clean
+      const text = String(a.text || "").replace(/https?:\/\//g, "").replace(/\/(?=\s|$)/g, "");
+      const secs = Math.min(10, Math.max(6, Math.round(text.length / 18)));
+      $("ttwho").innerHTML = "";
+      $("ttwho").append("TikTok · ", Object.assign(document.createElement("b"), { textContent: a.name || "TikTok" }), ` · ${a.cmd || ""}`);
+      $("ttans").textContent = text;
+      const p = $("tt");
+      p.style.setProperty("--dur", secs + "s");
+      p.classList.add("show"); await wait(secs * 1000); p.classList.remove("show"); await wait(500);
+      return;
+    }
     if (a.type === "clip") {
       chime(false);
       $("clip").classList.add("show"); await wait(3500); $("clip").classList.remove("show"); await wait(400);
@@ -139,6 +166,7 @@
       { type: "resub", name: "PhantomFan", tier: 1, months: 6, message: "Up the Phantoms" }, { type: "clip" },
       { type: "gift", name: "Anonymous", tier: 1, count: 5 }, { type: "raid", name: "SomeStreamer", viewers: 42 },
       { type: "cheer", name: "BitsGuy", bits: 500, message: "What a strike" }, { type: "signing", name: "NewTrialist", pos: "CM", no: 7 },
+      { type: "tiktok", name: "Sam Phantom", cmd: "!table", text: "Season 2 Waxy index: 1. P_J_Gill 89 | 2. George-Truly 75 | 3. Joshthomas213 71 · full table https://waxysplash.com/" },
     ];
     let i = 0;
     const next = () => { add(samples[i++ % samples.length]); setTimeout(next, 10000); };
