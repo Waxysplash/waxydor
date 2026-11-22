@@ -231,6 +231,7 @@ td.name small { display: block; color: var(--dim); font-weight: 500; font-size: 
 .W { background: var(--win); } .L { background: var(--loss); } .D { background: var(--draw); }
 tbody tr.sep td { text-align: left; color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; padding-top: 16px; }
 tbody.gaffer tr.sep td { color: var(--gold); border-top: 1px solid var(--line-2); }
+tbody tr.sep td a { color: var(--cream); text-decoration: none; border-bottom: 1px solid var(--brass); }
 tbody.gaffer td { background: rgba(217,166,59,.05); }
 tbody.gaffer td.name, tr.gaffer-line td.name { color: var(--gold); }
 tr.prow { cursor: pointer; }

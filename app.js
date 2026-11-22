@@ -244,7 +244,7 @@
     const firstProv = byIndex ? sorted.findIndex((r) => !r.qualified) : -1;
     $("#table").innerHTML = `<thead><tr>${cols.map(([h, k]) => `<th data-k="${k || ""}" class="${k === sortKey ? "sorted" : ""}${h === "Player" ? " name" : ""}">${h}${k === sortKey ? (sortDir < 0 ? " ↓" : " ↑") : ""}</th>`).join("")}</tr></thead>` +
       `<tbody>${sorted.map((r, i) => (i === firstProv ? `<tr class="sep"><td colspan="${cols.length}">Not qualified yet · fewer than ${C.minGames} apps</td></tr>` : "") + rowHtml(r, i + 1)).join("")}</tbody>` +
-      (legends.length ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">Club legends · stats kept, not in the Waxy d'Or race</td></tr>${legends.map((r) => rowHtml(r, "★")).join("")}</tbody>` : "") +
+      (legends.length ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">Club legends · stats kept, not in the Waxy d'Or race · <a href="legends.html">See the legends ›</a></td></tr>${legends.map((r) => rowHtml(r, "★")).join("")}</tbody>` : "") +
       (gaffer ? `<tbody class="gaffer"><tr class="sep"><td colspan="${cols.length}">The Gaffer's stats · not in the Waxy d'Or race</td></tr>${rowHtml(gaffer, "–")}</tbody>` : "");
   }
   $("#table").addEventListener("click", (e) => {

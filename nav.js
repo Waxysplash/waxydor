@@ -5,6 +5,7 @@
   const PAGES = [
     ["./", "Waxy d'Or", ["", "index.html"]],
     ["card.html", "Player cards", ["card.html"]],
+    ["legends.html", "Legends", ["legends.html"]],
     ["rtg.html", "Road to Glory", ["rtg.html"]],
     ["queue.html", "Play with us", ["queue.html"]],
     ["clips.html", "Waxyclips", ["clips.html"]],
