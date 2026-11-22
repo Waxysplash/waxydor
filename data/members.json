@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-21T23:33:16.212Z",
+  "fetchedAt": "2026-11-22T03:26:11.050Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -902,42 +902,6 @@
       "favoritePosition": "midfielder"
     },
     {
-      "name": "Chico_1896",
-      "gamesPlayed": "3",
-      "winRate": "66",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "19",
-      "passSuccessRate": "90",
-      "ratingAve": "6.5",
-      "tacklesMade": "1",
-      "tackleSuccessRate": "50",
-      "proName": "CHICO",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "174",
-      "proNationality": "59",
-      "proOverall": "87",
-      "proOverallStr": "87",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
-    },
-    {
       "name": "Emilybobble",
       "gamesPlayed": "2",
       "winRate": "50",
@@ -1371,7 +1335,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 10,
+    "midfielder": 9,
     "goalkeeper": 1,
     "forward": 13,
     "defender": 11
