@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-22T03:26:11.050Z",
+  "fetchedAt": "2026-11-22T11:55:17.698Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -866,42 +866,6 @@
       "favoritePosition": "defender"
     },
     {
-      "name": "wavypappi03",
-      "gamesPlayed": "8",
-      "winRate": "50",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "97",
-      "passSuccessRate": "85",
-      "ratingAve": "7.2",
-      "tacklesMade": "14",
-      "tackleSuccessRate": "50",
-      "proName": "W. Pappi",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "174",
-      "proNationality": "14",
-      "proOverall": "84",
-      "proOverallStr": "84",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
-    },
-    {
       "name": "Emilybobble",
       "gamesPlayed": "2",
       "winRate": "50",
@@ -1118,42 +1082,6 @@
       "favoritePosition": "midfielder"
     },
     {
-      "name": "octuple-j",
-      "gamesPlayed": "7",
-      "winRate": "71",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "53",
-      "passSuccessRate": "79",
-      "ratingAve": "6.8",
-      "tacklesMade": "3",
-      "tackleSuccessRate": "100",
-      "proName": "La Pesadilla",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "188",
-      "proNationality": "95",
-      "proOverall": "72",
-      "proOverallStr": "72",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
-    },
-    {
       "name": "Kuluk_gerth",
       "gamesPlayed": "2",
       "winRate": "50",
@@ -1335,9 +1263,9 @@
     }
   ],
   "positionCount": {
-    "midfielder": 9,
+    "midfielder": 8,
     "goalkeeper": 1,
     "forward": 13,
-    "defender": 11
+    "defender": 10
   }
 }
