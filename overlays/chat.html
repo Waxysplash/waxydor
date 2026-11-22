@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Waxysplash chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* OBS browser source: Twitch + TikTok chat as crest-coloured cards, via Social Stream Ninja (same P2P link as the OBS Chat dock).
+     Params: session=<SSN session id> (required) · limit=6 (cards on screen) · showtime=25 (seconds before a card fades; 0 = stay)
+             side=left|right (card alignment) · width=420 · scale=1 · hidecmd (drop !commands) · hidebots (drop WaxyBot/bot lines) · demo (fake messages)
+     Suggested source size: 460 x 640 (landscape), 1080 x 700 (vertical, with &scale=1.6). Transparent background. */
+  :root { --cream: #e9dcbb; --text: #ece1c3; --olive: #2a2a1e; --brass: #b9985a; --gold: #d9a63b; --red: #9d3a2b; --muted: #a8a07e; --w: 420px; --s: 1; }
+  html, body { margin: 0; background: transparent; overflow: hidden; height: 100%; }
+  body { font-family: "Barlow", system-ui, sans-serif; color: var(--text); }
+  #list { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: calc(8px * var(--s)); align-items: flex-start; }
+  body.right #list { align-items: flex-end; }
+  .msg { max-width: calc(var(--w) * var(--s)); box-sizing: border-box; display: grid; grid-template-columns: auto 1fr; gap: 0 calc(10px * var(--s)); align-items: start;
+         padding: calc(9px * var(--s)) calc(13px * var(--s)) calc(10px * var(--s)); border-radius: calc(12px * var(--s));
+         background: rgba(27, 26, 18, .9); border: 1px solid rgba(185, 152, 90, .55); border-left: calc(4px * var(--s)) solid var(--brass);
+         box-shadow: 0 8px 22px rgba(0, 0, 0, .45); opacity: 0; transform: translateY(14px) scale(.98); transition: opacity .35s ease, transform .35s ease; }
+  .msg.in { opacity: 1; transform: none; }
+  .msg.out { opacity: 0; transform: translateY(-6px); transition: opacity .6s ease, transform .6s ease; }
+  .msg.tiktok { border-left-color: var(--red); }
+  .ico { width: calc(22px * var(--s)); height: calc(22px * var(--s)); border-radius: 50%; background: var(--olive); box-shadow: 0 0 0 1px rgba(185,152,90,.6) inset;
+         display: grid; place-items: center; grid-row: span 2; margin-top: calc(1px * var(--s)); }
+  .ico svg { width: 60%; height: 60%; fill: var(--cream); }
+  .name { font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: calc(17px * var(--s)); letter-spacing: .02em; color: var(--gold); line-height: 1.1;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .name small { font-family: "Barlow", sans-serif; font-weight: 600; font-size: .62em; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-left: .5em; }
+  .text { font-weight: 500; font-size: calc(16px * var(--s)); line-height: 1.3; color: var(--text); overflow-wrap: anywhere; margin-top: calc(2px * var(--s)); }
+  .text img { height: 1.35em; vertical-align: -.3em; margin: 0 .05em; }
+  .msg.bot .name { color: var(--cream); }
+  .msg.dono { border-color: var(--gold); background: linear-gradient(90deg, rgba(217,166,59,.22), rgba(27,26,18,.92) 60%); }
+  .dono-tag { display: inline-block; margin-left: .4em; padding: 0 .45em; border-radius: .3em; background: var(--gold); color: var(--olive); font-family: "Barlow Condensed", sans-serif; font-size: .8em; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<div id="list"></div>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  const session = q.get("session") || "";
+  const LIMIT = Math.max(1, +q.get("limit") || 6);
+  const SHOW = q.has("showtime") ? +q.get("showtime") : 25;
+  const hideCmd = q.has("hidecmd"), hideBots = q.has("hidebots");
+  if (q.get("side") === "right") document.body.classList.add("right");
+  if (q.get("width")) document.documentElement.style.setProperty("--w", (+q.get("width") || 420) + "px");
+  if (q.get("scale")) document.documentElement.style.setProperty("--s", +q.get("scale") || 1);
+  const list = document.getElementById("list");
+
+  // Monochrome platform marks in cream (no Twitch purple: the overlay stays on the crest palette).
+  const ICONS = {
+    twitch: '<svg viewBox="0 0 24 24"><path d="M4.3 2 3 5.4v13.3h4.6V21h2.6l2.4-2.3h3.7L21 14V2H4.3Zm15 11.2-2.9 2.9h-4.6l-2.4 2.4v-2.4H5.8V3.7h13.5v9.5ZM16.4 7v5h-1.7V7h1.7Zm-4.6 0v5h-1.7V7h1.7Z"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24"><path d="M16.6 2h-3.3v13.3a2.9 2.9 0 1 1-2-2.8V9.1a6.2 6.2 0 1 0 5.3 6.2V8.6a7.9 7.9 0 0 0 4.4 1.4V6.7a4.5 4.5 0 0 1-4.4-4.7Z"/></svg>',
+    other: '<svg viewBox="0 0 24 24"><path d="M4 4h16v11H8l-4 4V4Z"/></svg>',
+  };
+  const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // Chat text arrives as HTML (emotes are <img>). Keep only text and https emote images; everything else is dropped.
+  function cleanText(html, textonly) {
+    if (textonly) return esc(html);
+    const doc = new DOMParser().parseFromString("<div>" + String(html || "") + "</div>", "text/html");
+    let out = "";
+    (function walk(n) {
+      for (const c of n.childNodes) {
+        if (c.nodeType === 3) out += esc(c.textContent);
+        else if (c.nodeName === "IMG") { const s = c.getAttribute("src") || ""; if (/^https:\/\//i.test(s)) out += `<img src="${esc(s)}" alt="">`; }
+        else if (c.nodeName === "BR") out += " ";
+        else walk(c);
+      }
+    })(doc.body.firstChild);
+    return out.trim();
+  }
+  const plain = (html) => { const d = document.createElement("div"); d.innerHTML = String(html || ""); return (d.textContent || "").trim(); };
+  const seen = new Map();
+
+  function add(d) {
+    if (!d || typeof d !== "object" || (!d.chatname && !d.chatmessage)) return;
+    const type = String(d.type || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    const name = plain(d.chatname), raw = plain(d.chatmessage);
+    if (!raw && !d.hasDonation) return;
+    if (hideCmd && raw.startsWith("!")) return;
+    const bot = /^(waxybot|nightbot|streamelements|moobot|fossabot)$/i.test(name);
+    if (hideBots && bot) return;
+    // the same message can arrive twice (reconnects): drop repeats within 10 s
+    const key = type + "|" + name + "|" + raw.slice(0, 80), now = Date.now();
+    for (const [k, t] of seen) if (now - t > 10000) seen.delete(k);
+    if (seen.has(key)) return; seen.set(key, now);
+
+    const el = document.createElement("div");
+    el.className = "msg " + (type === "tiktok" ? "tiktok" : type === "twitch" ? "twitch" : "other") + (bot ? " bot" : "") + (d.hasDonation ? " dono" : "");
+    const label = type === "tiktok" ? "TikTok" : type === "twitch" ? "Twitch" : esc(type);
+    el.innerHTML = `<div class="ico">${ICONS[type] || ICONS.other}</div>
+      <div class="name">${esc(name) || "&nbsp;"}<small>${label}</small>${d.hasDonation ? `<span class="dono-tag">${esc(plain(d.hasDonation))}</span>` : ""}</div>
+      <div class="text">${cleanText(d.chatmessage, d.textonly)}</div>`;
+    list.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("in")));
+    while (list.children.length > LIMIT) list.firstElementChild.remove();
+    if (SHOW > 0) setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 700); }, SHOW * 1000);
+  }
+
+  // Same P2P route the OBS Chat dock uses (vdo.socialstream.ninja room = the SSN session). Needs no extra SSN settings.
+  if (session) {
+    const f = document.createElement("iframe");
+    f.src = "https://vdo.socialstream.ninja/?ln&salt=vdo.ninja&password=false&push&label=dock&vd=0&ad=0&novideo&noaudio&autostart&cleanoutput&room=" + encodeURIComponent(session);
+    f.style.cssText = "width:0;height:0;position:fixed;left:-100px;top:-100px;border:0";
+    document.body.appendChild(f);
+    addEventListener("message", (e) => {
+      if (e.source !== f.contentWindow) return;
+      const d = e.data && e.data.dataReceived && e.data.dataReceived.overlayNinja;
+      if (d && typeof d === "object") add(d);
+    });
+  }
+
+  if (q.has("demo")) {
+    const demo = [
+      { type: "twitch", chatname: "jaigill10", chatmessage: "Run it nsck" },
+      { type: "tiktok", chatname: "Palacios_15", chatmessage: "hat trick incoming 🔥🔥" },
+      { type: "twitch", chatname: "akachino650", chatmessage: "!join st" },
+      { type: "twitch", chatname: "WaxyBot", chatmessage: "@akachino650 you're in the queue at #2 · ⭐ sub priority." },
+      { type: "tiktok", chatname: "moroccan.fan", chatmessage: "Dima Maghrib 🇲🇦 where is Sahraoui??" },
+      { type: "twitch", chatname: "probud07", chatmessage: "I have a 3ds will that work", hasDonation: "100 bits" },
+    ];
+    let i = 0; const tick = () => { add({ ...demo[i % demo.length], chatmessage: demo[i % demo.length].chatmessage + "​".repeat(Math.floor(i / demo.length)) }); i++; };
+    tick(); setInterval(tick, 1600);
+  }
+})();
+</script>
+</body>
+</html>
