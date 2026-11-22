@@ -137,7 +137,12 @@
     }
   ],
   "gaffer": "TTVWaxysplash",
-  "legends": ["Poke_1101", "Portugal__23", "DYL_597", "Papi_iz_finessin"],
+  "legends": [
+    "Poke_1101",
+    "Portugal__23",
+    "DYL_597",
+    "Papi_iz_finessin"
+  ],
   "legendsFrom": "s2",
   "brand": {
     "tagline": "The captain of your favourite team",
@@ -687,6 +692,13 @@
       "opponent": "Los 3 YMs",
       "date": "2026-11-21",
       "note": "Man of the Stream for 21 Nov (Kamal called it mid-stream); logged on his latest game at the time"
+    },
+    {
+      "matchId": "209048437650124",
+      "player": "CHIN0_LOKZ650",
+      "opponent": "Monarch XII",
+      "date": "2026-11-22",
+      "note": "Man of the Stream for 22 Nov: there for every game (12 of 12, 7W 2D 3L); logged on his latest game"
     }
   ]
 }
