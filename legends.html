@@ -118,6 +118,9 @@
   const TRIBUTES = {
     // "Poke_1101": "…",
   };
+  // What the club calls them (from the captain, 22 Nov 2026). The card shows this big, with the EA gamertag under it.
+  const NICK = { "DYL_597": "Dyl", "Portugal__23": "Dev", "Poke_1101": "Tito", "Papi_iz_finessin": "Griezy" };
+  const nick = (n) => NICK[n] || Object.entries(NICK).find(([k]) => k.toLowerCase() === n.toLowerCase())?.[1] || n;
   const bust = "?t=" + Math.floor(Date.now() / 60000);
   const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
   const load = (f) => fetch(DATA + f + bust).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
@@ -176,7 +179,7 @@
         ${ph ? `<img class="pimg" src="${ph}" alt="" loading="lazy" crossorigin="anonymous">` : ""}
         <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
-        <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, r.name.length))).toFixed(2)}em">${esc(r.name)}</b><span>${esc(r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
+        <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, nick(r.name).length))).toFixed(2)}em">${esc(nick(r.name))}</b><span>${esc(nick(r.name) !== r.name ? r.name : r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="stats">${stats}</div>
         <div class="foot"><span class="tag">★ Club legend</span></div>
@@ -197,7 +200,7 @@
 
   $("#legs").innerHTML = legends.length ? legends.map((r) => `<div class="leg">
       <div class="tilt">${cardHtml(r)}</div>
-      <div class="cap"><span class="since">${esc(since)}</span><p>${line(r)}</p><a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(r.name)}'s card</a></div>
+      <div class="cap"><span class="since">${esc(since)}</span><p>${line(r)}</p><a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
     </div>`).join("") : `<div class="note">No Club Legends yet.</div>`;
 
   // Tilt and shine, as on the player cards (mouse and pen only).
