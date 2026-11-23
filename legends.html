@@ -196,7 +196,7 @@
     const bits = [`${c.gp} app${c.gp === 1 ? "" : "s"}`];
     if (r.pos === "goalkeeper") { if (c.savePct != null) bits.push(`${c.savePct}% of shots saved`); }
     else bits.push(`${c.g} goal${c.g === 1 ? "" : "s"}`, `${c.a} assist${c.a === 1 ? "" : "s"}`);
-    return `${ROLE[r.pos] || "Player"} for Waxys Phantoms: ${bits.join(", ")} since Season 1.`;
+    return `${ROLE[r.pos] || "Player"} for Waxys Phantoms: ${bits.join(", ")} on the site.`;
   }
 
   $("#legs").innerHTML = legends.length ? legends.map((r) => `<div class="leg">
