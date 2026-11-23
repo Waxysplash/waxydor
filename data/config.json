@@ -59,7 +59,7 @@
       "bigMiss": -2,
       "hatTrick": 2,
       "concededAllowance": 3,
-      "penSave": 5,
+      "penSave": 4,
       "penMiss": -4,
       "streamMotm": 5
     }
@@ -636,6 +636,13 @@
       "opponent": "Red Cardz 2",
       "date": "2026-11-11",
       "note": "Game not given; logged on the stream's last game"
+    },
+    {
+      "matchId": "210192657280062",
+      "player": "Probud07",
+      "opponent": "OG OF FIFA",
+      "date": "2026-11-23",
+      "note": "Kamal called it live; logged on the game that had just finished (W 4-2)"
     }
   ],
   "divisionOverride": {
