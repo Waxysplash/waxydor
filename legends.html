@@ -119,7 +119,7 @@
     // "Poke_1101": "…",
   };
   // What the club calls them (from the captain, 22 Nov 2026). The card shows this big, with the EA gamertag under it.
-  const NICK = { "DYL_597": "Dyl", "Portugal__23": "Dev", "Poke_1101": "Tito", "Papi_iz_finessin": "Griezy" };
+  const NICK = { "DYL_597": "Dyl", "Portugal__23": "Dev", "Poke_1101": "Tito", "Papi_iz_finessin": "Tommy Griez" };
   const nick = (n) => NICK[n] || Object.entries(NICK).find(([k]) => k.toLowerCase() === n.toLowerCase())?.[1] || n;
   const bust = "?t=" + Math.floor(Date.now() / 60000);
   const DATA = /(^|\.)github\.io$|^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? "data/" : "https://raw.githubusercontent.com/Waxysplash/waxydor/main/data/";
