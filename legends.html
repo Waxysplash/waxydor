@@ -159,8 +159,9 @@
   const names = Object.fromEntries(awards.awards.map((a) => [a.id, a.name]));
   const honours = (name) => Object.entries(awards.winners || {}).reverse()
     .flatMap(([s, w]) => Object.entries(w).filter(([, who]) => who === name).map(([id]) => `${s.toUpperCase()} ${names[id] || id}`));
-  const fromS = (config.seasons || []).find((s) => s.id === config.legendsFrom);
-  const since = fromS ? `Club Legend since ${fromS.name}` : "Club Legend";
+  // When each one became a Phantoms legend (from the captain, 23 Nov 2026). Anyone not listed just says Club Legend.
+  const SINCE = { "DYL_597": "FIFA 11", "Portugal__23": "FIFA 11", "Poke_1101": "FIFA 11", "Papi_iz_finessin": "FIFA 20" };
+  const since = (n) => SINCE[n] ? `Legend since ${SINCE[n]}` : "Club Legend";
 
   function cardHtml(r) {
     const top = r.ovr > 0 ? `<div class="num">${r.ovr}</div><div class="lbl">OVR</div>` : `<div class="num trial">NEW</div><div class="lbl">OVR</div>`;
@@ -200,7 +201,7 @@
 
   $("#legs").innerHTML = legends.length ? legends.map((r) => `<div class="leg">
       <div class="tilt">${cardHtml(r)}</div>
-      <div class="cap"><span class="since">${esc(since)}</span><p>${line(r)}</p><a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
+      <div class="cap"><span class="since">${esc(since(r.name))}</span><p>${line(r)}</p><a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
     </div>`).join("") : `<div class="note">No Club Legends yet.</div>`;
 
   // Tilt and shine, as on the player cards (mouse and pen only).
