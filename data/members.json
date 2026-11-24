@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-24T18:50:35.569Z",
+  "fetchedAt": "2026-11-24T22:49:37.415Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -130,42 +130,6 @@
       "proNationality": "192",
       "proOverall": "78",
       "proOverallStr": "78",
-      "manOfTheMatch": "0",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "0",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "defender"
-    },
-    {
-      "name": "DKS HULK",
-      "gamesPlayed": "1",
-      "winRate": "0",
-      "goals": "0",
-      "assists": "0",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "0",
-      "passesMade": "8",
-      "passSuccessRate": "88",
-      "ratingAve": "6.9",
-      "tacklesMade": "1",
-      "tackleSuccessRate": "20",
-      "proName": "D. Hulk",
-      "proPos": "5",
-      "proStyle": "0",
-      "proHeight": "181",
-      "proNationality": "14",
-      "proOverall": "79",
-      "proOverallStr": "79",
       "manOfTheMatch": "0",
       "redCards": "0",
       "prevGoals": "0",
@@ -1518,6 +1482,6 @@
     "midfielder": 9,
     "goalkeeper": 3,
     "forward": 15,
-    "defender": 13
+    "defender": 12
   }
 }
