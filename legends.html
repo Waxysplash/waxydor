@@ -163,7 +163,8 @@
   const since = (n) => SINCE[n] ? `Legend since ${SINCE[n]}` : "Club Legend";
 
   function cardHtml(r) {
-    const top = r.ovr > 0 ? `<div class="num">${r.ovr}</div><div class="lbl">OVR</div>` : `<div class="num trial">NEW</div><div class="lbl">OVR</div>`;
+    // Every legend is a 99 here, whatever EA says (Kamal, 25 Nov 2026). Their real OVR stays on card.html.
+    const top = `<div class="num">99</div><div class="lbl">OVR</div>`;
     const h = honours(r.name)[0];
     const ph = photoUrl(r.name);
     return `<a class="pc gold${ph ? " has-ph" : ""}" href="card.html?p=${encodeURIComponent(r.name)}" aria-label="${esc(r.name)} player card">
