@@ -164,7 +164,7 @@
   const honours = (name) => Object.entries(awards.winners || {}).reverse()
     .flatMap(([s, w]) => Object.entries(w).filter(([, who]) => who === name).map(([id]) => `${s.toUpperCase()} ${names[id] || id}`));
   // When each one became a Phantoms legend (from the captain, 23 Nov 2026). Anyone not listed just says Club Legend.
-  const SINCE = { "DYL_597": "FIFA 11", "Portugal__23": "FIFA 11", "Poke_1101": "FIFA 11", "Papi_iz_finessin": "FIFA 20" };
+  const SINCE = { "DYL_597": "FIFA 11", "Portugal__23": "FIFA 11", "Poke_1101": "FIFA 11", "Papi_iz_finessin": "FIFA 20", "PINO": "FIFA 11" };
   const since = (n) => SINCE[n] ? `Legend since ${SINCE[n]}` : "Club Legend";
 
   function cardHtml(r) {
