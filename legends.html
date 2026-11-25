@@ -5,7 +5,7 @@
 <script>/* Sends github.io visitors to waxysplash.com (back on 18 Nov 2026). waxysplash.com deploys from the pimnerds remote, so push site changes there too. */var WAXY_FWD=true;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Club Legends · Waxysplash</title>
-<meta name="description" content="The Waxys Phantoms Club Legends: the players who built the club, with their all-time and season stats.">
+<meta name="description" content="The Waxys Phantoms Club Legends: the players who built the club.">
 <link rel="canonical" href="https://waxysplash.com/legends.html">
 <link rel="icon" href="brand/icon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
@@ -60,12 +60,9 @@
   .pc .name span { display: block; font-size: .72em; color: #a8a07e; margin-top: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pc .rule { position: absolute; left: 4em; right: 4em; top: 18.2em; height: .1em; background: linear-gradient(90deg, transparent, var(--edge), transparent); }
   /* Stats are a small table: a header row, all-time numbers in brass, then this season's numbers. */
-  .pc .stats { position: absolute; left: 3em; right: 3.2em; top: 18.9em; display: grid; grid-template-columns: 2.8em repeat(6, minmax(0, 1fr)); row-gap: .35em; align-items: baseline; text-align: center; }
-  .pc .stats b { display: block; font-family: "PC Display", sans-serif; font-size: 1.35em; line-height: 1; }
-  .pc .stats b.all { color: #b9985a; }
-  .pc .stats span, .pc .stats i { font-size: .55em; letter-spacing: .08em; color: #a8a07e; font-style: normal; }
-  .pc .stats i { text-align: left; letter-spacing: .1em; font-size: .46em; line-height: 1.1; align-self: center; }
   .pc .foot { position: absolute; left: 0; right: 0; top: 24.6em; text-align: center; }
+  /* Legend cards carry no stats (Kamal, 25 Nov 2026): name, rule and tag sit lower to fill the card. */
+  .leg .pc .name { top: 16.2em; } .leg .pc .rule { top: 20.6em; } .leg .pc .foot { top: 21.8em; }
   .pc .foot .tag { display: inline-block; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: top; font-size: .58em; letter-spacing: .12em; text-transform: uppercase; color: #2a2a1e; background: var(--edge); padding: .3em .8em; border-radius: .3em; }
   /* Tilt and shine: the card leans toward the pointer and a foil glint follows it (not on touch, not with reduced motion). */
   .tilt { perspective: 900px; display: block; }
@@ -107,7 +104,7 @@
   </header>
 
   <div class="card">
-    <p class="note">Club Legends keep playing and keep their stats, but they sit out of the Waxy d'Or race. On each card the brass line is every game for the Phantoms since Season 1, the line under it is this season. Tap a card to open it.</p>
+    <p class="note">Club Legends keep playing for the Phantoms, but they sit out of the Waxy d'Or race. Tap a card to open it.</p>
     <div class="legs" id="legs"></div>
   </div>
 </div>
@@ -168,13 +165,6 @@
   function cardHtml(r) {
     const top = r.ovr > 0 ? `<div class="num">${r.ovr}</div><div class="lbl">OVR</div>` : `<div class="num trial">NEW</div><div class="lbl">OVR</div>`;
     const h = honours(r.name)[0];
-    const cols = (s) => r.pos === "goalkeeper"
-      ? [["APP", s.gp], ["SV%", s.savePct ?? "–"], ["MOTM", s.mom], ["PAS%", s.passPct], ["WIN%", s.winPct], ["RAT", s.rating.toFixed(1)]]
-      : [["APP", s.gp], ["GLS", s.g], ["AST", s.a], ["MOTM", s.mom], ["PAS%", s.passPct], ["RAT", s.rating.toFixed(1)]];
-    const cur = cols(r).map(([k, v], i) => [k, r.gp || !i ? v : "–"]), ever = cols(career(r.name));
-    const stats = `<span></span>${cur.map(([k]) => `<span>${k}</span>`).join("")}
-      <i>ALL<br>TIME</i>${ever.map(([, v]) => `<b class="all">${v}</b>`).join("")}
-      <i>${/^season\s+/i.test(season.name) ? "SEASON<br>" + esc(season.name.replace(/^season\s+/i, "")) : esc(season.name)}</i>${cur.map(([, v]) => `<b>${v}</b>`).join("")}`;
     const ph = photoUrl(r.name);
     return `<a class="pc gold${ph ? " has-ph" : ""}" href="card.html?p=${encodeURIComponent(r.name)}" aria-label="${esc(r.name)} player card">
       <div class="in">
@@ -184,7 +174,6 @@
         <img class="crest" src="brand/crest.png" alt="">
         <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, nick(r.name).length))).toFixed(2)}em">${esc(nick(r.name))}</b><span>${esc(nick(r.name) !== r.name ? r.name : r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
-        <div class="stats">${stats}</div>
         <div class="foot"><span class="tag">★ Club legend</span></div>
         <i class="shine"></i>
       </div>
