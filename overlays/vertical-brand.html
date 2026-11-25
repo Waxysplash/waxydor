@@ -12,7 +12,8 @@
              &hook=Can Morocco reach Div 1?  &hookfor=4  (headline over the game for N seconds; 0 = stays)
              &crest=0 (no crest)  &bar=0 (no bar, crest + twitch only)  &side=left|right (crest side)
              &mode=rtg|proclubs (fix the bar). Pro Clubs shows live Division + W-D-L tiles from data/club.json (&stats=0 hides them).
-             OBS: "RTG Vertical Bar" (mode=rtg) and "Pro Clubs Vertical Bar" (mode=proclubs) are separate sources at 100% scale, seam=742. Without mode or series it follows the Twitch channel every minute:
+             Pro Clubs line reads "Follow Waxysplash on Twitch to join" (Kamal, 25 Nov 2026).
+            OBS: "RTG Vertical Bar" (mode=rtg) and "Pro Clubs Vertical Bar" (mode=proclubs) are separate sources at 100% scale, seam=742. Without mode or series it follows the Twitch channel every minute:
              a title with "Road to Glory" or "RTG" shows the series bar, an EA FC category shows Waxys Phantoms · Pro Clubs.
      Palette is taken from the crest: cream, olive, brass, red. Safe zones: right 170px and bottom 440px left clear. */
   :root { --cream: #e9dcbb; --cream-2: #cdbd94; --olive: #2a2a1e; --olive-2: #3b3a2a; --brass: #b9985a; --brass-2: #7f6a3c; --red: #9d3a2b; --gold: #d9a63b;
@@ -88,7 +89,7 @@
   let current = "";
   function show(mode) {
     current = mode;
-    const [name, line, st] = mode === "proclubs" ? ["Waxys Phantoms", `Pro Clubs · ${twitch}`, club]
+    const [name, line, st] = mode === "proclubs" ? ["Waxys Phantoms · Pro Clubs", `Follow <i>Waxysplash</i> on Twitch to join`, club]
       : mode === "rtg" ? [p("series", "") || "Morocco Road to Glory", (ep ? `Episode <b>${ep}</b> · ` : "") + twitch, stats]
       : ["Waxysplash", twitch, ""];
     document.getElementById("seriesName").textContent = name;
