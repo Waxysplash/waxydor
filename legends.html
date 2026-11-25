@@ -84,6 +84,8 @@
   .leg .cap { margin-top: 16px; max-width: 24em; }
   .leg .cap .since { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
   .leg .cap p { margin: 8px 0 10px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .leg .cap .since { display: block; }
+  .leg .cap .since + a { display: inline-block; margin-top: 10px; }
   .leg .cap a { color: var(--cream); font-size: 13px; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--brass); }
   .leg .cap a:hover { color: var(--gold); }
   @media (max-width: 760px) {
@@ -189,19 +191,13 @@
     </a>`;
   }
 
-  // The plain line, until the captain writes one: what they have done for the club, in numbers.
-  function line(r) {
-    if (TRIBUTES[r.name]) return esc(TRIBUTES[r.name]);
-    const c = career(r.name);
-    const bits = [`${c.gp} app${c.gp === 1 ? "" : "s"}`];
-    if (r.pos === "goalkeeper") { if (c.savePct != null) bits.push(`${c.savePct}% of shots saved`); }
-    else bits.push(`${c.g} goal${c.g === 1 ? "" : "s"}`, `${c.a} assist${c.a === 1 ? "" : "s"}`);
-    return `${ROLE[r.pos] || "Player"} for Waxys Phantoms: ${bits.join(", ")} on the site.`;
-  }
+  // Only the captain's tribute goes under the card, never stats (Kamal, 25 Nov 2026). No tribute yet: no line.
+  const line = (r) => TRIBUTES[r.name] ? `<p>${esc(TRIBUTES[r.name])}</p>` : "";
+
 
   $("#legs").innerHTML = legends.length ? legends.map((r) => `<div class="leg">
       <div class="tilt">${cardHtml(r)}</div>
-      <div class="cap"><span class="since">${esc(since(r.name))}</span><p>${line(r)}</p><a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
+      <div class="cap"><span class="since">${esc(since(r.name))}</span>${line(r)}<a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
     </div>`).join("") : `<div class="note">No Club Legends yet.</div>`;
 
   // Tilt and shine, as on the player cards (mouse and pen only).
