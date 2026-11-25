@@ -257,6 +257,30 @@
       "label": "",
       "opponent": "FreeDillan  FC",
       "date": "2026-11-18"
+    },
+    {
+      "matchId": "214180376120112",
+      "label": "",
+      "opponent": "Charlotte fc 3",
+      "date": "2026-11-25"
+    },
+    {
+      "matchId": "214122458820206",
+      "label": "",
+      "opponent": "FC Mountains",
+      "date": "2026-11-25"
+    },
+    {
+      "matchId": "214146530120027",
+      "label": "",
+      "opponent": "NEO CF",
+      "date": "2026-11-25"
+    },
+    {
+      "matchId": "214086661710342",
+      "label": "",
+      "opponent": "Greenleaf CF",
+      "date": "2026-11-25"
     }
   ],
   "bigGameWindows": [
