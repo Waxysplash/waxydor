@@ -137,6 +137,20 @@ footer { color: var(--dim); font-size: 12px; margin-top: 24px; }
   .cd b { font-size: 32px; }
 }
 
+/* ---------- trailer (home, under the hero) ---------- */
+.trailer { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 26px; align-items: center; margin: 0 0 16px; padding: 18px;
+  border-radius: 20px; border: 1px solid var(--line-2); background: linear-gradient(160deg, #2b2b1d, #17170f); }
+.trailer video { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: 14px; background: #000; border: 1px solid var(--line-2); }
+.trailer-txt { display: flex; flex-direction: column; gap: 12px; }
+.trailer h2 { margin: 0; font-family: var(--display); font-size: clamp(28px, 4.2vw, 44px); line-height: 1.04; color: var(--cream); }
+.trailer h2 em { font-style: normal; color: var(--gold); }
+.trailer p { margin: 0; color: var(--muted); font-size: 16px; max-width: 32em; }
+.trailer p b { color: var(--cream); }
+@media (max-width: 860px) {
+  .trailer { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 14px; }
+  .trailer video { max-width: 340px; margin: 0 auto; }
+}
+
 /* ---------- stat tiles (season record) ---------- */
 .season-record .sr-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .season-record .sr-head h3 { margin: 0 0 12px; }
