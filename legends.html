@@ -75,8 +75,9 @@
   .pc.gold .shine { mix-blend-mode: overlay; }
 
   /* One block per legend: the card, then a name plate and a line about them. */
-  .legs { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 34px 20px; justify-items: center; padding: 8px 0 6px; container-type: inline-size; }
-  .leg { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; max-width: 100%; }
+  /* Two per row, and an odd one out on the last row sits in the middle. */
+  .legs { display: flex; flex-wrap: wrap; justify-content: center; gap: 34px 20px; padding: 8px 0 6px; container-type: inline-size; }
+  .leg { flex: 0 0 calc(50% - 10px); display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; max-width: 100%; }
   .leg .pc { font-size: 14px; }
   .leg .cap { margin-top: 16px; max-width: 24em; }
   .leg .cap .since { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
@@ -86,7 +87,7 @@
   .leg .cap a { color: var(--cream); font-size: 13px; font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--brass); }
   .leg .cap a:hover { color: var(--gold); }
   @media (max-width: 760px) {
-    .legs { grid-template-columns: minmax(0, 1fr); }
+    .leg { flex-basis: 100%; }
     .leg .pc { font-size: min(14px, calc((100cqi - 8px) / 22)); }
   }
 </style>
@@ -153,6 +154,10 @@
   }).sort((x, y) => career(y.name).gp - career(x.name).gp);
 
   const POS = { forward: "FWD", midfielder: "MID", defender: "DEF", goalkeeper: "GK" };
+  // Position shown on the card when the captain sets one (PINO is a 99 ST, 25 Nov 2026).
+  const POS_SET = { "PINO": "ST" };
+  // Legends with no EA record for this club (from before it) get a card but no link to a stats page.
+  const known = (n) => members.members.some((m) => m.name.toLowerCase() === n.toLowerCase());
   const ROLE = { forward: "Forward", midfielder: "Midfielder", defender: "Defender", goalkeeper: "Keeper" };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const names = Object.fromEntries(awards.awards.map((a) => [a.id, a.name]));
@@ -167,18 +172,19 @@
     const top = `<div class="num">99</div><div class="lbl">OVR</div>`;
     const h = honours(r.name)[0];
     const ph = photoUrl(r.name);
-    return `<a class="pc gold${ph ? " has-ph" : ""}" href="card.html?p=${encodeURIComponent(r.name)}" aria-label="${esc(r.name)} player card">
+    const tg = known(r.name) ? "a" : "div";
+    return `<${tg} class="pc gold${ph ? " has-ph" : ""}"${tg === "a" ? ` href="card.html?p=${encodeURIComponent(r.name)}"` : ""} aria-label="${esc(nick(r.name))} legend card">
       <div class="in">
         <img class="wm" src="brand/crest.png" alt="">
         ${ph ? `<img class="pimg" src="${ph}" alt="" loading="lazy" crossorigin="anonymous">` : ""}
-        <div class="top">${top}<div class="pos">${POS[r.pos] || "–"}</div></div>
+        <div class="top">${top}<div class="pos">${POS_SET[r.name] || POS[r.pos] || "–"}</div></div>
         <img class="crest" src="brand/crest.png" alt="">
         <div class="name"><b style="font-size:${(2 * Math.min(1, 13 / Math.max(13, nick(r.name).length))).toFixed(2)}em">${esc(nick(r.name))}</b><span>${esc(nick(r.name) !== r.name ? r.name : r.pro || "")}${h ? ` · ★ ${esc(h)}` : ""}</span></div>
         <div class="rule"></div>
         <div class="foot"><span class="tag">★ Club legend</span></div>
         <i class="shine"></i>
       </div>
-    </a>`;
+    </${tg}>`;
   }
 
   // Only the captain's tribute goes under the card, never stats (Kamal, 25 Nov 2026). No tribute yet: no line.
@@ -187,7 +193,7 @@
 
   $("#legs").innerHTML = legends.length ? legends.map((r) => `<div class="leg">
       <div class="tilt">${cardHtml(r)}</div>
-      <div class="cap"><span class="since">${esc(since(r.name))}</span>${line(r)}<a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a></div>
+      <div class="cap"><span class="since">${esc(since(r.name))}</span>${line(r)}${known(r.name) ? `<a href="card.html?p=${encodeURIComponent(r.name)}">Open ${esc(nick(r.name))}'s card</a>` : ""}</div>
     </div>`).join("") : `<div class="note">No Club Legends yet.</div>`;
 
   // Tilt and shine, as on the player cards (mouse and pen only).
