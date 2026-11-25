@@ -752,6 +752,20 @@
       "opponent": "MasalaMadrid FC",
       "date": "2026-11-24",
       "note": "Off-stream session 24-25 Nov (Kamal gave the +5 anyway); logged on his latest game"
+    },
+    {
+      "matchId": "214086661710342",
+      "player": "lx_joonr",
+      "opponent": "Greenleaf CF",
+      "date": "2026-11-25",
+      "note": "Joint Man of the Stream for 25 Nov (Junior + Mxttz, for the stability); logged on their last game"
+    },
+    {
+      "matchId": "214086661710342",
+      "player": "MXTTHlAS",
+      "opponent": "Greenleaf CF",
+      "date": "2026-11-25",
+      "note": "Joint Man of the Stream for 25 Nov (Junior + Mxttz, for the stability); logged on their last game"
     }
   ]
 }
