@@ -134,33 +134,31 @@
   const scorers = new Map();
   for (const m of lastStream) for (const p of m.players) if (+p.goals) scorers.set(p.name, (scorers.get(p.name) || 0) + +p.goals);
   const topS = [...scorers].sort((a, b) => b[1] - a[1])[0];
-  // The landing hero keeps its wordmark and line; only the status chip, countdown, buttons, last-stream line and (while live) the player change.
-  const proofDiv = $("#proofDiv"); if (proofDiv && club.division) proofDiv.textContent = "Div " + club.division;
-  $("#lpLast").innerHTML = lastStream.length ? `Last stream, ${new Date(lastStream[0].timestamp * 1000).toLocaleDateString(undefined, { weekday: "long" })}: <b>${W2}W ${D2}D ${L2}L</b> in ${lastStream.length} games · ${GF2} goals${topS ? ` · top scorer <b>${esc2(topS[0])}</b> (${topS[1]})` : ""}` : "";
   (window.WAXY_LIVE || Promise.resolve({})).then((L) => {
     const q = L.queue;
-    if (q && q.open) $("#howQueue").innerHTML = `The queue is <b>open now</b>: ${q.waiting.length} waiting, ${q.playing.length} playing. Type <b>!join</b> in chat to get in.`;
-    const status = $("#lpStatus"), cta = $("#lpCta");
+    if (q) $("#doQueue").textContent = q.open ? `Open now · ${q.waiting.length} waiting · ${q.playing.length} playing` : "Opens when the stream starts. Type !join in chat";
+    const hero = $("#heroIn");
+    const lastLine = lastStream.length ? `Last stream: <b>${W2}W ${D2}D ${L2}L</b> in ${lastStream.length} games, ${new Date(lastStream[0].timestamp * 1000).toLocaleDateString(undefined, { weekday: "long" })}.` : "";
     if (L.live) {
       const mins = L.startedAt ? Math.round((Date.now() - new Date(L.startedAt)) / 6e4) : null;
-      status.classList.add("on");
-      status.querySelector("span").textContent = `Live now${L.viewers ? ` · ${L.viewers} watching` : ""}${mins != null ? ` · ${mins >= 60 ? Math.floor(mins / 60) + "h " : ""}${mins % 60}m` : ""}`;
-      $("#lp").classList.add("is-live");
-      $("#lpMedia").innerHTML = `<div class="player-box"><iframe src="https://player.twitch.tv/?channel=waxysplash&parent=${location.hostname}&muted=true" allowfullscreen title="Waxysplash live on Twitch"></iframe></div>`;
-      cta.innerHTML = `<a class="cta gold" href="queue.html">Join the queue${q && q.open ? ` <small>${q.waiting.length} waiting</small>` : ""}</a><a class="cta" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a>`;
+      hero.innerHTML = `<span class="kicker live"><i></i>Live now${L.viewers ? ` · ${L.viewers} watching` : ""}${mins != null ? ` · ${mins >= 60 ? Math.floor(mins / 60) + "h " : ""}${mins % 60}m` : ""}</span>
+        <h2>${esc2(L.title || "Waxysplash is live")}</h2>
+        <div class="player-box"><iframe src="https://player.twitch.tv/?channel=waxysplash&parent=${location.hostname}&muted=true" allowfullscreen title="Waxysplash live on Twitch"></iframe></div>
+        <div class="cta-row"><a class="cta gold" href="queue.html">Join the queue${q && q.open ? ` <small>${q.waiting.length} waiting</small>` : ""}</a><a class="cta" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a></div>`;
       return;
     }
     const next = L.next && new Date(L.next.start);
-    status.querySelector("span").textContent = next
-      ? `Next stream · ${next.toLocaleDateString(undefined, { weekday: "long" })} ${next.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
-      : "Offline · follow for the next stream";
-    if (L.broadcasterId) cta.insertAdjacentHTML("beforeend", `<a class="cta ghost" href="https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${L.broadcasterId}">Add streams to calendar</a>`);
+    hero.innerHTML = `<span class="kicker">${next ? "Next stream" : "Offline right now"}</span>
+      <h2>${next ? `${next.toLocaleDateString(undefined, { weekday: "long" })} <em>${next.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</em>` : `Pro Clubs <em>with viewers.</em>`}</h2>
+      ${next ? `<div class="cd" id="nextCd"></div>` : ""}
+      <p class="lede">${next && L.next.title ? esc2(L.next.title) + ". " : ""}Type <b>!join</b> in Twitch chat when the queue opens and you could be on the pitch.</p>
+      ${lastStream.length ? `<div class="hs"><div><b>${lastStream.length}</b><span>games last stream</span></div><div><b>${W2}-${D2}-${L2}</b><span>W-D-L</span></div><div><b>${GF2}</b><span>goals scored</span></div>${topS ? `<div class="fitbox"><b style="font-size:min(28px, ${(190 / topS[0].length).toFixed(1)}cqi)">${esc2(topS[0])}</b><span>top scorer · ${topS[1]} goals</span></div>` : ""}</div>` : ""}
+      <div class="cta-row"><a class="cta red" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Follow on Twitch ↗</a>${L.broadcasterId ? `<a class="cta" href="https://api.twitch.tv/helix/schedule/icalendar?broadcaster_id=${L.broadcasterId}">Add streams to calendar</a>` : `<a class="cta" href="https://discord.gg/5Uu3nVP" target="_blank" rel="noopener">Get pinged on Discord ↗</a>`}</div>`;
     if (next) {
-      const cd = $("#lpCd"); cd.hidden = false;
       const cdTick = () => {
         const ms = Math.max(0, next - new Date());
         const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, mi = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1000) % 60;
-        cd.innerHTML = [[d, "days"], [h, "hrs"], [mi, "min"], [s, "sec"]].map(([v, l]) => `<div><b>${String(v).padStart(2, "0")}</b><span>${l}</span></div>`).join("");
+        $("#nextCd").innerHTML = [[d, "days"], [h, "hrs"], [mi, "min"], [s, "sec"]].map(([v, l]) => `<div><b>${String(v).padStart(2, "0")}</b><span>${l}</span></div>`).join("");
       };
       cdTick(); setInterval(cdTick, 1000);
     }
