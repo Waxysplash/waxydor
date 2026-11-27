@@ -23,44 +23,52 @@
 </head>
 <body>
 <div class="wrap">
-  <!-- Hero: live (stream + join) or offline (countdown to the next stream). Filled by app.js from the live status nav.js fetches. -->
-  <section class="hero">
-    <div class="hero-main">
-      <img class="wm" src="brand/crest.png" alt="">
-      <div class="hero-in" id="heroIn">
-        <span class="kicker">Waxys Phantoms · EA FC Pro Clubs</span>
-        <h1 class="sr-only" id="clubName" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Waxys Phantoms</h1>
-        <h2>Pro Clubs <em>with viewers.</em></h2>
-        <p class="lede">Type <b>!join</b> in Twitch chat and you could be on the pitch tonight.</p>
+  <!-- Landing page (26 Nov 2026 redesign). The hero is the brand: wordmark, one line, the two things to do, and the channel trailer.
+       app.js fills the status chip, the countdown and the last-stream line, and swaps the trailer for the Twitch player while live.
+       Channel trailer: sponsors/trailer/channel_pass.py in the brand folder. The brand outreach trailer stays off the site. -->
+  <section class="lp" id="lp">
+    <img class="lp-wm" src="brand/crest.png" alt="">
+    <div class="lp-copy">
+      <span class="lp-status" id="lpStatus"><i></i><span>EA FC Pro Clubs on Twitch</span></span>
+      <h1 class="lp-mark">Waxysplash</h1>
+      <span id="clubName" hidden>Waxys Phantoms</span>
+      <p class="lp-tag">Pro Clubs <em>with viewers.</em></p>
+      <p class="lp-lede">Captain of <b>Waxys Phantoms</b>. Type <b>!join</b> in Twitch chat and you're on the team. Every stream, everyone gets a game.</p>
+      <div class="lp-cd" id="lpCd" hidden></div>
+      <div class="cta-row" id="lpCta">
+        <a class="cta red" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Watch on Twitch ↗</a>
+        <a class="cta" href="#how">How to play</a>
       </div>
+      <p class="lp-last" id="lpLast"></p>
     </div>
-    <div class="hero-side">
-      <p class="side-h">Get involved</p>
-      <div class="do" id="doList">
-        <a class="hot" href="queue.html"><span class="ic">!</span><span><b>Join the queue</b><span id="doQueue">Type !join in Twitch chat on stream</span></span><span class="go">›</span></a>
-        <a href="card.html"><span class="ic">⇄</span><span><b>Compare two players</b><span>Put any two cards side by side</span></span><span class="go">›</span></a>
-        <a href="clips.html"><span class="ic">▶</span><span><b>Clip of the week</b><span>Watch and vote the best moment</span></span><span class="go">›</span></a>
-        <a href="vote.html"><span class="ic">★</span><span><b>Fan vote</b><span>You pick the Fans' Player of the Season</span></span><span class="go">›</span></a>
-      </div>
-      <p class="side-h">Last stream</p>
-      <div class="strip" id="lastStrip"></div>
+    <div class="lp-media" id="lpMedia">
+      <video controls playsinline preload="metadata" poster="brand/trailer/poster.jpg" width="1080" height="1920" aria-label="Waxysplash channel trailer">
+        <source src="brand/trailer/waxysplash-trailer.mp4" type="video/mp4">
+      </video>
+      <span class="lp-media-tag">The trailer · 1:07</span>
     </div>
   </section>
 
-  <!-- Channel trailer (25 Nov 2026): sponsors/trailer/channel_pass.py in the brand folder. The brand outreach trailer stays off the site. -->
-  <section class="trailer rv" aria-labelledby="trailerH">
-    <video controls playsinline preload="metadata" poster="brand/trailer/poster.jpg" width="1080" height="1920">
-      <source src="brand/trailer/waxysplash-trailer.mp4" type="video/mp4">
-    </video>
-    <div class="trailer-txt">
-      <span class="kicker">The trailer</span>
-      <h2 id="trailerH">You play for <em>the Phantoms.</em></h2>
-      <p>One minute of Waxysplash: the captain, the celebrations and the speech that sums up the club. Every stream, viewers type <b>!join</b> and play on his team.</p>
-    </div>
+  <div class="lp-proof rv">
+    <div><b>2018</b><span>streaming since</span></div>
+    <div><b>4.2K</b><span>followers across platforms</span></div>
+    <div><b>500+</b><span>viewers have played on the team</span></div>
+    <div><b id="proofDiv">Div –</b><span>where the Phantoms are now</span></div>
+  </div>
+
+  <!-- How it works: the three steps from viewer to player. -->
+  <section class="how rv" id="how" aria-labelledby="howH">
+    <div class="sec-head"><h2 id="howH">From the chat <em>to the pitch</em></h2></div>
+    <ol class="steps">
+      <li><span class="n">01</span><h3>Catch the stream</h3><p>Follow on Twitch so you know when the Phantoms are live.</p><a href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">twitch.tv/waxysplash ↗</a></li>
+      <li class="hot"><span class="n">02</span><h3>Type !join</h3><p id="howQueue">When the queue opens, type <b>!join</b> in chat. Your place shows up live.</p><a href="queue.html">See the queue →</a></li>
+      <li><span class="n">03</span><h3>Play for the Phantoms</h3><p>Every game you play counts toward your player card and the race for the Waxy d'Or.</p><a href="card.html">Find your card →</a></li>
+    </ol>
   </section>
 
   <div class="record" id="record" hidden></div>
 
+  <div class="sec-head rv"><h2>This season</h2></div>
   <div class="season rv" id="seasonBox">
     <div>
       <h2 id="seasonName">Season</h2>
@@ -71,21 +79,36 @@
 
   <a class="queue-banner" id="queueBanner" href="queue.html" hidden></a>
   <div class="card season-record rv" id="seasonRecord"></div>
+  <div class="card last rv">
+    <div class="sr-head"><h3>Last stream</h3></div>
+    <div class="strip" id="lastStrip"></div>
+  </div>
 
-  <div class="sec-head rv"><h2>Race for the Waxy d'Or</h2><a href="#tab-table" id="toTable">Full table ↓</a></div>
+  <div class="sec-head rv" id="race"><h2>Race for the Waxy d'Or</h2><a href="#tab-table" id="toTable">Full table ↓</a></div>
   <div class="podium rv" id="podium"></div>
+
+  <div class="sec-head rv"><h2>More from the club</h2></div>
+  <div class="more rv">
+    <a class="rtg-teaser" id="rtgTeaser" href="rtg.html">
+      <img src="brand/rtg/ep8.jpg" alt="Morocco Road to Glory episode cover" loading="lazy" id="rtgImg">
+      <div>
+        <div class="k">The series · on TikTok</div>
+        <h3>Morocco Road to Glory</h3>
+        <p id="rtgLine">A full Moroccan Ultimate Team, from Division Rivals to FUT Champs. Every episode, every record.</p>
+        <span class="go">All episodes →</span>
+      </div>
+    </a>
+    <div class="tiles">
+      <a href="card.html"><span class="ic">⇄</span><b>Player cards</b><span>Put any two players side by side</span></a>
+      <a href="clips.html"><span class="ic">▶</span><b>Clip of the week</b><span>Watch and vote the best moment</span></a>
+      <a href="vote.html"><span class="ic">★</span><b>Fan vote</b><span>You pick the Fans' Player of the Season</span></a>
+      <a href="legends.html"><span class="ic">♛</span><b>Legends</b><span>The players who made the club</span></a>
+    </div>
+  </div>
 
   <div class="card featured rv" id="featured" hidden style="margin-top:16px"></div>
 
-  <a class="rtg-teaser rv" id="rtgTeaser" href="rtg.html">
-    <img src="brand/rtg/ep8.jpg" alt="Morocco Road to Glory episode cover" loading="lazy" id="rtgImg">
-    <div>
-      <div class="k">The series · on TikTok</div>
-      <h3>Morocco Road to Glory</h3>
-      <p id="rtgLine">A full Moroccan Ultimate Team, from Division Rivals to FUT Champs. Every episode, every record.</p>
-      <span class="go">All episodes →</span>
-    </div>
-  </a>
+  <div class="sec-head rv" style="margin-bottom:0"><h2>The Waxy d'Or</h2></div>
 
   <nav class="tabs" id="tabs">
     <button data-tab="table" class="active">Table</button>
