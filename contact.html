@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>/* Sends github.io visitors to waxysplash.com. */var WAXY_FWD=true;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact · Waxysplash</title>
+<meta name="description" content="Contact Waxysplash: business, sponsorships and press at waxysplash@gmail.com. Community on Discord.">
+<link rel="canonical" href="https://waxysplash.com/contact.html">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Waxysplash">
+<meta property="og:title" content="Contact · Waxysplash">
+<meta property="og:description" content="Contact Waxysplash: business, sponsorships and press at waxysplash@gmail.com. Community on Discord.">
+<meta property="og:url" content="https://waxysplash.com/contact.html">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=__BUILD__">
+<style>
+  /* Contact (26 Nov 2026). waxysplash@gmail.com is the only business address. Fans and site/bot problems go to Discord. */
+  .con { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: clamp(20px, 3vw, 30px); }
+  .box.biz { border-color: rgba(217,166,59,.55); background: linear-gradient(160deg, rgba(217,166,59,.12), var(--panel) 60%); }
+  .box .k { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--brass); }
+  .box h2 { margin: 6px 0 8px; font-family: var(--display); font-size: 26px; color: var(--cream); }
+  .box p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
+  .mail { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .mail a.addr { font-family: var(--num); font-weight: 800; font-size: clamp(24px, 3.4vw, 34px); color: var(--cream); letter-spacing: .01em; overflow-wrap: anywhere; }
+  .mail a.addr:hover { color: var(--gold); }
+  .copy { all: unset; cursor: pointer; font-size: 13px; font-weight: 700; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--muted); }
+  .copy:hover { color: var(--cream); border-color: var(--brass); }
+  .copy.ok { color: var(--olive); background: var(--gold); border-color: var(--gold); }
+  .list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+  .list li::before { content: "– "; color: var(--brass); }
+  .side { display: grid; gap: 12px; align-content: start; }
+  @media (max-width: 760px) { .con { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <img class="crest" src="brand/crest.png" alt="Waxys Phantoms crest">
+      <div>
+        <h1>Contact</h1>
+        <div class="sub">Business by email, everything else on Discord</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="con">
+    <section class="box biz">
+      <div class="k">Business · sponsorships · press</div>
+      <h2>Work with Waxysplash</h2>
+      <p>Brand deals, sponsorships, collabs and media requests. Email and you'll hear back from Kamal directly.</p>
+      <div class="mail">
+        <a class="addr" href="mailto:waxysplash@gmail.com?subject=Working%20with%20Waxysplash">waxysplash@gmail.com</a>
+        <button class="copy" id="copy" type="button">Copy</button>
+      </div>
+      <ul class="list">
+        <li>Sponsorships and product partnerships</li>
+        <li>Collabs with other creators</li>
+        <li>Press and interviews</li>
+      </ul>
+    </section>
+    <div class="side">
+      <section class="box">
+        <div class="k">Community</div>
+        <h2>Fans and players</h2>
+        <p>Questions about the queue, your player card, or just want to talk football? The Discord is the fastest way.</p>
+        <a class="cta" href="https://discord.gg/5Uu3nVP" target="_blank" rel="noopener">Join the Discord ↗</a>
+      </section>
+      <section class="box">
+        <div class="k">Something broken?</div>
+        <h2>Site or WaxyBot</h2>
+        <p>Spotted a bug on the site or WaxyBot misbehaving in chat? Post it in the Discord.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById("copy").addEventListener("click", async (e) => {
+    const b = e.currentTarget;
+    try { await navigator.clipboard.writeText("waxysplash@gmail.com"); b.textContent = "Copied"; b.classList.add("ok"); setTimeout(() => { b.textContent = "Copy"; b.classList.remove("ok"); }, 1600); }
+    catch (err) { location.href = "mailto:waxysplash@gmail.com"; }
+  });
+</script>
+<script src="nav.js?v=__BUILD__"></script>
+</body>
+</html>

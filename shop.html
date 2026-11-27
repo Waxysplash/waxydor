@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>/* Sends github.io visitors to waxysplash.com. */var WAXY_FWD=true;if(WAXY_FWD&&location.hostname.endsWith("github.io")&&!/[?&]obs(=|&|$)/.test(location.search))location.replace("https://waxysplash.com/"+location.pathname.replace(/^\/waxydor\/?/,"")+location.search+location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Club shop · Waxysplash</title>
+<meta name="description" content="The Waxys Phantoms club shop is coming soon. Crest tees, hoodies and more, printed to order.">
+<link rel="canonical" href="https://waxysplash.com/shop.html">
+<link rel="icon" href="brand/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+<meta name="theme-color" content="#9d3a2b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Waxysplash">
+<meta property="og:title" content="Club shop · Waxysplash">
+<meta property="og:description" content="The Waxys Phantoms club shop is coming soon. Crest tees, hoodies and more, printed to order.">
+<meta property="og:url" content="https://waxysplash.com/shop.html">
+<meta property="og:image" content="https://waxysplash.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=__BUILD__">
+<style>
+  /* Club shop, coming soon (26 Nov 2026). The store itself will live with the print-on-demand supplier;
+     when it opens, point SHOP_URL in nav.js and the buttons here at it. No prices or products are shown until they are real. */
+  .shop-hero { position: relative; overflow: hidden; text-align: center; padding: clamp(36px, 6vw, 72px) 20px; margin: 18px 0 16px; border-radius: 24px; border: 1px solid var(--line-2);
+    background: radial-gradient(60% 80% at 50% 0%, rgba(157,58,43,.55), transparent 70%), repeating-linear-gradient(90deg, rgba(233,220,187,.025) 0 64px, transparent 64px 128px), linear-gradient(160deg, #2d2c1e, #15150e); }
+  .shop-hero img { width: 120px; filter: drop-shadow(0 14px 24px rgba(0,0,0,.5)); }
+  .shop-hero .stamp { display: inline-block; margin: 18px 0 10px; font-family: var(--num); font-weight: 800; font-size: 15px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--olive); background: var(--gold); padding: 6px 14px; border-radius: 6px; transform: rotate(-3deg); }
+  .shop-hero h1 { margin: 0; font-family: var(--num); font-weight: 800; text-transform: uppercase; font-size: clamp(46px, 9vw, 104px); line-height: .88; color: var(--cream); }
+  .shop-hero p { margin: 14px auto 22px; max-width: 34em; color: var(--muted); font-size: 17px; }
+  .shop-hero .cta-row { justify-content: center; }
+  .drop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .item { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; text-align: center; overflow: hidden; }
+  .item .pic { position: relative; aspect-ratio: 1; display: grid; place-items: center; border-radius: 12px; margin-bottom: 12px;
+    background: radial-gradient(70% 70% at 50% 40%, #3a3826, #1f1e15); }
+  .item svg { width: 78%; height: auto; filter: drop-shadow(0 12px 18px rgba(0,0,0,.45)); }
+  .item .crest { position: absolute; width: 18%; left: 41%; top: 33%; }
+  .item.cap .crest { top: 34%; width: 16%; left: 42%; }
+  .item.stk .crest { width: 46%; left: 27%; top: 22%; }
+  .item b { display: block; color: var(--cream); font-family: var(--display); font-size: 18px; }
+  .item span { color: var(--dim); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+  .item .lock { position: absolute; top: 24px; right: 24px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--cream); background: var(--red); padding: 4px 8px; border-radius: 999px; }
+  .item:hover .pic svg { transform: rotate(-3deg) scale(1.04); }
+  .item .pic svg { transition: transform .3s var(--ease); }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .facts div { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .facts b { display: block; color: var(--cream); font-family: var(--display); font-size: 19px; margin-bottom: 4px; }
+  .facts p { margin: 0; color: var(--muted); font-size: 14px; }
+  @media (max-width: 860px) { .drop { grid-template-columns: repeat(2, minmax(0, 1fr)); } .facts { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="shop-hero">
+    <img src="brand/crest.png" alt="Waxys Phantoms crest">
+    <div><span class="stamp">Coming soon</span></div>
+    <h1>The club shop</h1>
+    <p>Wear the crest. The first Waxys Phantoms drop is on the way. Be in the Discord or follow on TikTok and you'll hear the moment it opens.</p>
+    <div class="cta-row">
+      <a class="cta gold" href="https://discord.gg/5Uu3nVP" target="_blank" rel="noopener">Get pinged on Discord ↗</a>
+      <a class="cta" href="https://www.tiktok.com/@waxysplash" target="_blank" rel="noopener">Follow on TikTok ↗</a>
+    </div>
+  </section>
+
+  <div class="sec-head rv"><h2>The first drop <em>(sneak peek)</em></h2></div>
+  <div class="drop rv">
+    <div class="item"><span class="lock">Soon</span><div class="pic">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M70 30 L40 42 L14 76 L38 92 L52 76 L52 178 L148 178 L148 76 L162 92 L186 76 L160 42 L130 30 C124 44 112 50 100 50 C88 50 76 44 70 30 Z" fill="#e9dcbb"/><path d="M70 30 C76 44 88 50 100 50 C112 50 124 44 130 30" fill="none" stroke="#b9985a" stroke-width="5"/></svg>
+      <img class="crest" src="brand/crest.png" alt=""></div><b>Crest tee</b><span>Cream</span></div>
+    <div class="item"><span class="lock">Soon</span><div class="pic">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M74 26 C78 16 122 16 126 26 L160 40 L188 120 L164 128 L148 92 L148 182 L52 182 L52 92 L36 128 L12 120 L40 40 Z" fill="#2a2a1e" stroke="#57553b" stroke-width="3"/><path d="M74 26 C80 54 120 54 126 26" fill="#1f1e15" stroke="#57553b" stroke-width="3"/><rect x="70" y="140" width="60" height="26" rx="6" fill="#1f1e15"/></svg>
+      <img class="crest" src="brand/crest.png" alt=""></div><b>Phantoms hoodie</b><span>Olive</span></div>
+    <div class="item cap"><span class="lock">Soon</span><div class="pic">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><path d="M36 120 C36 66 66 46 100 46 C134 46 164 66 164 120 Z" fill="#9d3a2b"/><path d="M30 120 L170 120 C170 120 196 124 196 136 C196 144 160 140 100 140 C40 140 26 136 30 120 Z" fill="#7d2e22"/><circle cx="100" cy="46" r="6" fill="#7d2e22"/></svg>
+      <img class="crest" src="brand/crest.png" alt=""></div><b>Club cap</b><span>Red</span></div>
+    <div class="item stk"><span class="lock">Soon</span><div class="pic">
+      <svg viewBox="0 0 200 200" aria-hidden="true"><rect x="30" y="30" width="140" height="140" rx="28" fill="#e9dcbb" transform="rotate(-6 100 100)"/></svg>
+      <img class="crest" src="brand/crest.png" alt=""></div><b>Sticker pack</b><span>Crest + more</span></div>
+  </div>
+
+  <div class="facts rv">
+    <div><b>Printed to order</b><p>Every piece is made when you order it, so nothing sits in a warehouse and sizes don't sell out.</p></div>
+    <div><b>Shipped to your door</b><p>Orders go straight from the print shop to you.</p></div>
+    <div><b>Backs the club</b><p>Every order helps keep the streams, the Waxy d'Or and the Road to Glory series going.</p></div>
+  </div>
+</div>
+<script src="nav.js?v=__BUILD__"></script>
+</body>
+</html>

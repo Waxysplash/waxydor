@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offside · Waxysplash</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/brand/icon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css?v=__BUILD__">
+<base href="/">
+<style>
+  .off { text-align: center; padding: clamp(40px, 8vw, 90px) 20px; margin: 18px 0; border-radius: 24px; border: 1px solid var(--line-2);
+    background: radial-gradient(60% 80% at 50% 0%, rgba(157,58,43,.5), transparent 70%), repeating-linear-gradient(90deg, rgba(233,220,187,.025) 0 64px, transparent 64px 128px), linear-gradient(160deg, #2d2c1e, #15150e); }
+  .flag { font-size: 64px; display: inline-block; transform-origin: bottom left; animation: wave 1.2s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform: rotate(-6deg); } to { transform: rotate(8deg); } }
+  .off h1 { margin: 10px 0 0; font-family: var(--num); font-weight: 800; text-transform: uppercase; font-size: clamp(60px, 13vw, 140px); line-height: .85; color: var(--cream); }
+  .off p { color: var(--muted); font-size: 17px; max-width: 30em; margin: 14px auto 22px; }
+  .off .cta-row { justify-content: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="off">
+    <span class="flag" aria-hidden="true">🚩</span>
+    <h1>Offside!</h1>
+    <p>The linesman's flag is up: this page doesn't exist. Get back onside and try one of these.</p>
+    <div class="cta-row">
+      <a class="cta gold" href="./">Back to the home page</a>
+      <a class="cta" href="queue.html">Join the queue</a>
+      <a class="cta" href="card.html">Player cards</a>
+    </div>
+  </section>
+</div>
+<script src="/nav.js?v=__BUILD__"></script>
+</body>
+</html>

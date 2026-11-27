@@ -19,129 +19,156 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<script>if (/^#(table|matches|awards|rules|hof)$/.test(location.hash)) location.replace("waxydor.html" + location.hash);</script>
 <link rel="stylesheet" href="styles.css?v=__BUILD__">
 </head>
 <body>
-<div class="wrap">
-  <!-- Hero: live (stream + join) or offline (countdown to the next stream). Filled by app.js from the live status nav.js fetches. -->
-  <section class="hero">
-    <div class="hero-main">
-      <img class="wm" src="brand/crest.png" alt="">
-      <div class="hero-in" id="heroIn">
-        <span class="kicker">Waxys Phantoms · EA FC Pro Clubs</span>
-        <h1 class="sr-only" id="clubName" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Waxys Phantoms</h1>
-        <h2>Pro Clubs <em>with viewers.</em></h2>
-        <p class="lede">Type <b>!join</b> in Twitch chat and you could be on the pitch tonight.</p>
-      </div>
+<div class="wrap mm">
+
+  <section class="mm-intro" aria-labelledby="mmName">
+    <div>
+      <span class="mm-kick" id="mmKick"><i></i><span>Pro Clubs · Twitch · Toronto</span></span>
+      <h1 class="mm-name" id="mmName">Waxysplash</h1>
+      <p class="mm-line">Captain of <b>Waxys Phantoms</b>. He plays Pro Clubs <b>with his viewers</b>: type <code>!join</code> in Twitch chat when he's live and you're on the team.</p>
     </div>
-    <div class="hero-side">
-      <p class="side-h">Get involved</p>
-      <div class="do" id="doList">
-        <a class="hot" href="queue.html"><span class="ic">!</span><span><b>Join the queue</b><span id="doQueue">Type !join in Twitch chat on stream</span></span><span class="go">›</span></a>
-        <a href="card.html"><span class="ic">⇄</span><span><b>Compare two players</b><span>Put any two cards side by side</span></span><span class="go">›</span></a>
-        <a href="clips.html"><span class="ic">▶</span><span><b>Clip of the week</b><span>Watch and vote the best moment</span></span><span class="go">›</span></a>
-        <a href="vote.html"><span class="ic">★</span><span><b>Fan vote</b><span>You pick the Fans' Player of the Season</span></span><span class="go">›</span></a>
-      </div>
-      <p class="side-h">Last stream</p>
-      <div class="strip" id="lastStrip"></div>
-    </div>
+    <ul class="mm-proof">
+      <li><b>2018</b>streaming since</li>
+      <li><b>4.2K</b>followers</li>
+      <li><b>500+</b>viewers have played</li>
+    </ul>
+    <button class="mm-trailer" id="mmTrailer" type="button" aria-label="Play the channel trailer (1:07)">
+      <img src="brand/trailer/poster-clean.jpg" width="1080" height="1920" alt="">
+      <span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l16 9-16 9z"/></svg><span>Trailer<small>1:07</small></span></span>
+    </button>
   </section>
 
-  <!-- Channel trailer (25 Nov 2026): sponsors/trailer/channel_pass.py in the brand folder. The brand outreach trailer stays off the site. -->
-  <section class="trailer rv" aria-labelledby="trailerH">
-    <video controls playsinline preload="metadata" poster="brand/trailer/poster.jpg" width="1080" height="1920">
-      <source src="brand/trailer/waxysplash-trailer.mp4" type="video/mp4">
-    </video>
-    <div class="trailer-txt">
-      <span class="kicker">The trailer</span>
-      <h2 id="trailerH">You play for <em>the Phantoms.</em></h2>
-      <p>One minute of Waxysplash: the captain, the celebrations and the speech that sums up the club. Every stream, viewers type <b>!join</b> and play on his team.</p>
+  <div class="mm-head" aria-hidden="true">Pick your mode</div>
+  <nav class="modes" id="modes" aria-label="Pick your mode">
+
+    <div class="tile t-play">
+      <a class="go" href="queue.html" aria-label="Play: join a game. Open the queue"></a>
+      <div class="cards" aria-hidden="true">
+        <div class="fc cap"><div class="in"><span class="face"><img src="brand/rtg/ep9.jpg" alt=""></span><b>Waxysplash</b><em>Captain</em></div></div>
+        <div class="fc you"><div class="in"><b>?</b><em>You</em></div></div>
+      </div>
+      <div class="t-body">
+        <div class="t-kicker">Join a game</div>
+        <h2 class="t-name">Play</h2>
+        <p class="t-line" id="playLine">Type <b>!join</b> in Twitch chat when he's live. You're on the team.</p>
+        <span class="t-cta">See the queue <span class="t-arrow">→</span></span>
+      </div>
     </div>
-  </section>
 
-  <div class="record" id="record" hidden></div>
-
-  <div class="season rv" id="seasonBox">
-    <div>
-      <h2 id="seasonName">Season</h2>
-      <div class="phase" id="seasonPhase"></div>
+    <div class="tile t-watch">
+      <a class="go" href="https://twitch.tv/waxysplash" target="_blank" rel="noopener" aria-label="Watch on Twitch (opens twitch.tv/waxysplash)"></a>
+      <div class="fan" aria-hidden="true">
+        <img src="brand/rtg/ep7.jpg" alt="">
+        <img src="brand/rtg/ep8.jpg" alt="">
+        <img src="brand/rtg/ep9.jpg" alt="">
+      </div>
+      <div class="t-body">
+        <span class="live" id="watchLive"><i></i><span>Offline</span></span>
+        <h2 class="t-name">Watch</h2>
+        <p class="t-line">Live on Twitch, the best clips, and the Road to Glory series.</p>
+        <div class="subs">
+          <a href="https://twitch.tv/waxysplash" target="_blank" rel="noopener">Twitch ↗</a>
+          <a href="clips.html">Clips</a>
+          <a href="rtg.html">Road to Glory</a>
+        </div>
+      </div>
     </div>
-    <div class="countdown" id="countdown"></div>
-  </div>
 
-  <a class="queue-banner" id="queueBanner" href="queue.html" hidden></a>
-  <div class="card season-record rv" id="seasonRecord"></div>
-
-  <div class="sec-head rv"><h2>Race for the Waxy d'Or</h2><a href="#tab-table" id="toTable">Full table ↓</a></div>
-  <div class="podium rv" id="podium"></div>
-
-  <div class="card featured rv" id="featured" hidden style="margin-top:16px"></div>
-
-  <a class="rtg-teaser rv" id="rtgTeaser" href="rtg.html">
-    <img src="brand/rtg/ep8.jpg" alt="Morocco Road to Glory episode cover" loading="lazy" id="rtgImg">
-    <div>
-      <div class="k">The series · on TikTok</div>
-      <h3>Morocco Road to Glory</h3>
-      <p id="rtgLine">A full Moroccan Ultimate Team, from Division Rivals to FUT Champs. Every episode, every record.</p>
-      <span class="go">All episodes →</span>
+    <div class="tile t-dor">
+      <a class="go" href="waxydor.html" aria-label="The Waxy d'Or: the season award race"></a>
+      <div class="rays" aria-hidden="true"></div>
+      <svg class="trophy" viewBox="0 0 64 64" aria-hidden="true">
+        <path fill="currentColor" d="M18 6h28v14c0 9-6 16-14 16s-14-7-14-16z"/>
+        <path fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" d="M18 11H10c0 8 4 12 9 13M46 11h8c0 8-4 12-9 13"/>
+        <path fill="currentColor" d="M28 35h8v9h-8zM20 46h24l2 7H18z"/>
+        <path fill="#2a2a1e" opacity=".35" d="M22 6h6v14c0 6 2 10 5 13-7-1-11-7-11-13z"/>
+        <path fill="#2a2a1e" d="M32 12l2.2 4.4 4.8.7-3.5 3.4.8 4.8-4.3-2.3-4.3 2.3.8-4.8-3.5-3.4 4.8-.7z" opacity=".55"/>
+      </svg>
+      <div class="t-body">
+        <div class="t-kicker">Season award</div>
+        <h2 class="t-name">The Waxy d'Or</h2>
+        <p class="t-line">Who's leading the race <span class="t-arrow">→</span></p>
+      </div>
     </div>
-  </a>
 
-  <nav class="tabs" id="tabs">
-    <button data-tab="table" class="active">Table</button>
-    <button data-tab="matches">Matches</button>
-    <button data-tab="awards">Awards</button>
-    <a class="tab-link" href="card.html">Player cards</a>
-    <a class="tab-link" href="queue.html">Queue <span class="tab-live" id="queueLive" hidden>LIVE</span></a>
-    <!-- Hall of Fame stays hidden until the captain says it's ready (2 Nov 2026). Put the button back to show it. -->
-    <!-- <button data-tab="hof">Hall of Fame</button> -->
-    <button data-tab="rules">How it works</button>
+    <div class="tile t-shop">
+      <a class="go" href="shop.html" aria-label="Shop, coming soon"></a>
+      <span class="stamp" aria-hidden="true">Soon</span>
+      <svg class="bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9.5 13.5l1.5 2 3.5-4"/></svg>
+      <div class="t-body">
+        <div class="t-kicker">Coming soon</div>
+        <h2 class="t-name">Shop</h2>
+        <p class="t-line">Phantoms kit is on the way <span class="t-arrow">→</span></p>
+      </div>
+    </div>
   </nav>
-
-  <section id="tab-table">
-    <div class="card">
-      <h3>Season table</h3>
-      <div class="note" id="tableNote"></div>
-      <div class="table-wrap"><table id="table"></table></div>
-    </div>
-  </section>
-
-  <section id="tab-matches" hidden>
-    <div class="card">
-      <h3>Match log</h3>
-      <div class="note">Tap a match for the player lines. EA keeps only the last ten results, so the log starts from the day tracking began.</div>
-      <div id="matches"></div>
-    </div>
-  </section>
-
-  <section id="tab-awards" hidden>
-    <div class="card">
-      <h3 id="awardsTitle">Awards</h3>
-      <div class="note">Golden Boot, Playmaker, Mr. Reliable and Iron Man track live from the table. The Waxy d'Or and the Fans' Player are decided at the end of the season. <a href="vote.html"><b>Fan vote →</b></a></div>
-      <div class="awards" id="awards"></div>
-    </div>
-    <div class="card" id="hallCard" hidden>
-      <h3>Past winners</h3>
-      <div id="hall"></div>
-    </div>
-  </section>
-
-  <section id="tab-hof" hidden>
-    <div class="card hof-intro">
-      <h3>Hall of Fame</h3>
-      <div class="note">The Waxys Phantoms legends, inducted by the captain. Not a season award: once you're in, you're in for good.</div>
-    </div>
-    <div class="legends" id="legends"></div>
-  </section>
-
-  <section id="tab-rules" hidden>
-    <div id="rules"></div>
-  </section>
-
-  <footer id="footer"></footer>
+  <div class="mm-legend" aria-hidden="true"><span><kbd>←→</kbd>Move</span><span><kbd>Enter</kbd>Select</span></div>
 </div>
-<script src="ranking.js?v=__BUILD__"></script>
-<script src="app.js?v=__BUILD__"></script>
+
+<dialog class="mm-dlg" id="mmDlg" aria-label="Waxysplash channel trailer">
+  <video id="mmVid" controls playsinline preload="none" poster="brand/trailer/poster-clean.jpg" width="1080" height="1920">
+    <source src="brand/trailer/waxysplash-trailer.mp4" type="video/mp4">
+  </video>
+  <button class="mm-x" id="mmX" type="button" aria-label="Close the trailer">×</button>
+</dialog>
+
 <script src="nav.js?v=__BUILD__"></script>
+<script>
+(function () {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const tiles = [...document.querySelectorAll(".tile")];
+
+  // Hover lift, tilt toward the pointer (max ~4 degrees), and a quick press.
+  tiles.forEach((t) => {
+    t.addEventListener("pointerenter", () => t.classList.add("hover"));
+    t.addEventListener("pointerleave", () => { t.classList.remove("hover", "pressed"); t.style.removeProperty("--tilt-x"); t.style.removeProperty("--tilt-y"); });
+    t.addEventListener("pointerdown", () => t.classList.add("pressed"));
+    addEventListener("pointerup", () => t.classList.remove("pressed"));
+    if (fine && !reduce) t.addEventListener("pointermove", (e) => {
+      const r = t.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      t.style.setProperty("--tilt-y", (x * 6).toFixed(2) + "deg");
+      t.style.setProperty("--tilt-x", (-y * 6).toFixed(2) + "deg");
+    });
+  });
+
+  // Arrow keys move between tiles, like a game menu.
+  const links = tiles.map((t) => t.querySelector("a.go"));
+  document.getElementById("modes").addEventListener("keydown", (e) => {
+    const i = links.indexOf(document.activeElement);
+    if (i < 0) return;
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    links[(i + step + links.length) % links.length].focus();
+  });
+
+  // The trailer opens in a dialog at full 9:16, so his face is never cropped.
+  const dlg = document.getElementById("mmDlg"), vid = document.getElementById("mmVid");
+  document.getElementById("mmTrailer").addEventListener("click", () => { dlg.showModal(); vid.play().catch(() => {}); });
+  const close = () => { vid.pause(); dlg.close(); };
+  document.getElementById("mmX").addEventListener("click", close);
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
+  dlg.addEventListener("close", () => vid.pause());
+
+  // Live status comes from nav.js (WAXY_LIVE: Twitch status + the queue).
+  (window.WAXY_LIVE || Promise.resolve({})).then((L) => {
+    const q = L.queue;
+    if (q && q.open) document.getElementById("playLine").innerHTML = `The queue is <b>open</b>: ${q.waiting.length} waiting. Type <b>!join</b> in Twitch chat to get in.`;
+    if (!L.live) return;
+    const w = document.getElementById("watchLive");
+    w.classList.add("on");
+    w.querySelector("span").textContent = L.viewers ? `Live · ${L.viewers} watching` : "Live now";
+    const k = document.getElementById("mmKick");
+    k.classList.add("on");
+    k.querySelector("span").textContent = "Live now on Twitch";
+    if (!(q && q.open)) document.getElementById("playLine").innerHTML = "He's live. Type <b>!join</b> in Twitch chat now and you're on the team.";
+  });
+})();
+</script>
 </body>
 </html>
