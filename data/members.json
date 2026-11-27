@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-27T08:40:39.890Z",
+  "fetchedAt": "2026-11-27T18:33:14.246Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -1262,42 +1262,6 @@
       "favoritePosition": "defender"
     },
     {
-      "name": "AyoGioXI",
-      "gamesPlayed": "6",
-      "winRate": "66",
-      "goals": "7",
-      "assists": "4",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "43",
-      "passesMade": "65",
-      "passSuccessRate": "83",
-      "ratingAve": "8.0",
-      "tacklesMade": "1",
-      "tackleSuccessRate": "25",
-      "proName": "L. Coles",
-      "proPos": "25",
-      "proStyle": "0",
-      "proHeight": "164",
-      "proNationality": "14",
-      "proOverall": "85",
-      "proOverallStr": "85",
-      "manOfTheMatch": "2",
-      "redCards": "0",
-      "prevGoals": "3",
-      "prevGoals1": "3",
-      "prevGoals2": "0",
-      "prevGoals3": "3",
-      "prevGoals4": "1",
-      "prevGoals5": "0",
-      "prevGoals6": "0",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "forward"
-    },
-    {
       "name": "TTV_YOUR_BOT_11",
       "gamesPlayed": "0",
       "favoritePosition": "",
@@ -1337,7 +1301,7 @@
   "positionCount": {
     "midfielder": 9,
     "goalkeeper": 1,
-    "forward": 14,
+    "forward": 13,
     "defender": 12
   }
 }
