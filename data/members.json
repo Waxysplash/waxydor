@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-11-28T09:24:55.422Z",
+  "fetchedAt": "2026-11-28T17:45:37.997Z",
   "members": [
     {
       "name": "P_J_Gill",
@@ -540,42 +540,6 @@
       "prevGoals9": "1",
       "prevGoals10": "0",
       "favoritePosition": "forward"
-    },
-    {
-      "name": "K--A--Y--Z",
-      "gamesPlayed": "7",
-      "winRate": "71",
-      "goals": "6",
-      "assists": "1",
-      "cleanSheetsDef": "0",
-      "cleanSheetsGK": "0",
-      "shotSuccessRate": "42",
-      "passesMade": "93",
-      "passSuccessRate": "86",
-      "ratingAve": "7.8",
-      "tacklesMade": "11",
-      "tackleSuccessRate": "39",
-      "proName": "Knobcheese",
-      "proPos": "14",
-      "proStyle": "0",
-      "proHeight": "183",
-      "proNationality": "36",
-      "proOverall": "85",
-      "proOverallStr": "85",
-      "manOfTheMatch": "2",
-      "redCards": "0",
-      "prevGoals": "0",
-      "prevGoals1": "0",
-      "prevGoals2": "0",
-      "prevGoals3": "0",
-      "prevGoals4": "2",
-      "prevGoals5": "2",
-      "prevGoals6": "2",
-      "prevGoals7": "0",
-      "prevGoals8": "0",
-      "prevGoals9": "0",
-      "prevGoals10": "0",
-      "favoritePosition": "midfielder"
     },
     {
       "name": "DDanDeleon",
@@ -1191,7 +1155,7 @@
     }
   ],
   "positionCount": {
-    "midfielder": 10,
+    "midfielder": 9,
     "goalkeeper": 1,
     "forward": 13,
     "defender": 8
